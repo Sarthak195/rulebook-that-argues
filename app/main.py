@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 from . import config, llm  # noqa: E402
+from .audit import load_audit  # noqa: E402
 from .llm import LLMError  # noqa: E402
 from .pipeline import ask  # noqa: E402
 from .retriever import Retriever, load_index  # noqa: E402
@@ -82,3 +83,12 @@ async def questions():
     if not TESTS.exists():
         return {"answerable": [], "conflict": [], "not_covered": []}
     return json.loads(TESTS.read_text(encoding="utf-8"))
+
+
+@app.get("/audit")
+async def audit():
+    """Latest corpus-wide contradiction audit (run scripts/audit.py to refresh)."""
+    report = load_audit()
+    if report is None:
+        return {"available": False, "hint": "run: python scripts/audit.py"}
+    return {"available": True, **report}

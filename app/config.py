@@ -19,6 +19,9 @@ QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 TOP_K = int(os.getenv("TOP_K", "6"))
 # Below this best-passage cosine similarity we do not even ask the LLM: the corpus is silent.
-MIN_SIMILARITY = float(os.getenv("MIN_SIMILARITY", "0.35"))
+# Measured on this corpus with bge-small: off-topic questions ("capital of France") peak at ~0.44,
+# the weakest genuinely-covered question scores ~0.55. Adjacent-but-unanswered questions score
+# 0.55-0.75, so the gate cannot catch them; that is the LLM's job.
+MIN_SIMILARITY = float(os.getenv("MIN_SIMILARITY", "0.45"))
 
 INSTITUTE = "Shivalik Institute of Technology, Indore"

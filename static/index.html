@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Rulebook That Argues With Itself</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --ink: #1b1f24; --muted: #5d6673; --line: #e3e6ea;
+    --accent: #2f5fd6; --green: #1f8a4c; --green-bg: #e8f6ee; --amber: #b7791f; --amber-bg: #fdf3e1;
+    --red: #c23a3a; --red-bg: #fbe9e9; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  header { padding: 22px 28px 14px; border-bottom: 1px solid var(--line); background: var(--card); display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 20px; letter-spacing: -0.01em; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  #health { font-size: 12px; color: var(--muted); font-family: var(--mono); text-align: right; }
+  nav { display: flex; gap: 4px; padding: 0 28px; background: var(--card); border-bottom: 1px solid var(--line); }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 12px; font: inherit; font-size: 14px; color: var(--muted); cursor: pointer; }
+  nav button.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+  main { padding: 20px 28px 40px; }
+  .view { display: none; } .view.active { display: block; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
+  @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  textarea { width: 100%; min-height: 84px; resize: vertical; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+  textarea:focus { outline: 2px solid #c9d6f5; border-color: var(--accent); }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  button.primary { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 9px 16px; font: inherit; font-weight: 600; cursor: pointer; }
+  button.primary:disabled { opacity: .55; cursor: wait; }
+  .hint { color: var(--muted); font-size: 13px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { border: 1px solid var(--line); background: #fafbfc; border-radius: 999px; padding: 4px 10px; font-size: 12.5px; cursor: pointer; color: var(--ink); }
+  .chip:hover { border-color: var(--accent); }
+  .chip.answered { border-color: #bfe3cd; } .chip.not_covered { border-color: #f2d9a6; } .chip.conflict { border-color: #f0bcbc; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .badge.answered { background: var(--green-bg); color: var(--green); }
+  .badge.not_covered { background: var(--amber-bg); color: var(--amber); }
+  .badge.conflict { background: var(--red-bg); color: var(--red); }
+  #answer-card { margin-top: 16px; }
+  #answer-text { font-size: 16px; margin: 10px 0; white-space: pre-wrap; }
+  .cites { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cite { font-family: var(--mono); font-size: 12px; background: #eef2fb; color: var(--accent); border-radius: 6px; padding: 2px 8px; }
+  .meta { color: var(--muted); font-size: 12px; margin-top: 10px; font-family: var(--mono); }
+  .conflict-box { border-left: 4px solid var(--red); background: var(--red-bg); padding: 10px 12px; border-radius: 6px; margin-top: 12px; }
+  .authority { border-left: 4px solid var(--accent); background: #eef2fb; padding: 10px 12px; border-radius: 6px; margin-top: 10px; font-size: 14px; }
+  .authority b { font-family: var(--mono); font-weight: 600; }
+  .notes { margin-top: 8px; font-size: 12px; color: var(--muted); }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  .passage { border: 1px solid var(--line); border-left-width: 4px; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; background: #fff; }
+  .passage.cited { border-left-color: var(--green); background: #f7fcf9; }
+  .passage.closest { border-left-color: var(--amber); background: #fffaf0; }
+  .passage .head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .passage .id { font-family: var(--mono); font-weight: 700; font-size: 13px; }
+  .passage .path { color: var(--muted); font-size: 12.5px; }
+  .passage .tag { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
+  .score { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .bar { width: 90px; height: 6px; background: #eceff3; border-radius: 3px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  .passage .text { margin-top: 6px; font-size: 13.5px; white-space: pre-wrap; color: #2b3138; }
+  .passage .text table { border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
+  .passage .text td, .passage .text th { border: 1px solid var(--line); padding: 2px 8px; text-align: left; }
+  .role { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .role.cited { color: var(--green); } .role.closest { color: var(--amber); }
+  .error { background: var(--red-bg); color: var(--red); padding: 10px 12px; border-radius: 8px; margin-top: 12px; }
+  .empty { color: var(--muted); font-size: 14px; }
+  /* evaluation view */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+  .stat { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .stat b { display: block; font-size: 22px; }
+  .stat span { color: var(--muted); font-size: 12px; }
+  table.eval { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.eval th, table.eval td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  table.eval tr.pass td:first-child { border-left: 4px solid var(--green); }
+  table.eval tr.fail td:first-child { border-left: 4px solid var(--red); }
+  table.eval tr.pending td:first-child { border-left: 4px solid var(--line); }
+  table.eval td.q { max-width: 420px; }
+  .matrix { border-collapse: collapse; font-family: var(--mono); font-size: 12.5px; margin-top: 8px; }
+  .matrix th, .matrix td { border: 1px solid var(--line); padding: 4px 10px; text-align: center; }
+  .matrix td.diag { background: var(--green-bg); font-weight: 700; }
+  .matrix td.off { background: var(--red-bg); }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>The Rulebook That Argues With Itself</h1>
+    <p>Ask the regulations of Shivalik Institute of Technology. Every answer shows the clauses it came from, admits when the rulebook is silent, and flags when two sections disagree.</p>
+  </div>
+  <div id="health">connecting…</div>
+</header>
+<nav>
+  <button data-view="ask" class="active">Ask</button>
+  <button data-view="eval">Evaluation</button>
+</nav>
+<main>
+  <section id="view-ask" class="view active">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <textarea id="q" placeholder="e.g. My attendance is 58% because I was in hospital. Can the shortage be condoned?"></textarea>
+          <div class="row">
+            <button class="primary" id="ask">Ask the rulebook</button>
+            <span class="hint">Enter to ask, Shift+Enter for a new line</span>
+          </div>
+          <div class="chips" id="examples"></div>
+        </div>
+        <div class="card" id="answer-card" hidden>
+          <div class="row" style="margin-top:0"><span class="badge" id="badge"></span><span class="hint" id="status-hint"></span></div>
+          <div id="answer-text"></div>
+          <div class="cites" id="cites"></div>
+          <div id="conflict" hidden class="conflict-box"></div>
+          <div id="authority" hidden class="authority"></div>
+          <div class="notes" id="notes"></div>
+          <div class="meta" id="meta"></div>
+        </div>
+        <div id="error" class="error" hidden></div>
+      </div>
+      <div class="card">
+        <h2>Passages the answer was built from</h2>
+        <div id="passages"><p class="empty">Ask something and the retrieved sections appear here, with their similarity scores. Green means the answer cites it; amber means it is the nearest clause that still does not answer the question.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-eval" class="view">
+    <div class="card">
+      <h2>Labelled test set, graded live</h2>
+      <p class="hint" style="margin:0 0 6px">18 answerable questions, 4 questions that hit the 3 planted contradictions, 25 questions the rulebook cannot answer. A row passes only if the response type is right <em>and</em> the expected sections are cited or named.</p>
+      <div class="row" style="margin-top:6px">
+        <button class="primary" id="run-eval">Run all questions</button>
+        <label class="hint"><input type="checkbox" id="only-fails"> show failures only</label>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="scroll" id="matrix"></div>
+      <div class="scroll"><table class="eval" id="eval-table"><thead><tr><th>id</th><th>question</th><th>expected</th><th>got</th><th>cited / named</th><th>detail</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const STATUS_LABEL = { answered: 'Answered with citations', not_covered: 'Not covered by the rulebook', conflict: 'The rulebook contradicts itself' };
+let TESTS = null;
+
+// ---------- nav ----------
+document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + b.dataset.view));
+}));
+
+// ---------- health ----------
+fetch('/health').then(r => r.json()).then(h => {
+  $('#health').textContent = `${h.sections} sections · ${h.embedding_model} · ${h.llm_available ? h.llm_model : 'LLM OFFLINE (no key)'}`;
+}).catch(() => { $('#health').textContent = 'server unreachable'; });
+
+// ---------- examples ----------
+fetch('/questions').then(r => r.json()).then(t => {
+  TESTS = t;
+  const picks = [['answered', t.answerable.slice(0, 3)], ['conflict', t.conflict.slice(0, 2)], ['not_covered', t.not_covered.slice(0, 3)]];
+  const box = $('#examples');
+  for (const [cls, items] of picks) for (const it of items) {
+    const c = document.createElement('span'); c.className = 'chip ' + cls; c.textContent = it.question;
+    c.onclick = () => { $('#q').value = it.question; askNow(); };
+    box.appendChild(c);
+  }
+});
+
+// ---------- ask ----------
+function renderTable(md) {
+  // tiny markdown-table renderer for the fee schedule chunks
+  const lines = md.split('\n'); let out = '', inT = false, rows = [];
+  const flush = () => { if (!rows.length) return; out += '<table>' + rows.map((r, i) => '<tr>' + r.map(c => (i === 0 ? '<th>' : '<td>') + esc(c.trim()) + (i === 0 ? '</th>' : '</td>')).join('') + '</tr>').join('') + '</table>'; rows = []; };
+  for (const l of lines) {
+    if (l.trim().startsWith('|')) { const cells = l.trim().replace(/^\||\|$/g, '').split('|'); if (cells.every(c => /^\s*-+\s*$/.test(c))) continue; rows.push(cells); inT = true; }
+    else { if (inT) { flush(); inT = false; } out += esc(l) + '\n'; }
+  }
+  flush(); return out;
+}
+
+function renderPassages(ps) {
+  const box = $('#passages'); box.innerHTML = '';
+  if (!ps.length) { box.innerHTML = '<p class="empty">No passages retrieved.</p>'; return; }
+  for (const p of ps) {
+    const role = p.cited ? 'cited' : (p.closest ? 'closest' : '');
+    const pct = Math.max(0, Math.min(100, Math.round(p.score * 100)));
+    const el = document.createElement('div'); el.className = 'passage ' + role;
+    el.innerHTML = `
+      <div class="head">
+        <div><span class="id">${esc(p.id)}</span> <span class="path">${esc(p.doc_title)} › ${esc(p.parent_title)} › ${esc(p.title)}</span><span class="tag">${esc(p.format)}</span></div>
+        <div class="score"><span>cos ${p.score.toFixed(3)}</span><span class="bar"><i style="width:${pct}%"></i></span>${role ? `<span class="role ${role}">${role === 'cited' ? 'cited' : 'closest, still silent'}</span>` : ''}</div>
+      </div>
+      <div class="text">${renderTable(p.text)}</div>`;
+    box.appendChild(el);
+  }
+}
+
+function renderAnswer(r) {
+  $('#answer-card').hidden = false;
+  const b = $('#badge'); b.className = 'badge ' + r.status; b.textContent = r.status.replace('_', ' ');
+  $('#status-hint').textContent = STATUS_LABEL[r.status] || '';
+  $('#answer-text').textContent = r.answer;
+  $('#cites').innerHTML = r.citations.map(c => `<span class="cite">${esc(c)}</span>`).join('');
+  const cb = $('#conflict');
+  if (r.conflict) { cb.hidden = false; cb.innerHTML = `<b>Disagreeing sections:</b> ${r.conflict.sections.map(esc).join(' vs ')}<br>${esc(r.conflict.explanation)}`; }
+  else cb.hidden = true;
+  const ab = $('#authority');
+  if (r.resolution_authority) { ab.hidden = false; ab.innerHTML = `<b>${esc(r.resolution_authority.id)}</b> · Who can settle this: <i>${esc(r.resolution_authority.title)}</i><br>${esc(r.resolution_authority.text)}`; }
+  else ab.hidden = true;
+  $('#notes').textContent = r.validation_notes.length ? 'validator: ' + r.validation_notes.join('; ') : '';
+  $('#meta').textContent = `${r.mode} · ${r.model || 'no LLM'} · top similarity ${r.top_similarity.toFixed(3)} · ${r.latency_ms} ms`;
+}
+
+async function askApi(question) {
+  const res = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question }) });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || res.statusText);
+  return data;
+}
+
+async function askNow() {
+  const q = $('#q').value.trim(); if (q.length < 3) return;
+  const btn = $('#ask'); btn.disabled = true; btn.textContent = 'Reading the rulebook…'; $('#error').hidden = true;
+  try { const r = await askApi(q); renderAnswer(r); renderPassages(r.passages); }
+  catch (e) { $('#error').hidden = false; $('#error').textContent = e.message; }
+  finally { btn.disabled = false; btn.textContent = 'Ask the rulebook'; }
+}
+$('#ask').onclick = askNow;
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askNow(); } });
+
+// ---------- evaluation ----------
+const EXP = { answerable: 'answered', conflict: 'conflict', not_covered: 'not_covered' };
+function gradeRow(cat, item, r) {
+  const exp = EXP[cat];
+  if (r.status !== exp) return [false, `got ${r.status}`];
+  if (cat === 'answerable') { const hit = item.expected_sections.filter(s => r.citations.includes(s)); return hit.length ? [true, 'cited ' + hit.join(', ')] : [false, 'cited ' + r.citations.join(', ') + ' but expected ' + item.expected_sections.join(' or ')]; }
+  if (cat === 'conflict') { const named = r.conflict ? r.conflict.sections : []; const miss = item.expected_sections.filter(s => !named.includes(s)); return miss.length ? [false, 'missing ' + miss.join(', ')] : [true, 'named ' + named.join(' vs ')]; }
+  return [true, 'silent, as expected'];
+}
+async function runEval() {
+  if (!TESTS) return;
+  const btn = $('#run-eval'); btn.disabled = true;
+  const tbody = $('#eval-table tbody'); tbody.innerHTML = '';
+  const jobs = []; for (const cat of Object.keys(EXP)) for (const it of TESTS[cat]) jobs.push([cat, it]);
+  const rows = jobs.map(([cat, it]) => { const tr = document.createElement('tr'); tr.className = 'pending'; tr.dataset.cat = cat; tr.innerHTML = `<td>${esc(it.id)}</td><td class="q">${esc(it.question)}</td><td>${EXP[cat]}</td><td>…</td><td></td><td></td>`; tbody.appendChild(tr); return tr; });
+  const results = {}; const matrix = {}; let done = 0, passed = 0;
+  const update = () => {
+    const perCat = {}; for (const [cat] of jobs) perCat[cat] = perCat[cat] || { p: 0, n: 0 };
+    for (const k in results) { const [cat, ok] = results[k]; perCat[cat].n++; if (ok) perCat[cat].p++; }
+    $('#stats').innerHTML = `<div class="stat"><b>${passed}/${done}</b><span>passed so far (${jobs.length} total)</span></div>` +
+      Object.entries(perCat).map(([c, v]) => `<div class="stat"><b>${v.p}/${v.n}</b><span>${c}</span></div>`).join('');
+    const S = ['answered', 'not_covered', 'conflict'];
+    $('#matrix').innerHTML = '<table class="matrix"><tr><th>expected ＼ predicted</th>' + S.map(s => `<th>${s}</th>`).join('') + '</tr>' +
+      S.map(e => `<tr><th>${e}</th>` + S.map(p => { const v = (matrix[e] || {})[p] || 0; return `<td class="${v ? (e === p ? 'diag' : 'off') : ''}">${v}</td>`; }).join('') + '</tr>').join('') + '</table>';
+  };
+  update();
+  const worker = async (idx) => {
+    for (let i = idx; i < jobs.length; i += 3) {
+      const [cat, it] = jobs[i]; const tr = rows[i];
+      try {
+        const r = await askApi(it.question); const [ok, why] = gradeRow(cat, it, r);
+        results[it.id] = [cat, ok]; done++; if (ok) passed++;
+        matrix[EXP[cat]] = matrix[EXP[cat]] || {}; matrix[EXP[cat]][r.status] = (matrix[EXP[cat]][r.status] || 0) + 1;
+        tr.className = ok ? 'pass' : 'fail';
+        tr.children[3].innerHTML = `<span class="badge ${r.status}">${r.status.replace('_', ' ')}</span>`;
+        tr.children[4].textContent = (r.conflict ? r.conflict.sections : r.citations).join(', ');
+        tr.children[5].innerHTML = esc(why) + `<div class="hint">${esc(r.answer)}</div>`;
+      } catch (e) { results[it.id] = [cat, false]; done++; tr.className = 'fail'; tr.children[3].textContent = 'error'; tr.children[5].textContent = e.message; }
+      update();
+    }
+  };
+  await Promise.all([worker(0), worker(1), worker(2)]);
+  btn.disabled = false;
+}
+$('#run-eval').onclick = runEval;
+$('#only-fails').onchange = (e) => { document.querySelectorAll('#eval-table tbody tr').forEach(tr => { tr.style.display = (e.target.checked && !tr.classList.contains('fail')) ? 'none' : ''; }); };
+</script>
+</body>
+</html>
