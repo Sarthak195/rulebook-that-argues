@@ -108,6 +108,28 @@ def load_audit() -> dict | None:
     return None
 
 
+_known: dict = {"mtime": None, "pairs": {}}
+
+
+def known_conflicts(min_confidence: float = 0.8) -> dict[frozenset, dict]:
+    """Audited contradictions, keyed by the unordered pair of section ids.
+
+    Used by the answer pipeline: if an answer leans on one side of a known disagreement while
+    the other side was also retrieved, the answer is escalated to a conflict. The audit is
+    produced from the corpus by the model, so this is the system reading everything at once and
+    remembering it, not a hand-written list. Reloaded whenever the audit file changes.
+    """
+    if not AUDIT_PATH.exists():
+        return {}
+    mtime = AUDIT_PATH.stat().st_mtime
+    if _known["mtime"] != mtime:
+        report = json.loads(AUDIT_PATH.read_text(encoding="utf-8"))
+        _known["pairs"] = {frozenset((c["a_id"], c["b_id"])): c for c in report.get("conflicts", [])
+                           if float(c.get("confidence", 0)) >= min_confidence}
+        _known["mtime"] = mtime
+    return _known["pairs"]
+
+
 def write_markdown(report: dict, path: Path) -> None:
     lines = ["# Conflict audit", "",
              f"Generated {report['generated_at']} with `{report['model']}`; {report['sections']} sections, "

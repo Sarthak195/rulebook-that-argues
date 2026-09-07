@@ -15,6 +15,7 @@ import re
 import time
 
 from . import config, llm
+from .audit import known_conflicts
 from .retriever import Hit, Retriever
 from .schemas import AskResponse, Authority, ConflictInfo, Passage
 
@@ -133,6 +134,23 @@ def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskRes
         conflict = None
         if not closest and passages:
             closest = [passages[0].id]
+
+    # 4b. Audit-informed escalation. The corpus audit already knows where the rulebook disagrees
+    # with itself. If the model answered from one side of a known disagreement while the other
+    # side was also on the table, the honest response is a conflict, whatever the model said.
+    if status == "answered":
+        retrieved = {p.id for p in passages}
+        for pair, rec in known_conflicts().items():
+            a, b = sorted(pair, key=lambda s: (s not in citations, s))  # cited member first
+            if a in retrieved and b in retrieved and a in citations:
+                status = "conflict"
+                conflict = ConflictInfo(sections=[a, b], explanation=rec["explanation"])
+                citations = list(dict.fromkeys([a, b] + citations))
+                answer = (f"The rulebook contradicts itself on this point. {rec['explanation']} "
+                          f"(Found by the corpus-wide audit, confidence {float(rec['confidence']):.2f}.) "
+                          f"Read on its own, {a} would give: {answer}")
+                notes.append(f"escalated to conflict: the audit found {a} and {b} disagree; both were retrieved and {a} was cited")
+                break
 
     for p in passages:
         p.cited = p.id in citations

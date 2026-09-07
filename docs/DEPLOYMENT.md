@@ -8,7 +8,10 @@
 | Static IP | `34.93.55.172` (reserved as `rulebook-ip`) |
 | Plain URL | http://34.93.55.172/ |
 | DNS-style URL | http://34.93.55.172.nip.io/ (nip.io resolves any `<ip>.nip.io` name to that IP; nothing to register) |
-| HTTPS URL | a Cloudflare quick tunnel, `https://<random>.trycloudflare.com`; read the current one from the serial console (below). It changes when the tunnel restarts. |
+| HTTPS URL | https://guy-easily-veterans-victorian.trycloudflare.com (a Cloudflare quick tunnel; it changes if the tunnel restarts, and the current one is always printed on the serial console, see below) |
+
+First boot: VM created 16:44 UTC, service healthy at 16:51 UTC, six and a half minutes, of which
+five were pip installing torch.
 
 Cost: about USD 0.02 per hour for the VM while it runs, plus the static IP. Stop it with
 `gcloud compute instances stop rulebook-vm --zone asia-south1-a` when the round is over.

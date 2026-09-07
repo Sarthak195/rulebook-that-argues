@@ -37,23 +37,31 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
         "X-Title": "The Rulebook That Argues With Itself",
         "Content-Type": "application/json",
     }
-    resp = _post_with_retries(payload, headers, timeout)
-    if resp.status_code != 200 and json_mode and resp.status_code in (400, 404, 422):
-        # Some models reject response_format; retry without it and rely on the prompt.
-        payload.pop("response_format", None)
+    last_err = "no attempts made"
+    for attempt in range(3):
         resp = _post_with_retries(payload, headers, timeout)
-    if resp.status_code != 200:
-        raise LLMError(f"OpenRouter HTTP {resp.status_code}: {resp.text[:300]}")
-    data = resp.json()
-    try:
-        content = data["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, TypeError) as e:
-        raise LLMError(f"unexpected OpenRouter response: {json.dumps(data)[:300]}") from e
-    if not content and data.get("error"):
-        raise LLMError(f"OpenRouter error: {data['error']}")
-    usage = data.get("usage", {}) or {}
-    usage["model"] = data.get("model")  # the concrete model, useful when routing through openrouter/free
-    return content or "", usage
+        if resp.status_code != 200 and json_mode and resp.status_code in (400, 404, 422):
+            # Some models reject response_format; retry without it and rely on the prompt.
+            payload.pop("response_format", None)
+            json_mode = False
+            resp = _post_with_retries(payload, headers, timeout)
+        if resp.status_code != 200:
+            raise LLMError(f"OpenRouter HTTP {resp.status_code}: {resp.text[:300]}")
+        try:
+            data = resp.json()
+        except ValueError:
+            data = {"error": {"message": f"non-JSON body: {resp.text[:120]}"}}
+        choices = data.get("choices") or []
+        content = ((choices[0].get("message") or {}).get("content") if choices else None) or ""
+        if content.strip():
+            usage = data.get("usage", {}) or {}
+            usage["model"] = data.get("model")  # the concrete model, useful when routing through openrouter/free
+            return content, usage
+        # Free-tier providers sometimes return HTTP 200 with {"error": {...}} or an empty
+        # completion ("Provider returned error"). Treat both as transient.
+        last_err = f"OpenRouter error: {json.dumps(data.get('error') or 'empty completion')[:300]}"
+        time.sleep(2.0 * (attempt + 1))
+    raise LLMError(last_err)
 
 
 RETRY_STATUSES = {408, 409, 425, 429, 500, 502, 503, 504}

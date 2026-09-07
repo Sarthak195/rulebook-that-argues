@@ -10,7 +10,7 @@ local embedding model.
 
 | | |
 |---|---|
-| **Live** | http://34.93.55.172/ (GCE, Mumbai) · also http://34.93.55.172.nip.io/ |
+| **Live** | http://34.93.55.172/ (GCE, Mumbai) · https://guy-easily-veterans-victorian.trycloudflare.com (HTTPS tunnel) · http://34.93.55.172.nip.io/ |
 | **Demo video** | _link goes here_ |
 | **Try a link** | [answered](http://34.93.55.172/?q=What%20is%20the%20minimum%20attendance%20required%20to%20appear%20for%20the%20end-semester%20examination%3F) · [not covered](http://34.93.55.172/?q=What%20happens%20if%20I%20miss%20the%20end-semester%20exam%20because%20of%20a%20family%20wedding%3F) · [conflict](http://34.93.55.172/?q=My%20attendance%20is%2058%25%20because%20I%20was%20hospitalised%20for%20three%20weeks.%20Can%20the%20shortage%20be%20condoned%3F) · [audit](http://34.93.55.172/?tab=audit) · [evaluation](http://34.93.55.172/?tab=eval) |
 | **Result** | 47/47 on the labelled test set with a free model; audit finds 3/3 planted contradictions plus one I had not planted |
@@ -77,7 +77,11 @@ question ─► hybrid retrieval ─► similarity gate ─► LLM classifies + 
 5. **Validation**: citations are checked against the passages the model was shown. An
    `answered` with no valid citation is downgraded; a `conflict` naming fewer than two real
    sections is downgraded. The model cannot invent a source.
-6. **Authority**: on a conflict, the clause that decides inconsistencies (`AR §15.1`) is
+6. **Audit-informed escalation**: if the answer leans on one side of a contradiction the
+   corpus audit has already found, while the other side was also retrieved, the response is
+   escalated to `conflict` with both clauses. Free models are not deterministic; this makes the
+   conflict behaviour stable and is recorded in `validation_notes`.
+7. **Authority**: on a conflict, the clause that decides inconsistencies (`AR §15.1`) is
    retrieved and shown as "who can settle this".
 
 Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

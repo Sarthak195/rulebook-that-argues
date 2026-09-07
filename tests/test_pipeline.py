@@ -76,3 +76,33 @@ def test_validator_downgrades_unbacked_claims(monkeypatch):
                                                       '"conflict":{"sections":["AR §0.1"],"explanation":"e"}}', {}))
     resp = pipeline.ask("q", r)
     assert resp.status == "answered" and resp.conflict is None
+
+
+def test_audit_escalates_answer_that_leans_on_a_known_disagreement(monkeypatch):
+    """Model says 'answered' citing AR §0.1; the audit knows AR §0.1 and AR §1.1 disagree and
+    AR §1.1 was also retrieved, so the response must become a conflict naming both."""
+    import numpy as np
+
+    from app import llm, pipeline
+    from app.chunking import Chunk
+    from app.retriever import Retriever
+
+    docs = [Chunk(id=f"AR §{i}.1", doc_code="AR", doc_title="T", section=f"{i}.1", title="t", parent_title="p",
+                  text=f"clause {i}", source="x.md", format="markdown") for i in range(3)]
+    r = Retriever(docs, np.eye(3, dtype=np.float32))
+    monkeypatch.setattr(r, "embed_query", lambda q: np.array([1.0, 0.9, 0.0], dtype=np.float32))
+    monkeypatch.setattr(llm, "available", lambda: True)
+    monkeypatch.setattr(llm, "chat", lambda *a, **k: ('{"status":"answered","answer":"65 per cent","citations":["AR §0.1"]}', {}))
+    monkeypatch.setattr(pipeline, "known_conflicts", lambda: {
+        frozenset({"AR §0.1", "AR §1.1"}): {"a_id": "AR §0.1", "b_id": "AR §1.1", "explanation": "65 vs 55", "confidence": 0.97}})
+    resp = pipeline.ask("q", r)
+    assert resp.status == "conflict"
+    assert resp.conflict and resp.conflict.sections == ["AR §0.1", "AR §1.1"]
+    assert "65 vs 55" in resp.answer and any("escalated" in n for n in resp.validation_notes)
+
+    # Not escalated when the other side was not retrieved.
+    monkeypatch.setattr(r, "embed_query", lambda q: np.array([1.0, 0.0, 0.0], dtype=np.float32))
+    r2 = Retriever(docs[:1] + docs[2:], np.eye(3, dtype=np.float32)[[0, 2]])
+    monkeypatch.setattr(r2, "embed_query", lambda q: np.array([1.0, 0.0, 0.0], dtype=np.float32))
+    resp = pipeline.ask("q", r2)
+    assert resp.status == "answered"

@@ -88,6 +88,22 @@ The model's output is checked, not trusted:
 Every downgrade is recorded in `validation_notes` on the response and shown in the UI. A test
 in `tests/test_pipeline.py` proves both downgrades with a stubbed model.
 
+### Audit-informed escalation
+
+The corpus audit (section 6) already knows where the rulebook disagrees with itself. After
+validation, if the model said `answered` and cited one member of an audited contradiction
+(confidence ≥ 0.8) while the other member was also among the retrieved passages, the response is
+escalated to `conflict`: both sections are named, the audit's explanation becomes the conflict
+explanation, and the model's original reading is kept in the answer text. The note
+"escalated to conflict" appears in `validation_notes`.
+
+This exists because free-tier models are not deterministic: in one browser run the condonation
+question came back `answered` citing `AR §4.3` alone, although the same model had flagged the
+conflict in the batch evaluation. The escalation makes the behaviour stable, and it is the
+system doing what the brief asks, reading all the documents at once and remembering what it
+found. The audit is produced from the corpus by the model, not written by hand; if it has not
+been run, nothing is escalated.
+
 ## 5. Authority
 
 When the status is `conflict`, one more dense query ("inconsistency between these regulations
