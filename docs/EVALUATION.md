@@ -53,11 +53,36 @@ Confusion matrix (rows expected, columns predicted):
 | conflict | 0 | 0 | 4 |
 
 Retrieval recall: every expected section was inside the top-6 passages for all 22 questions
-that have one. Borderline: B01 (calculator) answered from EE §2.1, B02 (hostel dues) not
-covered, B03 (exam fee) answered from FS §4.2. Both readings, as expected.
+that have one. Borderline: B01 (calculator) and B02 (hostel dues) not covered, B03 (exam fee)
+answered from FS §4.2. Both readings, as expected.
 
-Latency on the free tier is 2 to 9 s per question, occasionally longer when a 429 triggers a
-retry.
+Median latency 3.0 s, p90 4.4 s on the free tier, occasionally longer when a 429 triggers a retry.
+
+### Run-to-run variance, and what fixed it
+
+Free-tier models are not deterministic even at temperature 0 with a fixed seed. The batch
+evaluation was run repeatedly while the pipeline was being hardened (`results/runs/`):
+
+| run | pipeline | score | misses |
+|---|---|---|---|
+| 1 | single LLM call + validator | 47/47 | |
+| 2 (browser, Evaluation tab) | same | 45/47 | N02, N21 answered from a neighbouring rule |
+| 3 (`runs/run1`) | + self-consistency check, seed | 46/47 | N21 |
+| 4 (`runs/run2`) | same | 46/47 | N21 |
+| 5 (`runs/run3`) | same | 44/47 | N21, N02, and A12 wrongly escalated to conflict by a first version of the audit escalation |
+| 6 (`runs/run4`) | + attribution check, escalation requires a disputed value | **47/47** | |
+| 7 (`runs/run5`) | same | **47/47** | |
+
+The two chronic misses were the same shape: "can I get a re-test for a job interview" answered
+from the medical re-test clause with an invented "only"; "what if I fall ill during the exam"
+answered from the missed-mid-term clause. In both, the model built an answer out of a
+neighbouring rule. Prompt wording alone did not cure it. What did was a **second, narrower
+call** that sees only the cited passages and answers one question: do they explicitly govern
+this situation, or a different one? In runs 6 and 7 that check fired on exactly N02 and N21,
+and on nothing else. The A12 miss in run 5 was my own escalation firing because the cited
+section holds two rules; it now requires the answer to use a disputed value.
+
+Runs 6 and 7 are the committed `results/eval_report.md` (run 7).
 
 ### Reference run on a paid model (done once, before the free-only rule)
 

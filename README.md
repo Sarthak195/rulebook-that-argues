@@ -52,10 +52,14 @@ Free model `minimax/minimax-m3:free`, embeddings `BAAI/bge-small-en-v1.5`, detai
 | audit: planted contradictions found | 3 | 3 |
 | audit: false positives among 50 pairs | 2 | |
 
+Two consecutive full runs at 47/47. Earlier runs, before the attribution check, scored 44 to 47
+because a free model sometimes answers an adjacent question from a neighbouring rule; the
+run-by-run table and what fixed it are in [`docs/EVALUATION.md`](docs/EVALUATION.md).
+
 Three of my original not-covered questions turned out answerable on a strict reading (the
 rulebook has a positive list, and "not on the list" is an answer). They were moved to an
-ungraded borderline set with the reasoning, and replaced. The prompt was never tuned to the
-test set. [`tests/questions.json`](tests/questions.json) records all of it.
+ungraded borderline set with the reasoning, and replaced. [`tests/questions.json`](tests/questions.json)
+records all of it.
 
 ## How it works
 
@@ -77,11 +81,14 @@ question ─► hybrid retrieval ─► similarity gate ─► LLM classifies + 
 5. **Validation**: citations are checked against the passages the model was shown. An
    `answered` with no valid citation is downgraded; a `conflict` naming fewer than two real
    sections is downgraded. The model cannot invent a source.
-6. **Audit-informed escalation**: if the answer leans on one side of a contradiction the
+6. **Attribution check**: every `answered` gets a second, narrower call with only the cited
+   passages: do they explicitly govern this situation, or a neighbouring one? "Absence for
+   illness" stops answering "absence for a wedding" even when the first pass slipped.
+7. **Audit-informed escalation**: if the answer uses a disputed value from a contradiction the
    corpus audit has already found, while the other side was also retrieved, the response is
    escalated to `conflict` with both clauses. Free models are not deterministic; this makes the
    conflict behaviour stable and is recorded in `validation_notes`.
-7. **Authority**: on a conflict, the clause that decides inconsistencies (`AR §15.1`) is
+8. **Authority**: on a conflict, the clause that decides inconsistencies (`AR §15.1`) is
    retrieved and shown as "who can settle this".
 
 Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

@@ -43,6 +43,16 @@ Reply with exactly this JSON shape:
   "closest_sections": ["section id", ...],
   "conflict": {{"sections": ["section id", "section id"], "explanation": "string"}} | null}}"""
 
+VERIFY_PROMPT = """You are checking an answer to a question about a rulebook for faithfulness. You will see the question and only the passages the answer cited. Decide whether the cited passages EXPLICITLY govern the situation in the question.
+
+"explicit": true when a cited passage states a rule that applies to this situation as asked, even if the question's exact numbers, names or wording are not repeated. A rule for "absences of seven days or more" explicitly governs a two-week absence; a grade table explicitly governs 85 marks; a rule that hall tickets are withheld for tuition dues explicitly answers whether a hall ticket is issued with tuition dues.
+
+"explicit": false when the cited passages govern a different situation: a different event, reason, person, fee, document, stage or moment. A rule for absence because of illness does not govern absence for a wedding; a rule for missing a test does not govern falling ill in the middle of an exam; a rule for tuition dues does not govern hostel dues; a rule for failed courses does not govern improving a passed grade. In these cases answering requires assuming the rule extends beyond what it says.
+
+Reply with JSON only: {"explicit": true or false, "reason": "one sentence"}"""
+
+NUMBER_RE = re.compile(r"\d+(?:[.,]\d+)*")
+
 AUTHORITY_QUERY = "inconsistency between these regulations and another policy, interpretation, decision shall be final"
 
 SECTION_ID_RE = re.compile(r"\b([A-Z]{2,4})\s*§?\s*(\d+(?:\.\d+)?)\b")
@@ -154,22 +164,58 @@ def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskRes
         if not closest and passages:
             closest = [passages[0].id]
 
-    # 4b. Audit-informed escalation. The corpus audit already knows where the rulebook disagrees
-    # with itself. If the model answered from one side of a known disagreement while the other
-    # side was also on the table, the honest response is a conflict, whatever the model said.
+    # 4b. Attribution check. The first call answered and classified in one go; a second, narrower
+    # call looks only at the cited passages and asks whether they explicitly govern this situation
+    # or a neighbouring one. This is where "absence for illness" stops answering "absence for a
+    # wedding" reliably on a free model.
+    if status == "answered" and citations and config.VERIFY_ANSWERS:
+        cited_block = "\n\n".join(f"[{p.id}] {p.doc_title} > {p.parent_title} > {p.title}\n{p.text}"
+                                  for p in passages if p.id in citations)
+        try:
+            v_content, _ = llm.chat([{"role": "system", "content": VERIFY_PROMPT},
+                                     {"role": "user", "content": f"Question: {question}\n\nCited passages:\n\n{cited_block}"}],
+                                    max_tokens=200)
+            verdict = llm.extract_json(v_content)
+            if verdict.get("explicit") is False:
+                notes.append(f"attribution check: cited passages govern a related situation, not this one ({str(verdict.get('reason', '')).strip()[:160]})")
+                closest = list(citations)
+                citations = []
+                conflict = None
+                status = "not_covered"
+                answer = ("The rulebook does not address this situation. The closest clause covers a related case: "
+                          f"{answer}")
+        except llm.LLMError as e:
+            notes.append(f"attribution check skipped: {e}")
+
+    # 4c. Audit-informed escalation. The corpus audit already knows where the rulebook disagrees
+    # with itself. If the model answered from one side of a known disagreement, using one of the
+    # disputed values, while the other side was also on the table, the honest response is a
+    # conflict, whatever the model said.
     if status == "answered":
         retrieved = {p.id for p in passages}
         for pair, rec in known_conflicts().items():
             a, b = sorted(pair, key=lambda s: (s not in citations, s))  # cited member first
-            if a in retrieved and b in retrieved and a in citations:
-                status = "conflict"
-                conflict = ConflictInfo(sections=[a, b], explanation=rec["explanation"])
-                citations = list(dict.fromkeys([a, b] + citations))
-                answer = (f"The rulebook contradicts itself on this point. {rec['explanation']} "
-                          f"(Found by the corpus-wide audit, confidence {float(rec['confidence']):.2f}.) "
-                          f"Read on its own, {a} would give: {answer}")
-                notes.append(f"escalated to conflict: the audit found {a} and {b} disagree; both were retrieved and {a} was cited")
-                break
+            if not (a in retrieved and b in retrieved and a in citations):
+                continue
+            disputed = set(NUMBER_RE.findall(rec.get("explanation", "")))
+            in_answer = set(NUMBER_RE.findall(answer))
+            if disputed and not (disputed & in_answer):
+                # A section can hold several rules (SF §3.1 covers two scholarships); the answer
+                # did not use the disputed numbers, so the disagreement is not about this question.
+                continue
+            if not disputed:
+                top3 = {p.id for p in passages[:3]}
+                if b not in top3:
+                    continue
+            status = "conflict"
+            conflict = ConflictInfo(sections=[a, b], explanation=rec["explanation"])
+            citations = list(dict.fromkeys([a, b] + citations))
+            answer = (f"The rulebook contradicts itself on this point. {rec['explanation']} "
+                      f"(Found by the corpus-wide audit, confidence {float(rec['confidence']):.2f}.) "
+                      f"Read on its own, {a} would give: {answer}")
+            notes.append(f"escalated to conflict: the audit found {a} and {b} disagree; both were retrieved, "
+                         f"{a} was cited and the answer uses a disputed value")
+            break
 
     for p in passages:
         p.cited = p.id in citations

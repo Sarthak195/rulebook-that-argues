@@ -18,7 +18,7 @@ Model `minimax/minimax-m3:free` via OpenRouter, embeddings `BAAI/bge-small-en-v1
 | conflict | 0 | 0 | 4 | 0 |
 
 Retrieval recall (every expected section inside the top-6 passages): 21/22
-Median latency 3013 ms, p90 4401 ms.
+Median latency 3200 ms, p90 5672 ms.
 
 ## Per question
 
@@ -43,7 +43,7 @@ Median latency 3013 ms, p90 4401 ms.
 | A17 | answered | answered | yes | cited ['HH §4.3'] |
 | A18 | answered | answered | yes | cited ['LM §5.2'] |
 | C01 | conflict | conflict | yes | named ['AR §4.3', 'LM §2.2'] |
-| C02 | conflict | conflict | yes | named ['LM §2.2', 'AR §4.3'] |
+| C02 | conflict | conflict | yes | named ['AR §4.3', 'LM §2.2'] |
 | C03 | conflict | conflict | yes | named ['SF §6.2', 'FS §4.1'] |
 | C04 | conflict | conflict | yes | named ['AR §11.2', 'SF §3.1'] |
 | N01 | not_covered | not_covered | yes | silent, as expected |
@@ -81,6 +81,6 @@ Either response type is defensible for these; see `tests/questions.json` for why
 
 | id | question | got | cited | answer |
 |---|---|---|---|---|
-| B01 | Can I use a scientific calculator in the examination hall? | not_covered |  | The rulebook does not address whether a scientific calculator may be used in the examination hall. The closest passage lists what a student may bring in and adds 'any other item expressly permitted on the question paper,' but it does not specifically mention calculators. |
-| B02 | Will I get my hall ticket if my hostel fee is unpaid but my tuition fee is paid? | not_covered |  | The rulebook does not address whether unpaid hostel fee dues will block the issuance of a hall ticket. The closest passages (AR §12.2 and EE §1.2) address only outstanding tuition fee dues, stating that a hall ticket shall not be issued if tuition fees remain unpaid. |
-| B03 | Is the examination fee refunded if I withdraw from an exam? | answered | FS §4.2 | No, the examination fee is not refundable if you withdraw from an exam. According to the fee schedule, the examination fee (along with the development and laboratory fee) is not refundable after the commencement of classes. |
+| B01 | Can I use a scientific calculator in the examination hall? | not_covered |  | The rulebook does not address whether a scientific calculator may be used in the examination hall. The closest passage, EE §2.1, lists the items a student may bring in and includes 'any other item expressly permitted on the question paper', but it does not specifically mention calculators or scientific calculators. |
+| B02 | Will I get my hall ticket if my hostel fee is unpaid but my tuition fee is paid? | not_covered |  | The rulebook does not address whether unpaid hostel fee alone can block the issuance of a hall ticket when tuition fee is paid. The closest provisions address only outstanding tuition fee dues as a bar to the hall ticket. |
+| B03 | Is the examination fee refunded if I withdraw from an exam? | answered | FS §4.2 | No, the examination fee is not refundable after the commencement of classes. As per FS §4.2, 'The examination fee and the development and laboratory fee are not refundable after the commencement of classes.' |

@@ -24,6 +24,9 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5").strip()
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 TOP_K = int(os.getenv("TOP_K", "6"))
+# Second, narrower LLM call on every "answered": do the cited passages explicitly govern this
+# situation, or a neighbouring one? Costs one extra call; set VERIFY_ANSWERS=0 to disable.
+VERIFY_ANSWERS = os.getenv("VERIFY_ANSWERS", "1").strip() not in {"0", "false", "no"}
 # Below this best-passage cosine similarity we do not even ask the LLM: the corpus is silent.
 # Measured on this corpus with bge-small: off-topic questions ("capital of France") peak at ~0.44,
 # the weakest genuinely-covered question scores ~0.55. Adjacent-but-unanswered questions score

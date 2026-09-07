@@ -54,6 +54,41 @@ def test_normalise_ids_accepts_sloppy_model_output():
     assert normalise_ids(["ZZ §9.9", "AR §99.1", 42, None], valid) == []
 
 
+@pytest.fixture(autouse=True)
+def _no_second_pass(monkeypatch):
+    """Unit tests stub one chat reply; switch the attribution check off unless a test enables it."""
+    from app import config
+
+    monkeypatch.setattr(config, "VERIFY_ANSWERS", False)
+
+
+def test_attribution_check_downgrades_answer_from_neighbouring_rule(monkeypatch):
+    import numpy as np
+
+    from app import config, llm, pipeline
+    from app.chunking import Chunk
+    from app.retriever import Retriever
+
+    docs = [Chunk(id="EE §3.1", doc_code="EE", doc_title="T", section="3.1", title="t", parent_title="p",
+                  text="absence from an examination because of illness", source="x.md", format="markdown")]
+    r = Retriever(docs, np.eye(1, dtype=np.float32))
+    monkeypatch.setattr(r, "embed_query", lambda q: np.array([1.0], dtype=np.float32))
+    monkeypatch.setattr(llm, "available", lambda: True)
+    monkeypatch.setattr(pipeline, "known_conflicts", lambda: {})
+    monkeypatch.setattr(config, "VERIFY_ANSWERS", True)
+    replies = iter(['{"status":"answered","answer":"Submit a certificate within 5 days.","citations":["EE §3.1"]}',
+                    '{"explicit": false, "reason": "the rule is about illness, the question is about a wedding"}'])
+    monkeypatch.setattr(llm, "chat", lambda *a, **k: (next(replies), {}))
+    resp = pipeline.ask("What if I miss the exam for a wedding?", r)
+    assert resp.status == "not_covered" and resp.citations == [] and resp.passages[0].closest
+    assert any("attribution check" in n for n in resp.validation_notes)
+
+    replies = iter(['{"status":"answered","answer":"Submit a certificate within 5 days.","citations":["EE §3.1"]}',
+                    '{"explicit": true, "reason": "illness is the situation asked about"}'])
+    monkeypatch.setattr(llm, "chat", lambda *a, **k: (next(replies), {}))
+    assert pipeline.ask("What if I miss the exam because I am ill?", r).status == "answered"
+
+
 def test_validator_downgrades_unbacked_claims(monkeypatch):
     """An 'answered' with no valid citation, or a 'conflict' with one section, must not survive."""
     import numpy as np
@@ -126,6 +161,11 @@ def test_audit_escalates_answer_that_leans_on_a_known_disagreement(monkeypatch):
     assert resp.status == "conflict"
     assert resp.conflict and resp.conflict.sections == ["AR §0.1", "AR §1.1"]
     assert "65 vs 55" in resp.answer and any("escalated" in n for n in resp.validation_notes)
+
+    # Not escalated when the answer does not use a disputed value: the cited section may hold
+    # several rules and the question may be about the undisputed one.
+    monkeypatch.setattr(llm, "chat", lambda *a, **k: ('{"status":"answered","answer":"CGPA 7.0 for merit-cum-means","citations":["AR §0.1"]}', {}))
+    assert pipeline.ask("q", r).status == "answered"
 
     # Not escalated when the other side was not retrieved.
     monkeypatch.setattr(r, "embed_query", lambda q: np.array([1.0, 0.0, 0.0], dtype=np.float32))

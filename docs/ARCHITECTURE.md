@@ -88,6 +88,18 @@ The model's output is checked, not trusted:
 Every downgrade is recorded in `validation_notes` on the response and shown in the UI. A test
 in `tests/test_pipeline.py` proves both downgrades with a stubbed model.
 
+### Attribution check (second pass)
+
+The first call answers and classifies in one go, and on the hardest not-covered questions a
+free model sometimes builds an answer out of a neighbouring rule ("falling ill during the exam"
+answered from the missed-mid-term clause). So every `answered` gets a second, narrower call:
+the question and *only the cited passages*, with one job, decide whether a cited passage
+explicitly governs this situation or a different one. The prompt gives both sides examples
+(a "seven days or more" rule explicitly governs a two-week absence; an illness rule does not
+govern a wedding). If the verdict is "not explicit", the response becomes `not_covered`, the
+former citations become the "closest" passages, and the note "attribution check" is recorded.
+Costs one extra call per answered question; `VERIFY_ANSWERS=0` disables it.
+
 ### Audit-informed escalation
 
 The corpus audit (section 6) already knows where the rulebook disagrees with itself. After

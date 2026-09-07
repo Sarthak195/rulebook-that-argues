@@ -8,7 +8,8 @@
   "pass": true,
   "why": "cited ['AR §4.1']",
   "citations": [
-   "AR §4.1"
+   "AR §4.1",
+   "AR §4.4"
   ],
   "conflict_sections": [],
   "retrieved": [
@@ -21,10 +22,10 @@
   ],
   "top_similarity": 0.8507,
   "retrieval_recall": true,
-  "answer": "You must have a minimum of 75 per cent attendance in each course, computed separately for the theory and practical components, in order to be eligible to appear for the end-semester examination in that course. Attendance is computed from the first day of instruction of the semester to the last instructional day, and includes all lectures, tutorials and practical sessions scheduled for the course.",
+  "answer": "A student must have a minimum of 75 per cent attendance in each course, computed separately for the theory and practical components, to be eligible to appear for the end-semester examination in that course. This attendance is calculated from the first day of instruction to the last instructional day of the semester and includes all lectures, tutorials, and practical sessions. A student who fails to meet this requirement and is not granted condonation shall be detained and awarded the grade \"DT\".",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3834
+  "latency_ms": 2289
  },
  {
   "id": "A02",
@@ -49,10 +50,10 @@
   ],
   "top_similarity": 0.8338,
   "retrieval_recall": true,
-  "answer": "For a theory course, evaluation is out of 100 marks: 40 marks are for continuous internal assessment and 60 marks are for the end-semester examination, which is conducted by the Controller of Examinations. Internal assessment of 40 marks comprises two mid-term tests of 15 marks each (in the sixth and twelfth weeks) plus 10 marks for assignments, quizzes or tutorials.",
+  "answer": "For a theory course, the 100 marks are split as 40 marks for continuous internal assessment and 60 marks for the end-semester examination conducted by the Controller of Examinations. The internal assessment of 40 marks further comprises two mid-term tests of 15 marks each (held in the 6th and 12th weeks) and 10 marks for assignments, quizzes or tutorials.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3524
+  "latency_ms": 3261
  },
  {
   "id": "A03",
@@ -76,10 +77,10 @@
   ],
   "top_similarity": 0.801,
   "retrieval_recall": true,
-  "answer": "To pass a course, you must score at least 30% in the end-semester examination and at least 40% of the total marks (internal assessment plus end-semester examination) combined. If either requirement is not met, you will be awarded an 'F' grade in that course. Note that meeting these marks is separate from eligibility requirements such as the 75% attendance rule.",
+  "answer": "To pass a course you must secure at least 30% of the marks in the end-semester examination AND at least 40% of the total marks (internal assessment plus end-semester examination combined). Failing either of these two requirements will result in a grade of 'F'.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 4289
+  "latency_ms": 2164
  },
  {
   "id": "A04",
@@ -103,10 +104,10 @@
   ],
   "top_similarity": 0.6537,
   "retrieval_recall": true,
-  "answer": "For 85 marks out of 100, you will receive the letter grade A+ (Excellent) with 9 grade points, since marks in the range 80 to 89 fall in that band per the grading table.",
+  "answer": "For 85 marks, you will be awarded the letter grade A+ (Excellent) with 9 grade points, as 85 falls within the 80 to 89 range.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3001
+  "latency_ms": 1510
  },
  {
   "id": "A05",
@@ -130,10 +131,10 @@
   ],
   "top_similarity": 0.8375,
   "retrieval_recall": false,
-  "answer": "You must apply to the Controller of Examinations for re-evaluation of the answer script within ten working days of the declaration of results, on payment of the prescribed fee per course. No application shall be entertained after this period.",
+  "answer": "You must apply to the Controller of Examinations for re-evaluation within ten working days of the declaration of results, on payment of the prescribed fee per course. No application shall be entertained after this period, and re-evaluation is not available for practical examinations, project evaluations, or internal assessment.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 4678
+  "latency_ms": 2050
  },
  {
   "id": "A06",
@@ -157,10 +158,10 @@
   ],
   "top_similarity": 0.7503,
   "retrieval_recall": true,
-  "answer": "If you miss an end-semester exam because of illness, you must submit a medical certificate issued by a registered medical practitioner and countersigned by the Institute Medical Officer to the Controller of Examinations within five working days of the date of the examination. On acceptance of the certificate, you will be permitted to appear for the course in the next supplementary examination, and that appearance will be treated as your first attempt and you will be exempt from the supplementary examination fee.",
+  "answer": "If you miss an end-semester exam due to illness, you must submit a medical certificate from a registered medical practitioner, countersigned by the Institute Medical Officer, to the Controller of Examinations within five working days of the exam date. Once accepted, you will be allowed to appear for that course at the next supplementary examination, and it will count as your first attempt with no supplementary exam fee charged.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3913
+  "latency_ms": 1899
  },
  {
   "id": "A07",
@@ -185,10 +186,10 @@
   ],
   "top_similarity": 0.7304,
   "retrieval_recall": true,
-  "answer": "If you are caught with a mobile phone in the exam hall, it is treated as a first offence of using unfair means. Your examination in that course will be cancelled and you will be awarded the grade F in that course, even if the phone was switched off. Note that mobile phones are prohibited in the examination hall and possession (whether or not used) is treated as use of unfair means, so please leave your phone outside.",
+  "answer": "If you are caught with a mobile phone in the exam hall, it is treated as a first offence under the unfair-means rules. The penalty is that your examination in that course will be cancelled and you will be awarded the grade F in that course. Note that the phone does not need to be switched on or used — mere possession counts as a first offence.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3504
+  "latency_ms": 2340
  },
  {
   "id": "A08",
@@ -212,10 +213,10 @@
   ],
   "top_similarity": 0.8555,
   "retrieval_recall": true,
-  "answer": "The hostel gates close at 10:30 p.m. every day, according to the Hostel Handbook. Residents returning after the gates close must sign the late-entry register maintained by security and state the reason for the delay.",
+  "answer": "The hostel gates close at 10:30 p.m. every day, according to the Hostel Handbook. Residents returning after this time must sign the late-entry register maintained by the security staff and state the reason for the delay.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 8901
+  "latency_ms": 3978
  },
  {
   "id": "A09",
@@ -239,10 +240,10 @@
   ],
   "top_similarity": 0.7719,
   "retrieval_recall": true,
-  "answer": "No, you cannot use an induction cooktop in your hostel room. The Hostel Handbook explicitly prohibits the use of induction cooktops (along with electric heaters, immersion rods, electric kettles, irons and any appliance rated above 500 watts) in hostel rooms, and such appliances will be confiscated with a fine of Rs. 1,000 per occurrence.",
+  "answer": "No, you cannot use an induction cooktop in your hostel room. The Hostel Handbook explicitly prohibits the use of induction cooktops (along with electric heaters, immersion rods, electric kettles, irons and any appliance rated above 500 watts) in hostel rooms, and such items may be confiscated with a Rs. 1,000 fine per occurrence. You are only permitted to use laptops, mobile chargers, table lamps and table fans.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 4401
+  "latency_ms": 1935
  },
  {
   "id": "A10",
@@ -254,8 +255,7 @@
   "why": "cited ['FS §3.1']",
   "citations": [
    "FS §3.1",
-   "FS §3.2",
-   "FS §2.1"
+   "FS §2.2"
   ],
   "conflict_sections": [],
   "retrieved": [
@@ -268,10 +268,10 @@
   ],
   "top_similarity": 0.8461,
   "retrieval_recall": true,
-  "answer": "If you pay your semester fees after the due date, a late fee of Rs. 100 per day is charged up to and including the last date shown in the schedule, with the late fee capped at Rs. 1,500 for any single payment. No payment is accepted after the last date, except in narrow circumstances where the Registrar permits payment due to documented delay in an education loan or scholarship disbursement.",
+  "answer": "A late fee of Rs. 100 per day is charged on any fee paid after the due date, up to and including the last date shown in Section 2.1, and this late fee is capped at Rs. 1,500 for any single payment. Per FS §2.2, if you are paying in two instalments, this late-fee rule applies to each instalment separately.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3392
+  "latency_ms": 1633
  },
  {
   "id": "A11",
@@ -282,7 +282,8 @@
   "pass": true,
   "why": "cited ['FS §2.1']",
   "citations": [
-   "FS §2.1"
+   "FS §2.1",
+   "FS §3.2"
   ],
   "conflict_sections": [],
   "retrieved": [
@@ -295,23 +296,28 @@
   ],
   "top_similarity": 0.7932,
   "retrieval_recall": true,
-  "answer": "The last date to pay the odd semester tuition fee (along with the examination and development fee) is 31 July 2026. Payments after this date are not accepted, and a late fee applies up to this last date.",
+  "answer": "The last date to pay the odd semester tuition, examination and development fee (with late fee) is 31 July 2026, as set out in the fee schedule. Payments after this last date are not accepted, except where the Registrar permits a delayed payment on documented education-loan or scholarship disbursement grounds (FS §3.2).",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3602
+  "latency_ms": 2392
  },
  {
   "id": "A12",
   "category": "answerable",
   "question": "Who is eligible for the merit-cum-means scholarship?",
   "expected_status": "answered",
-  "status": "answered",
-  "pass": true,
-  "why": "cited ['SF §2.2']",
+  "status": "conflict",
+  "pass": false,
+  "why": "status conflict != answered",
   "citations": [
+   "SF §3.1",
+   "AR §11.2",
    "SF §2.2"
   ],
-  "conflict_sections": [],
+  "conflict_sections": [
+   "SF §3.1",
+   "AR §11.2"
+  ],
   "retrieved": [
    "SF §2.2",
    "SF §2.1",
@@ -322,10 +328,12 @@
   ],
   "top_similarity": 0.7946,
   "retrieval_recall": true,
-  "answer": "You are eligible for the Merit-cum-Means Scholarship if your annual family income from all sources does not exceed Rs. 3,00,000 and you have a CGPA of not less than 7.0 at the end of the preceding academic year (or, for first-year students, not less than 80 per cent marks in the qualifying examination). You must also submit an income certificate issued by a Tehsildar or an officer of equivalent rank that is not older than six months.",
+  "answer": "The rulebook contradicts itself on this point. AR §11.2 requires a CGPA of not less than 7.5 for continuation of the Merit Scholarship, whereas SF §3.1 requires a CGPA of not less than 8.0 for the same continuation condition. Both clauses address the same situation (continuing an awarded Merit Scholarship into the next academic year) but set different minimum CGPA thresholds. (Found by the corpus-wide audit, confidence 0.97.) Read on its own, SF §3.1 would give: You are eligible for the Merit-cum-Means Scholarship if your annual family income from all sources does not exceed Rs. 3,00,000 and you have a CGPA of at least 7.0 at the end of the preceding academic year (or, if you are a first-year student, at least 80 per cent marks in the qualifying examination). The scholarship is a waiver of 25% of the tuition fee, and you must attach an income certificate from a Tehsildar (or equivalent officer) that is not older than six months. Additionally, to keep the scholarship, you must maintain a CGPA of at least 7.0 at the end of each semester.",
   "mode": "llm",
-  "notes": [],
-  "latency_ms": 3013
+  "notes": [
+   "escalated to conflict: the audit found SF §3.1 and AR §11.2 disagree; both were retrieved and SF §3.1 was cited"
+  ],
+  "latency_ms": 2373
  },
  {
   "id": "A13",
@@ -336,7 +344,8 @@
   "pass": true,
   "why": "cited ['LM §3.2']",
   "citations": [
-   "LM §3.2"
+   "LM §3.2",
+   "LM §4.1"
   ],
   "conflict_sections": [],
   "retrieved": [
@@ -349,10 +358,10 @@
   ],
   "top_similarity": 0.7482,
   "retrieval_recall": true,
-  "answer": "Yes, you are entitled to bereavement leave of up to seven days, counted as attendance, if a parent, sibling, grandparent or spouse passes away. You must inform the HoD by e-mail or through the student portal before or during the leave, and submit a written application on your return.",
+  "answer": "Yes, you are entitled to bereavement leave of up to seven days (counted as attendance) if a parent, sibling, grandparent or spouse passes away. You must inform the HoD by e-mail or through the student portal before or during the leave, and submit a written application on your return. This leave does not need to be applied for in advance on the portal like other leave.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3568
+  "latency_ms": 1994
  },
  {
   "id": "A14",
@@ -364,9 +373,7 @@
   "why": "cited ['AR §12.2', 'EE §1.2']",
   "citations": [
    "AR §12.2",
-   "EE §1.2",
-   "FS §3.2",
-   "AR §12.1"
+   "EE §1.2"
   ],
   "conflict_sections": [],
   "retrieved": [
@@ -379,10 +386,10 @@
   ],
   "top_similarity": 0.7899,
   "retrieval_recall": true,
-  "answer": "No, you will not be issued a hall ticket if you have outstanding tuition fee dues. The hall ticket will be released only within one working day after you clear the dues, provided the examination has not yet commenced. Note that if you do not pay by the last date at all, you may be treated as not registered for the semester unless the Registrar permits a late payment on specific grounds (documented delay in an education loan or scholarship).",
+  "answer": "No, you will not be issued a hall ticket for the end-semester examination if you have outstanding tuition fee dues on the last date of payment, and you will not be permitted to appear for the exam. However, once your dues are cleared, the withheld hall ticket shall be released within one working day, provided the examination has not yet commenced. Additionally, hall tickets are issued only to students who have no outstanding tuition fee dues.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3330
+  "latency_ms": 1618
  },
  {
   "id": "A15",
@@ -393,8 +400,7 @@
   "pass": true,
   "why": "cited ['AR §10.1']",
   "citations": [
-   "AR §10.1",
-   "AR §10.3"
+   "AR §10.1"
   ],
   "conflict_sections": [],
   "retrieved": [
@@ -407,10 +413,10 @@
   ],
   "top_similarity": 0.8228,
   "retrieval_recall": true,
-  "answer": "A break of study may be permitted for one semester or one academic year. AR §10.1 specifies that it is granted only on medical grounds (certified by the Institute Medical Officer and approved by the Dean) and shall not be granted more than once during the programme. Note also that under AR §10.3, the break period counts towards the seven-year maximum duration of the B.Tech. programme.",
+  "answer": "A break of study may be granted for one semester or one academic year, and only on medical grounds certified by the Institute Medical Officer and approved by the Dean. It cannot be granted on any other ground and cannot be granted more than once during the B.Tech. programme.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 5567
+  "latency_ms": 2042
  },
  {
   "id": "A16",
@@ -437,7 +443,7 @@
   "answer": "A student must complete all requirements of the B.Tech. programme within a maximum period of seven academic years from the date of first admission, failing which the student's name shall be removed from the rolls of the Institute.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3754
+  "latency_ms": 2310
  },
  {
   "id": "A17",
@@ -461,10 +467,10 @@
   ],
   "top_similarity": 0.7552,
   "retrieval_recall": true,
-  "answer": "Yes, you are entitled to a mess rebate for a two-week absence, since HH §4.3 provides that a resident absent from the hostel for a continuous period of seven days or more is entitled to a rebate of mess charges, provided the absence is recorded in the leave register in advance and the rebate form is submitted within seven days of return.",
+  "answer": "Yes, you are entitled to a mess rebate for a two-week absence from the hostel. Under HH §4.3, a resident absent for a continuous period of seven days or more qualifies for a rebate of mess charges for the period of absence, provided the absence is recorded in the leave register in advance and the rebate form is submitted within seven days of your return. No rebate is given for absences of less than seven days, so a two-week absence clearly meets the threshold.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3856
+  "latency_ms": 3384
  },
  {
   "id": "A18",
@@ -488,10 +494,10 @@
   ],
   "top_similarity": 0.7934,
   "retrieval_recall": true,
-  "answer": "Every student is covered under the group medical insurance scheme of the Institute for hospitalisation expenses of up to Rs. 1,00,000 per year. The premium is included in the development fee, and claims must be made through the Institute Medical Officer within thirty days of discharge from the hospital.",
+  "answer": "Every student is covered under the Institute's group medical insurance scheme for hospitalisation expenses of up to Rs. 1,00,000 per year. The premium is included in the development fee, and claims are to be made through the Institute Medical Officer within thirty days of discharge from the hospital.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3328
+  "latency_ms": 2130
  },
  {
   "id": "C01",
@@ -519,10 +525,10 @@
   ],
   "top_similarity": 0.7478,
   "retrieval_recall": true,
-  "answer": "The two condonation clauses give incompatible minimum-attendance thresholds for medical-grounds condonation. AR §4.3 says shortage can be condoned only if attendance is not less than 65%, and explicitly states that shortage below 65% 'shall not be condoned under any circumstances.' LM §2.2, on the other hand, allows the Dean to condone shortfall on medical grounds where attendance is 'not less than 55 per cent.' With 58% attendance, AR §4.3 forbids condonation while LM §2.2 permits it.",
+  "answer": "The two relevant clauses give incompatible minimum-attendance thresholds for medical condonation. AR §4.3 states that 'A shortage of attendance below 65 per cent shall not be condoned under any circumstances.' LM §2.2 instead allows condonation 'provided that the student's overall attendance in the course is not less than 55 per cent.' Since your attendance of 58% falls between these two thresholds, the two rules directly disagree on whether your shortage can be condoned.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 4420
+  "latency_ms": 2829
  },
  {
   "id": "C02",
@@ -531,14 +537,14 @@
   "expected_status": "conflict",
   "status": "conflict",
   "pass": true,
-  "why": "named ['LM §2.2', 'AR §4.3']",
+  "why": "named ['AR §4.3', 'LM §2.2']",
   "citations": [
-   "LM §2.2",
-   "AR §4.3"
+   "AR §4.3",
+   "LM §2.2"
   ],
   "conflict_sections": [
-   "LM §2.2",
-   "AR §4.3"
+   "AR §4.3",
+   "LM §2.2"
   ],
   "retrieved": [
    "LM §2.2",
@@ -550,10 +556,10 @@
   ],
   "top_similarity": 0.7462,
   "retrieval_recall": true,
-  "answer": "The rulebook gives two different minimum-attendance thresholds for condonation on medical grounds, and they are incompatible.\n\n1. LM §2.2 says: 'provided that the student's overall attendance in the course is not less than 55 per cent.'\n2. AR §4.3 says: 'provided that the student's attendance in the course concerned is not less than 65 per cent' and 'A shortage of attendance below 65 per cent shall not be condoned under any circumstances.'\n\nThese two clauses disagree on the very question asked (the lowest condonable percentage), so no single answer can be given from the rulebook as it stands.",
+  "answer": "The rulebook gives two incompatible floors for medical condonation of attendance. AR §4.3 states that a shortage may be condoned only if attendance is 'not less than 65 per cent' and that 'a shortage of attendance below 65 per cent shall not be condoned under any circumstances.' LM §2.2, however, permits condonation where overall attendance is 'not less than 55 per cent.' These clauses disagree on the very threshold asked about. As a regulations desk, I cannot pick a winner — you should clarify with the Dean or HoD which provision applies to your case.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3021
+  "latency_ms": 2804
  },
  {
   "id": "C03",
@@ -581,10 +587,10 @@
   ],
   "top_similarity": 0.886,
   "retrieval_recall": true,
-  "answer": "Two clauses give incompatible answers for a withdrawal before classes begin. [SF §6.2] says the tuition fee is refunded 'after the deduction of a processing charge of ten per cent of the tuition fee' (i.e., 90% refunded). [FS §4.1] says that withdrawal 'Before the commencement of classes' results in a refund of '100 per cent' of the tuition fee. Both passages address the same situation but specify different refund amounts, so the rulebook is in conflict.",
+  "answer": "The passages give two different answers for a student who withdraws before the commencement of classes. SF §6.2 says the tuition fee shall be refunded 'after the deduction of a processing charge of ten per cent of the tuition fee,' meaning 90% is refunded. FS §4.1 says that on a withdrawal 'before the commencement of classes,' the tuition fee refunded is '100 per cent.' These rules disagree on the same situation (withdrawal before classes begin), and you should check which policy applies to you.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 2596
+  "latency_ms": 2478
  },
  {
   "id": "C04",
@@ -612,10 +618,10 @@
   ],
   "top_similarity": 0.8539,
   "retrieval_recall": true,
-  "answer": "The passages give incompatible CGPA thresholds for continuing the Merit Scholarship. AR §11.2 requires a CGPA of not less than 7.5 at the end of each semester, while SF §3.1 requires a CGPA of not less than 8.0 at the end of each semester. These two clauses directly disagree on the same question, so you should clarify which policy applies to your case.",
+  "answer": "The rulebook gives two different CGPA thresholds for continuing the Merit Scholarship. AR §11.2 says you must maintain a CGPA of not less than 7.5 at the end of each semester, while SF §3.1 says the requirement is a CGPA of not less than 8.0. Both clauses address continuation of the same Merit Scholarship, so the rulebook does not resolve which threshold applies — you should ask the Institute which policy governs your case. Note: SF §3.1 also covers a separate Merit-cum-Means Scholarship requiring a CGPA of not less than 7.0, but that is a different scholarship.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 4384
+  "latency_ms": 3154
  },
  {
   "id": "N01",
@@ -637,20 +643,23 @@
   ],
   "top_similarity": 0.6318,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address what happens if a student misses an end-semester exam because of a family wedding. The closest provision covers absence due to medical grounds only.",
+  "answer": "The rulebook does not address what happens if you miss an end-semester exam because of a family wedding. The closest passage covers absence on medical grounds only, not for personal or family events.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1686
+  "latency_ms": 1854
  },
  {
   "id": "N02",
   "category": "not_covered",
   "question": "Can I get a re-test if I missed a mid-term test for a job interview?",
   "expected_status": "not_covered",
-  "status": "not_covered",
-  "pass": true,
-  "why": "silent, as expected",
-  "citations": [],
+  "status": "answered",
+  "pass": false,
+  "why": "status answered != not_covered",
+  "citations": [
+   "LM §3.3",
+   "EE §3.3"
+  ],
   "conflict_sections": [],
   "retrieved": [
    "EE §3.3",
@@ -662,12 +671,10 @@
   ],
   "top_similarity": 0.8245,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address this situation. The closest clause covers a related case: The rulebook addresses missed mid-term tests only on medical grounds: if you submit a medical certificate to the HoD within five working days, you are entitled to a re-test within two weeks of rejoining classes. Missing a mid-term test for a job interview is not a covered ground for a re-test under that clause. However, under LM §3.3, if your interview is arranged through the Institute's Training and Placement Cell and you produce the call letter countersigned by the Placement Officer, you shall be marked present for its duration — so you may not need a re-test at all in that situation.",
+  "answer": "It depends on whether the interview was arranged through the Institute's Training and Placement Cell. Under LM §3.3, if it was so arranged, you will be marked present for the duration of the interview, so you effectively don't 'miss' the test in the first place — no re-test is needed. The re-test provision in EE §3.3 applies only when a mid-term test is missed on medical grounds with a medical certificate submitted to the HoD within five working days; a job interview is not covered by that clause.",
   "mode": "llm",
-  "notes": [
-   "attribution check: cited passages govern a related situation, not this one (The cited passage on missed mid-term tests only governs absences on medical grounds, not job interviews, and the leave passage marks the student present rather )"
-  ],
-  "latency_ms": 3443
+  "notes": [],
+  "latency_ms": 3510
  },
  {
   "id": "N03",
@@ -689,10 +696,10 @@
   ],
   "top_similarity": 0.6956,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether a student can change their branch after the first year. The closest passage, AR §3.4, only covers adding or dropping individual courses within the first two weeks of a semester, not changing branch.",
+  "answer": "The rulebook does not address whether a student may change their branch after the first year. The closest passage covers adding or dropping individual courses within the first two weeks of a semester, not switching branches.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 4503
+  "latency_ms": 2890
  },
  {
   "id": "N04",
@@ -714,10 +721,10 @@
   ],
   "top_similarity": 0.6261,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address a dress code for laboratory sessions. The closest related passage, EE §8.2, only covers the requirement that a completed and instructor-certified laboratory record must be submitted to be admitted to the end-semester practical examination.",
+  "answer": "The rulebook does not address whether there is a dress code for laboratory sessions. The closest passage (EE §8.2) deals with the requirement to submit a certified laboratory record before appearing in the end-semester practical examination.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1700
+  "latency_ms": 2383
  },
  {
   "id": "N05",
@@ -739,10 +746,10 @@
   ],
   "top_similarity": 0.7196,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether a day scholar can eat in the hostel mess on a per-meal payment basis. The closest provision simply states that every resident must be a compulsory member of the hostel mess, with mess charges paid in advance for the semester along with the hostel fee.",
+  "answer": "The rulebook does not address whether a day scholar may eat in the hostel mess on a per-meal payment basis. The closest passage, HH §4.1, states only that every resident must be a member of the hostel mess, with mess charges payable in advance for the semester.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 3825
+  "latency_ms": 3864
  },
  {
   "id": "N06",
@@ -764,10 +771,10 @@
   ],
   "top_similarity": 0.737,
   "retrieval_recall": null,
-  "answer": "The Hostel Handbook does not address whether pets are allowed in the hostel. The closest related passage is HH §5.4, which lists specific prohibited activities and items within the hostel.",
+  "answer": "The rulebook does not address whether pets are allowed in the hostel. The closest related provision is HH §5.4, which lists prohibited activities and items but does not mention pets.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 2686
+  "latency_ms": 1641
  },
  {
   "id": "N07",
@@ -789,10 +796,10 @@
   ],
   "top_similarity": 0.626,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the fee for a duplicate identity card. The closest passage mentions the Institute identity card only as an item students must carry into the examination hall.",
+  "answer": "The rulebook does not address the fee for a duplicate identity card. The closest passage requires students to carry a valid Institute identity card to be admitted to the examination hall, but no passage specifies a fee for issuing a duplicate one.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1616
+  "latency_ms": 1740
  },
  {
   "id": "N08",
@@ -814,10 +821,10 @@
   ],
   "top_similarity": 0.618,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether a summer internship can count toward academic credit for the B.Tech. degree. The closest related passages describe general credit rules for courses (AR §2.2) and credit-load limits during a semester (AR §3.3).",
+  "answer": "The rulebook does not address whether a summer internship can earn academic credit. The closest related passage concerns credit requirements and credit assignment for courses, not internships.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1749
+  "latency_ms": 1994
  },
  {
   "id": "N09",
@@ -839,10 +846,10 @@
   ],
   "top_similarity": 0.6184,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address scholarships specifically for students from the EWS (Economically Weaker Section) category. The closest passage it does cover is the Merit-cum-Means Scholarship, which is awarded based on annual family income not exceeding Rs. 3,00,000 along with academic performance criteria.",
+  "answer": "The rulebook does not address the question of a scholarship specifically for students from the EWS (Economically Weaker Section) category. The closest passage covers the Merit-cum-Means Scholarship for students with annual family income not exceeding Rs. 3,00,000.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1482
+  "latency_ms": 1814
  },
  {
   "id": "N10",
@@ -864,10 +871,10 @@
   ],
   "top_similarity": 0.6849,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address grace marks given to a student who fails a course by one or two marks. The closest passage is AR §5.4, which sets the passing requirement of 30 per cent in the end-semester examination and 40 per cent of total marks taken together, and says that failure to meet either requirement results in an 'F' grade.",
+  "answer": "The rulebook does not address whether grace marks are given when a student fails a course by one or two marks. The closest passage is AR §5.4, which only sets the passing requirement of 30 per cent in the end-semester examination and 40 per cent of total marks, without mentioning any grace marks provision.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1864
+  "latency_ms": 1796
  },
  {
   "id": "N11",
@@ -889,10 +896,10 @@
   ],
   "top_similarity": 0.6707,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether answers may be written in Hindi instead of English in the end-semester examination. The closest passage covers the passing requirement in a course, including a separate minimum in the end-semester examination.",
+  "answer": "The rulebook does not address whether a student may write end-semester exam answers in Hindi rather than English. None of the supplied passages mention the permitted language of examination answers. The closest passage covers the schedule and timetable of end-semester examinations, but says nothing about the language in which answers must be written.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 2294
+  "latency_ms": 2191
  },
  {
   "id": "N12",
@@ -914,10 +921,10 @@
   ],
   "top_similarity": 0.6175,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address what happens if there is a printing error in the question paper. The closest passage, EE §6.2, only covers the correction of clerical errors in results within sixty days of declaration by the Controller of Examinations.",
+  "answer": "The rulebook does not address what happens if there is a printing error in the question paper. The closest passage, AR §15.1, covers how disputes about the interpretation of the Regulations are to be resolved, not how printing errors in question papers are handled.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1911
+  "latency_ms": 1830
  },
  {
   "id": "N13",
@@ -939,10 +946,10 @@
   ],
   "top_similarity": 0.6297,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the procedure for obtaining a duplicate degree certificate if the original is lost. The closest passage covers a related but different situation: it states that the original degree certificate, consolidated grade card and transfer certificate are issued only after the student obtains a no-dues certificate from the Library, Hostel Office, Department and Finance Office.",
+  "answer": "The rulebook does not address the procedure for obtaining a duplicate degree certificate if the original is lost. The closest passage covers a related but different matter: it states that the original degree certificate is issued only after a no-dues certificate is obtained.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1750
+  "latency_ms": 1827
  },
  {
   "id": "N14",
@@ -964,10 +971,10 @@
   ],
   "top_similarity": 0.5583,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the number of books a student may borrow from the library at a time. The closest passage is AR §12.3, which only states that the Library must issue a no-dues certificate before certain documents are released, but says nothing about borrowing limits or quotas.",
+  "answer": "The rulebook supplied does not address how many books a student may borrow from the library at a time. The closest passage concerns the library only in the context of issuing a no-dues certificate, not borrowing limits.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 2082
+  "latency_ms": 1773
  },
  {
   "id": "N15",
@@ -989,10 +996,10 @@
   ],
   "top_similarity": 0.6471,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the procedure for transferring to another university mid-course. The closest passage is about the no-dues certificate required before the transfer certificate is issued.",
+  "answer": "The rulebook does not address the procedure for transferring to another university mid-course. The closest passage covers the issuance of a transfer certificate only after a no-dues certificate is obtained from the relevant offices.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1419
+  "latency_ms": 2654
  },
  {
   "id": "N16",
@@ -1014,10 +1021,10 @@
   ],
   "top_similarity": 0.6481,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether a resident may keep a two-wheeler in the hostel parking. The closest passage covers prohibited items and activities in the hostel, listing electrical appliances and other prohibitions such as gambling and keeping overnight guests, but it does not mention vehicles or parking.",
+  "answer": "The rulebook does not address whether a resident may keep a two-wheeler in the hostel parking. The closest passage covers prohibited activities and items in the hostel, but it does not mention vehicles or parking.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1593
+  "latency_ms": 1917
  },
  {
   "id": "N17",
@@ -1039,10 +1046,10 @@
   ],
   "top_similarity": 0.7177,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address a fee concession on the basis of a sibling studying at the Institute. The closest passage covers a concession for children of permanent Institute staff, not siblings of current students.",
+  "answer": "The Scholarship and Fee Concession Policy does not address fee concessions on the basis of a sibling also studying at the Institute. The closest passage is SF §6.1, which provides a fifty per cent tuition-fee concession only for children of permanent employees of the Institute, not for siblings of enrolled students.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1457
+  "latency_ms": 2403
  },
  {
   "id": "N18",
@@ -1064,10 +1071,10 @@
   ],
   "top_similarity": 0.6222,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address how to obtain a bonafide student certificate for a bank loan or for any other purpose. The closest passage describes that a no-dues certificate from the Library, Hostel Office, Department and Finance Office is required before certain documents like the degree certificate, consolidated grade card and transfer certificate are issued.",
+  "answer": "The rulebook does not address the question of obtaining a bonafide student certificate for a bank loan. The closest passage addresses the issuance of degree, grade card and transfer certificates after a no-dues certificate is obtained.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1951
+  "latency_ms": 1780
  },
  {
   "id": "N19",
@@ -1089,10 +1096,10 @@
   ],
   "top_similarity": 0.7788,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the minimum CGPA required for eligibility for campus placements. The closest related passage is AR §3.3, which sets a CGPA threshold of 8.5 only for the purpose of permitting an increased credit load with the Dean's approval.",
+  "answer": "The rulebook supplied does not address the minimum CGPA required for eligibility for campus placements. The closest passage concerns a CGPA threshold for a different purpose, namely credit-load registration above the usual maximum.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1490
+  "latency_ms": 6263
  },
  {
   "id": "N20",
@@ -1114,20 +1121,22 @@
   ],
   "top_similarity": 0.7088,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether a student may re-appear in a course they have already passed in order to improve their grade. The closest passage, AR §9.1, only allows a student who is not satisfied with their marks to apply for re-evaluation of the answer script, not to re-appear in the examination.",
+  "answer": "The rulebook does not address whether a student may re-appear in a course they have already passed in order to improve their grade. The closest provision deals with re-evaluation of an end-semester theory examination when a student is not satisfied with the marks awarded.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 2189
+  "latency_ms": 6150
  },
  {
   "id": "N21",
   "category": "not_covered",
   "question": "What happens if I fall ill in the middle of writing an exam?",
   "expected_status": "not_covered",
-  "status": "not_covered",
-  "pass": true,
-  "why": "silent, as expected",
-  "citations": [],
+  "status": "answered",
+  "pass": false,
+  "why": "status answered != not_covered",
+  "citations": [
+   "EE §3.3"
+  ],
   "conflict_sections": [],
   "retrieved": [
    "LM §3.1",
@@ -1139,12 +1148,10 @@
   ],
   "top_similarity": 0.716,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address this situation. The closest clause covers a related case: If you fall ill during an exam, the rulebook does not directly address what happens while you are writing it. However, if you miss a mid-term test because of illness, you may take a re-test within two weeks of rejoining classes, provided you submit a medical certificate to the HoD within five working days of the test (EE §3.3). You should also inform the hostel supervisor or Warden immediately if you fall ill (HH §8.1).",
+  "answer": "If you fall ill during an exam itself, the rulebook's only specific exam-related sickness provision covers missed mid-term tests, not an illness that begins mid-exam. Per EE §3.3, if you miss a mid-term test on medical grounds and submit a medical certificate to the HoD within five working days, you will be given a re-test within two weeks of rejoining classes, of the same standard and duration as the original.",
   "mode": "llm",
-  "notes": [
-   "attribution check: cited passages govern a related situation, not this one (The cited passages cover (1) reporting illness while in the hostel and (2) missing an exam entirely due to illness; neither explicitly addresses what happens if)"
-  ],
-  "latency_ms": 3251
+  "notes": [],
+  "latency_ms": 1786
  },
  {
   "id": "N22",
@@ -1166,10 +1173,10 @@
   ],
   "top_similarity": 0.6527,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the procedure for getting a name corrected on the grade card. The closest passage, AR §6.3, only describes what a grade card contains (courses, credits, grades, SGPA, CGPA) and when it is issued.",
+  "answer": "The rulebook does not address how to get a name corrected on the grade card. The closest passage covers the issuance and provisional nature of the grade card, noting that results are provisional and subject to correction of clerical errors by the Controller of Examinations within sixty days of declaration.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1938
+  "latency_ms": 2118
  },
  {
   "id": "N23",
@@ -1191,10 +1198,10 @@
   ],
   "top_similarity": 0.6843,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether a student may audit a course without earning credits. The closest passage, AR §3.3, only sets the minimum and maximum credit load a student may register for in a semester and does not mention auditing or non-credit enrolment.",
+  "answer": "The rulebook does not address whether a student may audit a course without earning credits. The closest passage is AR §3.1, which requires every student to register for courses each semester and states that a student who does not register shall not attend classes or appear for examinations, but it does not speak specifically to auditing.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1536
+  "latency_ms": 4150
  },
  {
   "id": "N24",
@@ -1216,10 +1223,10 @@
   ],
   "top_similarity": 0.7236,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address a discount for paying the whole year's tuition fee in advance. The closest provision, FS §2.2, only describes how tuition fees may be split into two instalments per semester and when late fees apply.",
+  "answer": "The rulebook does not address any discount or concession for paying the full year's tuition fee in advance. The closest passage, [FS §2.2], covers how a semester's tuition fee may be split into two equal instalments.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 2771
+  "latency_ms": 1765
  },
  {
   "id": "N25",
@@ -1241,9 +1248,9 @@
   ],
   "top_similarity": 0.6444,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the specific punishment for plagiarism in a project report. The closest passage covers the general scheme of project evaluation and submission requirements but does not mention plagiarism.",
+  "answer": "The rulebook does not address the specific punishment for plagiarism in a project report. The closest passage covers unfair means in examinations and the related penalties for first, second and third offences.",
   "mode": "llm",
   "notes": [],
-  "latency_ms": 1823
+  "latency_ms": 1564
  }
 ]
