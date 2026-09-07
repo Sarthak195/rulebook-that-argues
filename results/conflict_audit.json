@@ -1,0 +1,548 @@
+{
+ "generated_at": "2026-09-07T16:46:26+00:00",
+ "model": "minimax/minimax-m3:free",
+ "embedding_model": "BAAI/bge-small-en-v1.5",
+ "threshold": 0.78,
+ "cross_document_only": true,
+ "sections": 139,
+ "pairs_checked": 50,
+ "seconds": 71.7,
+ "conflicts": [
+  {
+   "a_id": "AR §11.2",
+   "b_id": "SF §3.1",
+   "similarity": 0.939,
+   "conflict": true,
+   "topic": "CGPA threshold for Merit Scholarship continuation",
+   "explanation": "AR §11.2 requires a CGPA of not less than 7.5 for continuation of the Merit Scholarship, whereas SF §3.1 requires a CGPA of not less than 8.0 for the same continuation condition. Both clauses address the same situation (continuing an awarded Merit Scholarship into the next academic year) but set different minimum CGPA thresholds.",
+   "confidence": 0.97,
+   "a": {
+    "id": "AR §11.2",
+    "doc_title": "Academic Regulations for the B.Tech. Programme (2026-27)",
+    "path": "Scholarships and Medals > Continuation of Merit Scholarship",
+    "format": "markdown",
+    "text": "A Merit Scholarship once awarded shall continue for the following academic year provided that the student maintains a CGPA of not less than 7.5 at the end of each semester and is not subjected to any disciplinary action. A student whose CGPA falls below 7.5 in any semester forfeits the scholarship for the remaining period of that academic year."
+   },
+   "b": {
+    "id": "SF §3.1",
+    "doc_title": "Scholarship and Fee Concession Policy",
+    "path": "Conditions of Continuation > Academic Performance",
+    "format": "pdf",
+    "text": "A Merit Scholarship continues for the following academic year only if the student maintains a CGPA of not less than 8.0 at the end of each semester. A student whose CGPA falls below 8.0 in any semester forfeits the scholarship for the remaining period of that academic year. The Merit-cum-Means Scholarship continues only if the student maintains a CGPA of not less than 7.0 at the end of each semester."
+   }
+  },
+  {
+   "a_id": "AR §4.3",
+   "b_id": "LM §2.2",
+   "similarity": 0.8656,
+   "conflict": true,
+   "topic": "Minimum attendance threshold for medical condonation",
+   "explanation": "Clause 1 (AR §4.3) sets the minimum attendance for condonation at 65 per cent and states that below 65 per cent it 'shall not be condoned under any circumstances,' whereas Clause 2 (LM §2.2) sets the minimum at 55 per cent. These are incompatible thresholds for the same situation (medical condonation by the Dean).",
+   "confidence": 0.97,
+   "a": {
+    "id": "AR §4.3",
+    "doc_title": "Academic Regulations for the B.Tech. Programme (2026-27)",
+    "path": "Attendance > Condonation of Shortage of Attendance",
+    "format": "markdown",
+    "text": "A shortage of attendance may be condoned by the Dean on medical grounds only, provided that the student's attendance in the course concerned is not less than 65 per cent, that the illness is supported by a medical certificate issued by a registered medical practitioner and countersigned by the Institute Medical Officer, and that the certificate is submitted to the HoD within seven days of the student rejoining classes. A shortage of attendance below 65 per cent shall not be condoned under any circumstances."
+   },
+   "b": {
+    "id": "LM §2.2",
+    "doc_title": "Leave and Medical Policy for Students",
+    "path": "Medical Leave > Condonation of Attendance Shortfall on Medical Grounds",
+    "format": "markdown",
+    "text": "Where a student's attendance in a course falls short of the minimum required on account of certified illness, the shortfall may be condoned by the Dean on the recommendation of the HoD, provided that the student's overall attendance in the course is not less than 55 per cent. The Dean may call for the original medical records before granting condonation, and condonation is recorded on the academic portal against the course concerned."
+   }
+  },
+  {
+   "a_id": "FS §4.1",
+   "b_id": "SF §6.2",
+   "similarity": 0.8975,
+   "conflict": true,
+   "topic": "Refund of tuition fee when withdrawing before commencement of classes",
+   "explanation": "Clause 1 (FS §4.1) states that a student who withdraws before the commencement of classes shall be refunded 100 per cent of the tuition fee, while Clause 2 (SF §6.2) states that a student who withdraws before the commencement of classes shall be refunded the tuition fee only after a deduction of a 10 per cent processing charge. The two clauses are incompatible on the same situation.",
+   "confidence": 0.95,
+   "a": {
+    "id": "FS §4.1",
+    "doc_title": "Fee Schedule and Refund Rules (2026-27)",
+    "path": "Refund on Withdrawal of Admission > Refund of Tuition Fee",
+    "format": "table",
+    "text": "A student who withdraws from the programme shall be refunded the tuition fee paid for the semester as follows:\n\n| Date of withdrawal request | Tuition fee refunded |\n|---|---|\n| Before the commencement of classes | 100 per cent |\n| Within 15 days of the commencement of classes | 80 per cent |\n| Between 16 and 30 days of the commencement of classes | 50 per cent |\n| After 30 days of the commencement of classes | Nil |"
+   },
+   "b": {
+    "id": "SF §6.2",
+    "doc_title": "Scholarship and Fee Concession Policy",
+    "path": "Fee Concessions and Refunds > Refund on Withdrawal before Commencement of Classes",
+    "format": "pdf",
+    "text": "A student who withdraws admission before the commencement of classes shall be refunded the tuition fee paid, after the deduction of a processing charge of ten per cent of the tuition fee. The caution deposit shall be refunded in full."
+   }
+  },
+  {
+   "a_id": "EE §3.3",
+   "b_id": "LM §2.1",
+   "similarity": 0.8327,
+   "conflict": true,
+   "topic": "Deadline for submitting medical certificate to HoD after absence",
+   "explanation": "Clause 1 (EE §3.3) requires the medical certificate to be submitted within five working days of the test, while Clause 2 (LM §2.1) requires it to be submitted within seven days of rejoining classes. These are incompatible deadlines for the same action (submitting a medical certificate to the HoD following medical absence).",
+   "confidence": 0.8,
+   "a": {
+    "id": "EE §3.3",
+    "doc_title": "Examination and Evaluation Regulations",
+    "path": "Absence from Examination > Missed Mid-term Tests",
+    "format": "markdown",
+    "text": "A student who misses a mid-term test on medical grounds and submits a medical certificate to the HoD within five working days of the test shall be given a re-test within two weeks of rejoining classes. The re-test is of the same standard and duration as the original test and is set by the course instructor."
+   },
+   "b": {
+    "id": "LM §2.1",
+    "doc_title": "Leave and Medical Policy for Students",
+    "path": "Medical Leave > Medical Certificate",
+    "format": "markdown",
+    "text": "A student who is absent from classes on account of illness must obtain a medical certificate from a registered medical practitioner stating the nature of the illness and the period of rest advised. The certificate must be countersigned by the Institute Medical Officer and submitted to the HoD within seven days of the student rejoining classes. Certificates submitted after this period are not accepted, and the absence is treated as unauthorised."
+   }
+  },
+  {
+   "a_id": "AR §11.1",
+   "b_id": "SF §3.1",
+   "similarity": 0.8182,
+   "conflict": true,
+   "topic": "Merit Scholarship continuation CGPA threshold",
+   "explanation": "Clause 1 says the Merit Scholarship is awarded based on being in the top 5% of the branch by CGPA at the end of each academic year, while Clause 2 states that continuation requires maintaining a CGPA of not less than 8.0 at the end of each semester. These are incompatible rules governing the same scholarship's continuation conditions.",
+   "confidence": 0.72,
+   "a": {
+    "id": "AR §11.1",
+    "doc_title": "Academic Regulations for the B.Tech. Programme (2026-27)",
+    "path": "Scholarships and Medals > Merit Scholarship",
+    "format": "markdown",
+    "text": "The Institute awards a Merit Scholarship to students ranking in the top five per cent of each branch on the basis of CGPA at the end of each academic year. The scholarship takes the form of a waiver of fifty per cent of the tuition fee for the following academic year."
+   },
+   "b": {
+    "id": "SF §3.1",
+    "doc_title": "Scholarship and Fee Concession Policy",
+    "path": "Conditions of Continuation > Academic Performance",
+    "format": "pdf",
+    "text": "A Merit Scholarship continues for the following academic year only if the student maintains a CGPA of not less than 8.0 at the end of each semester. A student whose CGPA falls below 8.0 in any semester forfeits the scholarship for the remaining period of that academic year. The Merit-cum-Means Scholarship continues only if the student maintains a CGPA of not less than 7.0 at the end of each semester."
+   }
+  },
+  {
+   "a_id": "AR §11.2",
+   "b_id": "SF §2.1",
+   "similarity": 0.835,
+   "conflict": true,
+   "topic": "Merit Scholarship continuation and forfeiture threshold",
+   "explanation": "AR §11.2 sets the continuation/forfeiture threshold at a CGPA of not less than 7.5 each semester, while SF §2.1 makes eligibility a top-five-per-cent branch rank by CGPA — these are different criteria for the same scholarship's continuation.",
+   "confidence": 0.62,
+   "a": {
+    "id": "AR §11.2",
+    "doc_title": "Academic Regulations for the B.Tech. Programme (2026-27)",
+    "path": "Scholarships and Medals > Continuation of Merit Scholarship",
+    "format": "markdown",
+    "text": "A Merit Scholarship once awarded shall continue for the following academic year provided that the student maintains a CGPA of not less than 7.5 at the end of each semester and is not subjected to any disciplinary action. A student whose CGPA falls below 7.5 in any semester forfeits the scholarship for the remaining period of that academic year."
+   },
+   "b": {
+    "id": "SF §2.1",
+    "doc_title": "Scholarship and Fee Concession Policy",
+    "path": "Categories of Scholarship > Merit Scholarship",
+    "format": "pdf",
+    "text": "The Merit Scholarship is awarded to students who rank in the top five per cent of their branch by CGPA at the end of an academic year. The scholarship is a waiver of fifty per cent of the tuition fee for the following academic year. In the first year, the scholarship is awarded on the basis of the rank in the entrance examination through which the student was admitted."
+   }
+  }
+ ],
+ "cleared": [
+  {
+   "a_id": "AR §11.1",
+   "b_id": "SF §2.1",
+   "similarity": 0.9251,
+   "conflict": false,
+   "topic": "Merit Scholarship eligibility and award",
+   "explanation": "Both clauses agree on the core rule: top 5% of branch by CGPA at the end of the academic year, receiving a 50% tuition fee waiver for the following year. The second clause merely adds a specific provision for the first year (using entrance exam rank), which does not contradict the general rule but rather supplements it for a specific case.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §4.5",
+   "b_id": "LM §3.1",
+   "similarity": 0.917,
+   "conflict": false,
+   "topic": "Attendance during institute deputation",
+   "explanation": "Both clauses state the same rule: a student deputed by the Dean (Student Welfare) to represent the Institute in a competition, conference, or NCC/NSS camp shall be marked present, with the deputation letter to be submitted to the HoD within three working days of return. Clause 1 additionally requires the deputation letter to be issued before the event, and Clause 2 additionally lists 'cultural event' among the qualifying activities, but these are compatible supplementary details rather than contradictory requirements.",
+   "confidence": 0.82
+  },
+  {
+   "a_id": "EE §3.1",
+   "b_id": "LM §2.1",
+   "similarity": 0.888,
+   "conflict": false,
+   "topic": "Medical certificate requirements for student illness",
+   "explanation": "The two clauses address different situations: Clause 1 governs absence from an end-semester examination (submit to Controller of Examinations within five working days), while Clause 2 governs absence from classes (submit to HoD within seven days of rejoining). Different deadlines, different recipients, and different contexts—they are not contradictory.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §11.1",
+   "b_id": "SF §2.2",
+   "similarity": 0.8507,
+   "conflict": false,
+   "topic": "Merit vs. Merit-cum-Means Scholarship",
+   "explanation": "Clause 1 describes a Merit Scholarship (top 5% of branch by CGPA, 50% fee waiver), while Clause 2 describes a Merit-cum-Means Scholarship (income ≤ Rs. 3,00,000, CGPA ≥ 7.0, 25% fee waiver). These are two distinct scholarship categories with different eligibility criteria and benefits, so they are not contradictory.",
+   "confidence": 0.97
+  },
+  {
+   "a_id": "AR §9.3",
+   "b_id": "EE §6.3",
+   "similarity": 0.8424,
+   "conflict": false,
+   "topic": "Re-evaluation finality and procedural reference",
+   "explanation": "Clause 1 establishes that re-evaluated marks are final and not subject to further review, while Clause 2 simply cross-reences Section 9 of the Academic Regulations for the re-evaluation procedure. They do not contradict each other; Clause 2 defers to the same rules Clause 1 details.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "FS §4.2",
+   "b_id": "SF §6.2",
+   "similarity": 0.8404,
+   "conflict": false,
+   "topic": "Refund rules on admission withdrawal",
+   "explanation": "Clause 1 covers refund rules after the commencement of classes for various fee components (exam, development, lab, caution deposits, hostel rent, mess charges), while Clause 2 covers refunds specifically when a student withdraws before the commencement of classes (tuition fee minus 10% processing charge, full caution deposit). They address different timeframes and different fee components, so there is no contradiction.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §12.2",
+   "b_id": "EE §1.2",
+   "similarity": 0.8403,
+   "conflict": false,
+   "topic": "Hall ticket issuance and exam eligibility",
+   "explanation": "Both clauses agree that students with outstanding tuition fee dues shall not be issued a hall ticket and cannot appear for the end-semester examination. Clause 2 adds that hall tickets require attendance and registration, but does not contradict Clause 1's fee-due restriction.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "FS §4.3",
+   "b_id": "SF §6.2",
+   "similarity": 0.8361,
+   "conflict": false,
+   "topic": "Refund on withdrawal of admission",
+   "explanation": "These clauses address different aspects of the refund process: Clause 1 describes the procedural steps and timeline for processing refunds, while Clause 2 specifies the refund amount and deductions for withdrawals before classes commence. They are complementary, not contradictory.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §10.1",
+   "b_id": "LM §2.4",
+   "similarity": 0.8348,
+   "conflict": false,
+   "topic": "Break of study on medical grounds",
+   "explanation": "Clause 1 sets the rule that a break of study may be granted only on medical grounds certified by the Institute Medical Officer and approved by the Dean. Clause 2 is a complementary medical-leave procedure directing students likely to miss more than half a semester to apply for that same break of study under Section 10. They are compatible rather than contradictory.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §12.1",
+   "b_id": "FS §1.1",
+   "similarity": 0.8316,
+   "conflict": false,
+   "topic": "Fee payment schedule and components",
+   "explanation": "Clause 1 states the general rule that semester fees must be paid by the dates in the Fee Schedule and that registration is provisional until fees are paid. Clause 2 provides the actual Fee Schedule listing the amounts, frequencies, and payability of each fee component. The two clauses are complementary: one sets the payment deadline and consequence, the other specifies the amounts and structure. They do not contradict each other.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §3.2",
+   "b_id": "FS §3.2",
+   "similarity": 0.8283,
+   "conflict": false,
+   "topic": "Late registration rules and fee payment deadlines",
+   "explanation": "Clause 1 (AR §3.2) permits late registration with a Rs. 500 fee within ten working days of the semester's commencement. Clause 2 (FS §3.2) concerns fee payment deadlines and allows the Registrar to grant an extension up to five working days after the last date on specific documented grounds (education loan or scholarship delay). These address different aspects—one governs the registration process window, the other governs fee payment acceptance and discretionary waiver—and they do not impose incompatible numerical or procedural requirements on the same situation.",
+   "confidence": 0.78
+  },
+  {
+   "a_id": "AR §4.5",
+   "b_id": "EE §3.2",
+   "similarity": 0.826,
+   "conflict": false,
+   "topic": "Attendance/examination treatment for institute-deputed students",
+   "explanation": "The two clauses address different situations: Clause 1 governs attendance marking during a deputation, while Clause 2 governs how a student deputed during end-semester examinations can sit a supplementary exam. They are complementary, not contradictory.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "EE §3.2",
+   "b_id": "LM §3.1",
+   "similarity": 0.8235,
+   "conflict": false,
+   "topic": "Institute deputation benefits for students",
+   "explanation": "The two clauses address different aspects of institute deputation. Clause 1 concerns examination reappearance rights (next supplementary exam as a first attempt without fee), while Clause 2 concerns attendance marking (marked present for the deputation period). They are complementary, not contradictory.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §12.1",
+   "b_id": "FS §2.1",
+   "similarity": 0.8217,
+   "conflict": false,
+   "topic": "Semester fee payment deadlines",
+   "explanation": "Clause 1 sets the general rule that fees must be paid by the dates in the Fee Schedule. Clause 2 provides those specific dates. They are compatible: the Fee Schedule is the referenced source of deadlines. No contradictory dates, thresholds, or permissions are stated.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §10.2",
+   "b_id": "LM §2.4",
+   "similarity": 0.8187,
+   "conflict": false,
+   "topic": "Break of study application for illness",
+   "explanation": "These clauses are compatible. Clause 1 specifies the deadline (within 15 days of illness onset) and fee implications for a break of study application. Clause 2 specifies a separate condition: when illness causes absence from more than half the instructional days, the student is advised to apply for a break and the Institute Medical Officer must certify the need. They address different aspects (timing/fees vs. eligibility criterion) of the same process.",
+   "confidence": 0.92
+  },
+  {
+   "a_id": "AR §13.1",
+   "b_id": "EE §4.1",
+   "similarity": 0.8158,
+   "conflict": false,
+   "topic": "unfair means in examinations",
+   "explanation": "Clause 1 is a general cross-reference stating that unfair means cases are governed by the Examination and Evaluation Regulations, while Clause 2 provides the substantive definition of what constitutes unfair means within those regulations. The two clauses operate at different levels and are compatible.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §4.3",
+   "b_id": "LM §2.1",
+   "similarity": 0.8149,
+   "conflict": false,
+   "topic": "Medical certificate submission requirements for student absence",
+   "explanation": "Both clauses agree on the same procedural requirements: medical certificate from a registered medical practitioner, countersigned by the Institute Medical Officer, submitted to the HoD within seven days of rejoining classes. Clause 1 adds a separate condonation threshold (65% attendance) specific to shortage condonation, while Clause 2 addresses general medical leave procedures; they govern different situations and are compatible.",
+   "confidence": 0.92
+  },
+  {
+   "a_id": "AR §1.3",
+   "b_id": "SF §1.1",
+   "similarity": 0.8148,
+   "conflict": false,
+   "topic": "Related documents and cross-references",
+   "explanation": "Both clauses are cross-references that list related documents to be read together. They are compatible: Clause 1 lists the Scholarship and Fee Concession Policy among other related documents, and Clause 2 reciprocally lists the Academic Regulations and Fee Schedule and Refund Rules as related documents.",
+   "confidence": 0.97
+  },
+  {
+   "a_id": "AR §4.3",
+   "b_id": "EE §3.1",
+   "similarity": 0.8146,
+   "conflict": false,
+   "topic": "Medical certificate submission deadlines",
+   "explanation": "The two clauses address different situations: Clause 1 governs condonation of attendance shortage (7-day deadline, submitted to HoD) while Clause 2 governs absence from an end-semester examination (5-working-day deadline, submitted to the Controller of Examinations). These are different procedural contexts with different deadlines and recipients.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §8.4",
+   "b_id": "EE §7.1",
+   "similarity": 0.8112,
+   "conflict": false,
+   "topic": "Supplementary examination fee and number of attempts",
+   "explanation": "Clause 1 specifies that students may attempt supplementary examinations any number of times subject to paying the prescribed fee per attempt, while Clause 2 specifies the amount (Rs. 800), timing (within seven days), and mode (online portal) of that fee. The two clauses are complementary, addressing different aspects (frequency vs. fee details) of the same process.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §5.3",
+   "b_id": "EE §8.1",
+   "similarity": 0.8095,
+   "conflict": false,
+   "topic": "Conduct and composition of end-semester practical examinations",
+   "explanation": "Clause 1 states the end-semester practical exam is 'conducted jointly by an internal and an external examiner,' and Clause 2 elaborates that it is conducted by an internal examiner and an external examiner from another institution. Both clauses are consistent in describing the joint conduct by internal and external examiners.",
+   "confidence": 0.9
+  },
+  {
+   "a_id": "AR §9.1",
+   "b_id": "EE §6.3",
+   "similarity": 0.8089,
+   "conflict": false,
+   "topic": "Re-evaluation application procedure and deadline",
+   "explanation": "Clause 1 (AR §9.1) sets out the substantive rules for re-evaluation, including the ten-working-day deadline and the prescribed fee. Clause 2 (EE §6.3) is merely a cross-reference stating that re-evaluation applications are governed by AR §9.1. The two clauses are complementary, not contradictory.",
+   "confidence": 0.97
+  },
+  {
+   "a_id": "AR §8.4",
+   "b_id": "EE §7.2",
+   "similarity": 0.8083,
+   "conflict": false,
+   "topic": "Supplementary examination fees and attempts",
+   "explanation": "Clause 1 establishes the general rule that students pay a prescribed fee for each supplementary attempt. Clause 2 carves out a specific exemption for first-attempt students under Sections 3.1 or 3.2, which is a compatible exception to the general fee rule rather than a contradiction.",
+   "confidence": 0.92
+  },
+  {
+   "a_id": "AR §6.3",
+   "b_id": "EE §6.2",
+   "similarity": 0.8061,
+   "conflict": false,
+   "topic": "Timeline for issuance/validity of grade card and results",
+   "explanation": "Clause 1 requires the grade card to be issued within 30 days of result declaration, while Clause 2 addresses the provisional nature of results and a 60-day window for clerical corrections. They address different aspects (issuance timeline vs. provisional validity/correction window) and do not contradict each other.",
+   "confidence": 0.88
+  },
+  {
+   "a_id": "HH §7.2",
+   "b_id": "FS §4.2",
+   "similarity": 0.8059,
+   "conflict": false,
+   "topic": "Refund of hostel caution deposit",
+   "explanation": "Clause 1 specifies a 60-day refund timeline and a procedural condition (countersigned room-vacating form), while Clause 2 states the hostel caution deposit is 'refundable in full in all cases' subject to adjustment of dues. The two are compatible: Clause 2 confirms full refundability with deduction of dues, and Clause 1 adds the procedural timeline and submission requirement, which does not contradict full refundability. There is no incompatible number, threshold, or prohibition between them.",
+   "confidence": 0.88
+  },
+  {
+   "a_id": "AR §8.1",
+   "b_id": "EE §7.1",
+   "similarity": 0.801,
+   "conflict": false,
+   "topic": "Supplementary examination rules",
+   "explanation": "Clause 1 addresses eligibility and timing of supplementary examinations (within 45 days of result declaration), while Clause 2 addresses the fee amount (Rs. 800 per course) and payment timeline (within 7 days of notification). These cover different aspects—eligibility/scheduling versus fee/payment—and do not contradict each other.",
+   "confidence": 0.92
+  },
+  {
+   "a_id": "AR §12.1",
+   "b_id": "FS §2.2",
+   "similarity": 0.7996,
+   "conflict": false,
+   "topic": "semester fee payment deadlines and structure",
+   "explanation": "Clause 1 establishes that semester fees must be paid in full by the date in the Fee Schedule, while Clause 2 provides an optional instalment arrangement (two equal instalments) that can be requested in writing before the due date. These are compatible: the instalment option is a permitted alternative to paying the full amount by the deadline, not a contradiction. The late fee applying to each instalment separately is consistent with the overall payment framework.",
+   "confidence": 0.85
+  },
+  {
+   "a_id": "AR §11.1",
+   "b_id": "SF §2.3",
+   "similarity": 0.7988,
+   "conflict": false,
+   "topic": "Scholarship tuition fee waiver percentages",
+   "explanation": "The two clauses address different categories of scholarships (Merit Scholarship vs. Sports Scholarship) with different eligibility criteria and different waiver percentages. They apply to different students and different situations, so there is no contradiction.",
+   "confidence": 0.97
+  },
+  {
+   "a_id": "FS §4.1",
+   "b_id": "SF §6.3",
+   "similarity": 0.7953,
+   "conflict": false,
+   "topic": "Refund/recovery on withdrawal",
+   "explanation": "Clause 1 specifies the tuition fee refund percentages based on withdrawal timing for all students. Clause 2 imposes an additional obligation specific to scholarship holders to repay the waived amount. These rules address different aspects (refund of paid tuition vs. recovery of scholarship waiver) and different categories (general students vs. scholarship holders), so they are compatible rather than contradictory.",
+   "confidence": 0.88
+  },
+  {
+   "a_id": "AR §13.1",
+   "b_id": "EE §4.3",
+   "similarity": 0.7925,
+   "conflict": false,
+   "topic": "Unfair means in examinations — procedure",
+   "explanation": "Clause 1 defers to the Examination and Evaluation Regulations, which is the document Clause 2 belongs to. They are compatible: Clause 1 is a cross-reference, and Clause 2 provides the actual procedure. No contradictory rules are stated.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "EE §4.4",
+   "b_id": "SF §7.1",
+   "similarity": 0.7921,
+   "conflict": false,
+   "topic": "Appeal deadlines for committee decisions",
+   "explanation": "These clauses govern different committees (Unfair Means Committee vs. Scholarship Committee) with different appeal deadlines (seven days vs. fifteen days) and different appellate authorities (Vice-Chancellor vs. Dean, with a limited further appeal to the Vice-Chancellor). Because they apply to different situations, they are not contradictory.",
+   "confidence": 0.96
+  },
+  {
+   "a_id": "EE §3.1",
+   "b_id": "LM §2.4",
+   "similarity": 0.7889,
+   "conflict": false,
+   "topic": "Medical absence from examinations vs. prolonged illness during a semester",
+   "explanation": "Clause 1 governs the procedure for missing a single end-semester examination due to illness (medical certificate, supplementary exam as first attempt). Clause 2 addresses prolonged illness causing absence from more than half of instructional days, recommending a break of study. These cover different situations and are not contradictory.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §3.2",
+   "b_id": "FS §2.1",
+   "similarity": 0.7888,
+   "conflict": false,
+   "topic": "Late registration and payment deadlines",
+   "explanation": "Clause 1 governs late registration with a 10-working-day window and a Rs. 500 late fee, while Clause 2 governs semester fee payment deadlines with separate late-fee windows for tuition, hostel, and other charges. They address different procedures (registration vs. fee payment) and are not contradictory.",
+   "confidence": 0.92
+  },
+  {
+   "a_id": "AR §11.2",
+   "b_id": "SF §2.2",
+   "similarity": 0.7883,
+   "conflict": false,
+   "topic": "Scholarship CGPA thresholds",
+   "explanation": "Clause 1 sets a 7.5 CGPA requirement for the Merit Scholarship, while Clause 2 sets a 7.0 CGPA requirement for the Merit-cum-Means Scholarship. These are two distinct scholarship categories with different criteria, not contradictory rules for the same situation.",
+   "confidence": 0.97
+  },
+  {
+   "a_id": "FS §1.2",
+   "b_id": "SF §6.2",
+   "similarity": 0.7866,
+   "conflict": false,
+   "topic": "Fee revisions and refund deductions",
+   "explanation": "Clause 1 concerns the annual revision of fees by the Board of Governors (capped at 10% increase). Clause 2 concerns a processing charge deducted from a refund when a student withdraws before classes begin. They address different situations and different fee components, so they are not contradictory.",
+   "confidence": 0.97
+  },
+  {
+   "a_id": "EE §3.1",
+   "b_id": "LM §2.3",
+   "similarity": 0.7857,
+   "conflict": false,
+   "topic": "Medical absence procedures",
+   "explanation": "These clauses address different situations: Clause 1 governs missing an examination due to illness (certificate submission within 5 working days for a supplementary exam attempt), while Clause 2 governs extended hospitalisation (notifying HoD and Dean within 3 days of admission). They are not contradictory.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §12.2",
+   "b_id": "FS §2.1",
+   "similarity": 0.7854,
+   "conflict": false,
+   "topic": "Outstanding tuition fees and exam eligibility vs. fee payment deadlines",
+   "explanation": "Clause 1 specifies the consequence of having outstanding tuition fees on the last date of payment (hall ticket withheld). Clause 2 specifies the payment deadlines and last dates for various fees. They address different aspects—one is a penalty/consequence rule, the other is a schedule of deadlines—and are compatible.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §1.3",
+   "b_id": "FS §1.1",
+   "similarity": 0.7839,
+   "conflict": false,
+   "topic": "Related documents and fee schedule applicability",
+   "explanation": "Clause 1 states that the Academic Regulations must be read together with the Fee Schedule and Refund Rules, among other documents. Clause 2 provides the actual fee schedule. There is no contradiction; Clause 1 is a cross-reference directing readers to the document that contains Clause 2's content.",
+   "confidence": 0.97
+  },
+  {
+   "a_id": "AR §12.1",
+   "b_id": "FS §3.2",
+   "similarity": 0.7834,
+   "conflict": false,
+   "topic": "Late fee payment and registration status",
+   "explanation": "Clause 1 states registration is provisional until fees are paid in full, and Clause 2 elaborates on what happens when fees are not paid by the last date (student is treated as not registered, unless the Registrar grants an exception for documented loan/scholarship delay). These are compatible provisions on the same topic, with Clause 2 providing the specific procedure for late payment that supplements Clause 1's general requirement.",
+   "confidence": 0.92
+  },
+  {
+   "a_id": "AR §2.3",
+   "b_id": "EE §1.1",
+   "similarity": 0.7829,
+   "conflict": false,
+   "topic": "Academic calendar and examination timetable publication deadlines",
+   "explanation": "These clauses address different things: Clause 1 specifies when the overall academic calendar (including dates of registration, instructional period, mid-term tests, end-semester examinations, and vacations) is published by the Dean, while Clause 2 specifies when the end-semester examination timetable specifically is published on the examination portal. They cover different aspects of scheduling and do not contradict each other.",
+   "confidence": 0.92
+  },
+  {
+   "a_id": "AR §9.2",
+   "b_id": "FS §4.2",
+   "similarity": 0.7829,
+   "conflict": false,
+   "topic": "Refund of re-evaluation fee vs. refund of other fees",
+   "explanation": "Clause 1 addresses the refund of the re-evaluation fee specifically when a mark change of ten per cent or more occurs, while Clause 2 addresses the non-refundability of examination, development, and laboratory fees upon withdrawal of admission. These concern different fee components and different situations, so they are not contradictory.",
+   "confidence": 0.95
+  },
+  {
+   "a_id": "AR §12.2",
+   "b_id": "FS §3.2",
+   "similarity": 0.7822,
+   "conflict": false,
+   "topic": "Consequences of unpaid fees by the last date",
+   "explanation": "Clause 1 addresses what happens to a student who pays after the last date (hall ticket withheld until dues cleared), while Clause 2 addresses whether fees are even accepted after the last date and the late-fee/registration consequences. They address different aspects (examination eligibility vs. fee acceptance/registration status) rather than giving incompatible rules for the same situation.",
+   "confidence": 0.82
+  },
+  {
+   "a_id": "AR §9.2",
+   "b_id": "FS §1.2",
+   "similarity": 0.7817,
+   "conflict": false,
+   "topic": "Fee revision and re-evaluation refund",
+   "explanation": "Clause 1 addresses the refund of the re-evaluation fee when marks change by 10% or more, while Clause 2 addresses the annual revision of fees by the Board of Governors capped at 10%. These are different rules about different fee matters and do not contradict each other.",
+   "confidence": 0.97
+  },
+  {
+   "a_id": "FS §2.2",
+   "b_id": "SF §6.2",
+   "similarity": 0.7813,
+   "conflict": false,
+   "topic": "Payment instalments vs. refund on withdrawal before classes",
+   "explanation": "Clause 1 addresses how tuition fees may be split into two instalments and when late fees apply. Clause 2 addresses refunds when a student withdraws before classes begin. These govern different situations (payment scheduling vs. withdrawal refunds) and are not contradictory.",
+   "confidence": 0.95
+  }
+ ]
+}

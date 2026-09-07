@@ -6,19 +6,19 @@ Model `minimax/minimax-m3:free` via OpenRouter, embeddings `BAAI/bge-small-en-v1
 |---|---|---|---|
 | answerable | 18 | 18 | 100% |
 | conflict | 4 | 4 | 100% |
-| not_covered | 23 | 25 | 92% |
-| **all** | **45** | **47** | **96%** |
+| not_covered | 25 | 25 | 100% |
+| **all** | **47** | **47** | **100%** |
 
 ## Confusion matrix (rows: expected, columns: predicted)
 
 | expected \ predicted | answered | not_covered | conflict | error |
 |---|---|---|---|---|
 | answered | 18 | 0 | 0 | 0 |
-| not_covered | 2 | 23 | 0 | 0 |
+| not_covered | 0 | 25 | 0 | 0 |
 | conflict | 0 | 0 | 4 | 0 |
 
 Retrieval recall (every expected section inside the top-6 passages): 21/22
-Median latency 2087 ms, p90 4119 ms.
+Median latency 2178 ms, p90 4812 ms.
 
 ## Per question
 
@@ -56,7 +56,7 @@ Median latency 2087 ms, p90 4119 ms.
 | N08 | not_covered | not_covered | yes | silent, as expected |
 | N09 | not_covered | not_covered | yes | silent, as expected |
 | N10 | not_covered | not_covered | yes | silent, as expected |
-| N11 | not_covered | answered | NO | status answered != not_covered |
+| N11 | not_covered | not_covered | yes | silent, as expected |
 | N12 | not_covered | not_covered | yes | silent, as expected |
 | N13 | not_covered | not_covered | yes | silent, as expected |
 | N14 | not_covered | not_covered | yes | silent, as expected |
@@ -69,20 +69,18 @@ Median latency 2087 ms, p90 4119 ms.
 | N21 | not_covered | not_covered | yes | silent, as expected |
 | N22 | not_covered | not_covered | yes | silent, as expected |
 | N23 | not_covered | not_covered | yes | silent, as expected |
-| N24 | not_covered | answered | NO | status answered != not_covered |
+| N24 | not_covered | not_covered | yes | silent, as expected |
 | N25 | not_covered | not_covered | yes | silent, as expected |
 
 ## Failures in detail
 
-### N11: Can I use a scientific calculator in the examination hall?
+None.
+## Borderline questions (run, not graded)
 
-- expected `not_covered`, got `answered` (status answered != not_covered)
-- retrieved: EE §2.1, EE §2.2, EE §1.2, EE §1.3, AR §12.2, EE §1.4
-- answer: A scientific calculator is not listed among the items you are permitted to bring into the examination hall under the Examination and Evaluation Regulations. You may only bring your hall ticket, Institute identity card, blue or black ball-point pens, pencils, an eraser, a transparent water bottle, and any other item expressly permitted on the question paper. Unless the specific question paper expressly permits a calculator, do not bring one, as prohibited electronic items (communication devices) are banned and possession can amount to use of unfair means.
+Either response type is defensible for these; see `tests/questions.json` for why.
 
-### N24: Is the examination fee refunded if I withdraw from an exam?
-
-- expected `not_covered`, got `answered` (status answered != not_covered)
-- retrieved: FS §4.2, AR §9.2, SF §6.2, FS §4.1, SF §6.3, SF §3.2
-- answer: No. The examination fee is not refundable after the commencement of classes, including in the event of withdrawal.
-
+| id | question | got | cited | answer |
+|---|---|---|---|---|
+| B01 | Can I use a scientific calculator in the examination hall? | answered | EE §2.1 | A scientific calculator is not among the items you are expressly permitted to bring into the examination hall. Under EE §2.1, only the hall ticket, Institute identity card, blue or black ball-point pens, pencils, an eraser, a transparent water bottle, and items expressly permitted on the question paper may be brought in. If your question paper expressly permits a calculator, then it would be allowed under that same clause; otherwise it is not. |
+| B02 | Will I get my hall ticket if my hostel fee is unpaid but my tuition fee is paid? | not_covered |  | The rulebook does not directly address whether unpaid hostel fee alone can block the issue of a hall ticket. The closest passages only state that hall tickets are withheld when tuition fee dues are outstanding (AR §12.2 and EE §1.2), and that hostel rent and mess charges have their own separate payment deadlines (FS §2.1). |
+| B03 | Is the examination fee refunded if I withdraw from an exam? | answered | FS §4.2 | No. The examination fee is not refundable after the commencement of classes, even if you withdraw from an exam or the programme. |

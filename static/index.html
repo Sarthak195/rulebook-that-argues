@@ -252,6 +252,12 @@ async function askNow() {
 }
 $('#ask').onclick = askNow;
 $('#q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askNow(); } });
+// Shareable links: /?q=... asks on load; /?tab=eval or /?tab=audit opens that tab.
+(() => {
+  const p = new URLSearchParams(location.search);
+  if (p.get('tab')) document.querySelector(`nav button[data-view="${p.get('tab')}"]`)?.click();
+  if (p.get('q')) { $('#q').value = p.get('q'); askNow(); }
+})();
 
 // ---------- evaluation ----------
 const EXP = { answerable: 'answered', conflict: 'conflict', not_covered: 'not_covered' };
