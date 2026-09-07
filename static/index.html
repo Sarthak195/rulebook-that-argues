@@ -81,6 +81,17 @@
   .matrix td.diag { background: var(--green-bg); font-weight: 700; }
   .matrix td.off { background: var(--red-bg); }
   .scroll { overflow-x: auto; }
+  /* audit view */
+  .pair { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .pair h3 { margin: 0 0 4px; font-size: 15px; }
+  .pair .sub { color: var(--muted); font-size: 12.5px; font-family: var(--mono); margin-bottom: 10px; }
+  .clauses { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 820px) { .clauses { grid-template-columns: 1fr; } }
+  .clause { border-left: 4px solid var(--red); background: var(--red-bg); border-radius: 6px; padding: 10px 12px; font-size: 13.5px; }
+  .clause .id { font-family: var(--mono); font-weight: 700; }
+  .clause .path { color: var(--muted); font-size: 12px; }
+  .clause .text { margin-top: 6px; white-space: pre-wrap; }
+  .pair .why { margin-top: 10px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -94,6 +105,7 @@
 <nav>
   <button data-view="ask" class="active">Ask</button>
   <button data-view="eval">Evaluation</button>
+  <button data-view="audit">Conflict audit</button>
 </nav>
 <main>
   <section id="view-ask" class="view active">
@@ -136,6 +148,16 @@
       <div class="stats" id="stats"></div>
       <div class="scroll" id="matrix"></div>
       <div class="scroll"><table class="eval" id="eval-table"><thead><tr><th>id</th><th>question</th><th>expected</th><th>got</th><th>cited / named</th><th>detail</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="view-audit" class="view">
+    <div class="card">
+      <h2>Where the rulebook argues with itself</h2>
+      <p class="hint" style="margin:0 0 10px">Nobody reads all six documents at once, so the system does. Every section is compared with every similar section and an LLM judges each pair. Waiver clauses, cross-references and general-rule-plus-procedure pairs must be cleared, not flagged. Refresh with <code>python scripts/audit.py</code>.</p>
+      <div id="audit-summary" class="stats"></div>
+      <div id="audit-list"><p class="empty">Loading…</p></div>
+      <details style="margin-top:14px"><summary class="hint">Pairs checked and cleared</summary><div class="scroll" id="audit-cleared"></div></details>
     </div>
   </section>
 </main>
@@ -276,6 +298,32 @@ async function runEval() {
   btn.disabled = false;
 }
 $('#run-eval').onclick = runEval;
+
+// ---------- audit ----------
+let auditLoaded = false;
+async function loadAudit() {
+  if (auditLoaded) return; auditLoaded = true;
+  const list = $('#audit-list');
+  try {
+    const a = await (await fetch('/audit')).json();
+    if (!a.available) { list.innerHTML = `<p class="empty">No audit yet. ${esc(a.hint)}</p>`; return; }
+    $('#audit-summary').innerHTML =
+      `<div class="stat"><b>${a.conflicts.length}</b><span>contradictions found</span></div>` +
+      `<div class="stat"><b>${a.pairs_checked}</b><span>section pairs judged (cosine ≥ ${a.threshold})</span></div>` +
+      `<div class="stat"><b>${a.sections}</b><span>sections read</span></div>` +
+      `<div class="stat"><b>${a.seconds}s</b><span>${esc(a.model)}</span></div>`;
+    list.innerHTML = a.conflicts.length ? '' : '<p class="empty">No contradictions found.</p>';
+    a.conflicts.forEach((c, i) => {
+      const el = document.createElement('div'); el.className = 'pair';
+      const clause = (x) => `<div class="clause"><span class="id">${esc(x.id)}</span> <span class="tag">${esc(x.format)}</span><div class="path">${esc(x.doc_title)} › ${esc(x.path)}</div><div class="text">${renderTable(x.text)}</div></div>`;
+      el.innerHTML = `<h3>${i + 1}. ${esc(c.topic)}</h3><div class="sub">${esc(c.a_id)} vs ${esc(c.b_id)} · similarity ${c.similarity.toFixed(2)} · confidence ${c.confidence.toFixed(2)}</div><div class="clauses">${clause(c.a)}${clause(c.b)}</div><div class="why">${esc(c.explanation)}</div>`;
+      list.appendChild(el);
+    });
+    $('#audit-cleared').innerHTML = '<table class="eval"><thead><tr><th>A</th><th>B</th><th>cos</th><th>why it is not a conflict</th></tr></thead><tbody>' +
+      a.cleared.map(v => `<tr class="pending"><td>${esc(v.a_id)}</td><td>${esc(v.b_id)}</td><td>${v.similarity.toFixed(2)}</td><td>${esc(v.explanation)}</td></tr>`).join('') + '</tbody></table>';
+  } catch (e) { list.innerHTML = `<p class="error">${esc(e.message)}</p>`; }
+}
+document.querySelector('nav button[data-view="audit"]').addEventListener('click', loadAudit);
 $('#only-fails').onchange = (e) => { document.querySelectorAll('#eval-table tbody tr').forEach(tr => { tr.style.display = (e.target.checked && !tr.classList.contains('fail')) ? 'none' : ''; }); };
 </script>
 </body>
