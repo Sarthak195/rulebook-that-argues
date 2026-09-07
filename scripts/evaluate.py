@@ -78,6 +78,7 @@ def main() -> int:
     ap.add_argument("--category", choices=list(EXPECTED), default=None)
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--out", default="results/eval_report.md", help="markdown report path; JSON goes next to it")
     args = ap.parse_args()
 
     tests = json.loads((ROOT / "tests" / "questions.json").read_text(encoding="utf-8"))
@@ -139,12 +140,13 @@ def main() -> int:
         lines += [f"### {r['id']}: {r['question']}", "", f"- expected `{r['expected_status']}`, got `{r['status']}` ({r['why']})",
                   f"- retrieved: {', '.join(r['retrieved'])}", f"- answer: {r['answer']}", ""]
 
-    out_dir = ROOT / "results"
-    out_dir.mkdir(exist_ok=True)
-    (out_dir / "eval_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    (out_dir / "eval_results.json").write_text(json.dumps(results, ensure_ascii=False, indent=1), encoding="utf-8")
+    out_md = ROOT / args.out
+    out_md.parent.mkdir(parents=True, exist_ok=True)
+    out_json = out_md.with_name(out_md.stem.replace("report", "results") + ".json") if "report" in out_md.stem else out_md.with_suffix(".json")
+    out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    out_json.write_text(json.dumps(results, ensure_ascii=False, indent=1), encoding="utf-8")
     print("\n" + "\n".join(lines[4: 4 + len(by_cat) + 3]))
-    print(f"\nwrote results/eval_report.md and results/eval_results.json")
+    print(f"\nwrote {out_md.relative_to(ROOT)} and {out_json.relative_to(ROOT)}")
     return 0 if total_pass == len(results) else 1
 
 
