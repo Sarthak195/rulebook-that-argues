@@ -1,5 +1,11 @@
 {
   "_about": "Labelled test set. Section ids refer to corpus documents (AR, EE, HH, FS, SF, LM). See corpus/CONTRADICTIONS.md for the planted conflicts.",
+  "_changelog": "Three of the original 25 not_covered questions (N11 calculator, N18 hostel-fee dues, N24 exam-fee refund) turned out to be answerable on a strict reading: in each case the rulebook has a positive list or a general sentence that covers the item by omission or by generality. The models answered them from the right clause; the labels were the weak side of the argument. They were moved to the ungraded 'borderline' list below with the reasoning, and replaced with questions the corpus is genuinely silent on. Nothing else in this file changed after the first evaluation run.",
+  "borderline": [
+    {"id": "B01", "question": "Can I use a scientific calculator in the examination hall?", "either": "EE §2.1 permits listed items 'and any other item expressly permitted on the question paper'; 'only if the paper permits it' is a fair answer, 'not mentioned' is also fair"},
+    {"id": "B02", "question": "Will I get my hall ticket if my hostel fee is unpaid but my tuition fee is paid?", "either": "EE §1.2 lists the three conditions for a hall ticket positively; hostel dues are not one of them, so 'yes' is a strict reading, 'the rule speaks only of tuition dues' is a cautious one"},
+    {"id": "B03", "question": "Is the examination fee refunded if I withdraw from an exam?", "either": "FS §4.2 says the examination fee is not refundable after classes commence, a general sentence inside a section about withdrawing admission"}
+  ],
   "answerable": [
     {"id": "A01", "question": "What is the minimum attendance required to appear for the end-semester examination?", "expected_sections": ["AR §4.1"], "expected_answer": "75 per cent in each course"},
     {"id": "A02", "question": "How are marks split between internal assessment and the end-semester exam for a theory course?", "expected_sections": ["AR §5.1"], "expected_answer": "40 internal, 60 end-semester"},
@@ -37,20 +43,20 @@
     {"id": "N08", "question": "Can I get academic credit for a summer internship?", "adjacent": "AR §2.4 course categories say nothing about internships"},
     {"id": "N09", "question": "Is there a scholarship for students from the EWS category?", "adjacent": "SF §2 lists merit, merit-cum-means and sports only"},
     {"id": "N10", "question": "Are grace marks given if I fail a course by one or two marks?", "adjacent": "AR §5.4 passing rule; EE §5.2 moderation is uniform, not individual grace"},
-    {"id": "N11", "question": "Can I use a scientific calculator in the examination hall?", "adjacent": "EE §2.1 and §2.2 list items but never mention calculators"},
+    {"id": "N11", "question": "Can I write my answers in Hindi instead of English in the end-semester exam?", "adjacent": "EE covers conduct, materials and absence; nothing on the language of answers"},
     {"id": "N12", "question": "What happens if there is a printing error in the question paper?", "adjacent": "nothing on question paper errors"},
     {"id": "N13", "question": "How do I get a duplicate degree certificate if I lose the original?", "adjacent": "AR §12.3 covers issue of the original only"},
     {"id": "N14", "question": "How many books can I borrow from the library at a time?", "adjacent": "library appears only in the no-dues clause AR §12.3"},
     {"id": "N15", "question": "What is the procedure to transfer to another university mid-course?", "adjacent": "AR §12.3 mentions a transfer certificate but no transfer procedure"},
     {"id": "N16", "question": "Can I keep a two-wheeler in the hostel parking?", "adjacent": "nothing on vehicles"},
     {"id": "N17", "question": "Is there a fee concession if my sibling also studies at the institute?", "adjacent": "SF §6.1 covers wards of staff only"},
-    {"id": "N18", "question": "Will I get my hall ticket if my hostel fee is unpaid but my tuition fee is paid?", "adjacent": "AR §12.2 and EE §1.2 speak only of tuition fee dues"},
+    {"id": "N18", "question": "How do I get a bonafide student certificate for my bank loan?", "adjacent": "certificates issued are listed in AR §12.3 (degree, grade card, transfer certificate); nothing on bonafide certificates"},
     {"id": "N19", "question": "What is the minimum CGPA to be eligible for campus placements?", "adjacent": "LM §3.3 covers leave for interviews, not eligibility"},
     {"id": "N20", "question": "Can I re-appear in a course I have already passed to improve my grade?", "adjacent": "AR §8.1 supplementary exams are for grade F only"},
     {"id": "N21", "question": "What happens if I fall ill in the middle of writing an exam?", "adjacent": "EE §3.1 covers being unable to appear, not illness during the exam"},
     {"id": "N22", "question": "How do I get my name corrected on the grade card?", "adjacent": "EE §6.2 covers clerical errors in results, not name corrections"},
     {"id": "N23", "question": "Can I audit a course without earning credits?", "adjacent": "AR §3 registration rules say nothing about auditing"},
-    {"id": "N24", "question": "Is the examination fee refunded if I withdraw from an exam?", "adjacent": "FS §4.2 covers exam fee on withdrawal of admission, not from an exam"},
+    {"id": "N24", "question": "Is there a discount if I pay the whole year's tuition fee in advance?", "adjacent": "FS §2.2 covers paying in instalments; nothing on paying early"},
     {"id": "N25", "question": "What is the punishment for plagiarism in a project report?", "adjacent": "EE §4 covers unfair means in examinations only"}
   ]
 }

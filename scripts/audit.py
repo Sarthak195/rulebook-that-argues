@@ -1,8 +1,11 @@
 """Audit the whole corpus for contradictions and write results/conflict_audit.{json,md}.
 
-    python scripts/audit.py                    # default: cosine >= 0.72, up to 120 pairs
-    python scripts/audit.py --threshold 0.68 --max-pairs 200
+    python scripts/audit.py                    # default: cosine >= 0.80, up to 200 pairs
+    python scripts/audit.py --threshold 0.75 --max-pairs 600
     python scripts/audit.py --cross-document-only
+
+On this corpus (139 sections) cosine >= 0.80 yields 184 candidate pairs; the planted
+contradictions sit at 0.87, 0.90 and 0.94. Lowering the threshold to 0.72 would mean 1,145 pairs.
 """
 from __future__ import annotations
 
@@ -26,8 +29,8 @@ PLANTED = {frozenset({"AR §4.3", "LM §2.2"}), frozenset({"FS §4.1", "SF §6.2
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser()
-    ap.add_argument("--threshold", type=float, default=0.72)
-    ap.add_argument("--max-pairs", type=int, default=120)
+    ap.add_argument("--threshold", type=float, default=0.80)
+    ap.add_argument("--max-pairs", type=int, default=200)
     ap.add_argument("--cross-document-only", action="store_true")
     ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()

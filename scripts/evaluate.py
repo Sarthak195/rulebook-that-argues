@@ -85,6 +85,7 @@ def main() -> int:
     jobs = [(cat, item) for cat in EXPECTED if not args.category or cat == args.category for item in tests[cat]]
     if args.limit:
         jobs = jobs[: args.limit]
+    borderline = tests.get("borderline", []) if not args.category else []
 
     retriever = load_index()
     retriever.embed_query("warm up")
@@ -97,6 +98,19 @@ def main() -> int:
             results.append(res)
             mark = "PASS" if res["pass"] else "FAIL"
             print(f"{mark} {res['id']}  {res['expected_status']:>11} -> {res['status']:<11} {res['why']}")
+
+    # Borderline questions are run and reported, never graded: both readings are defensible.
+    border_rows: list[dict] = []
+    if borderline:
+        print("\nborderline (ungraded):")
+        for item in borderline:
+            try:
+                resp = ask(item["question"], retriever)
+                border_rows.append({"id": item["id"], "question": item["question"], "status": resp.status,
+                                    "citations": resp.citations, "answer": resp.answer, "either": item["either"]})
+                print(f"  -- {item['id']}  {resp.status:<11} {resp.citations}")
+            except Exception as e:
+                print(f"  -- {item['id']}  error: {e}")
 
     # ---- summary -------------------------------------------------------------
     by_cat = {cat: [r for r in results if r["category"] == cat] for cat in EXPECTED}
@@ -139,6 +153,12 @@ def main() -> int:
     for r in fails:
         lines += [f"### {r['id']}: {r['question']}", "", f"- expected `{r['expected_status']}`, got `{r['status']}` ({r['why']})",
                   f"- retrieved: {', '.join(r['retrieved'])}", f"- answer: {r['answer']}", ""]
+    if border_rows:
+        lines += ["## Borderline questions (run, not graded)", "",
+                  "Either response type is defensible for these; see `tests/questions.json` for why.", "",
+                  "| id | question | got | cited | answer |", "|---|---|---|---|---|"]
+        for b in border_rows:
+            lines.append(f"| {b['id']} | {b['question']} | {b['status']} | {', '.join(b['citations'])} | {b['answer'].replace('|', '/')} |")
 
     out_md = ROOT / args.out
     out_md.parent.mkdir(parents=True, exist_ok=True)
