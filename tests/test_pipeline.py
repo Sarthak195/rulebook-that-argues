@@ -78,6 +78,33 @@ def test_validator_downgrades_unbacked_claims(monkeypatch):
     assert resp.status == "answered" and resp.conflict is None
 
 
+def test_answer_whose_own_words_say_silent_is_downgraded(monkeypatch):
+    import numpy as np
+
+    from app import llm, pipeline
+    from app.chunking import Chunk
+    from app.retriever import Retriever
+
+    docs = [Chunk(id="EE §3.3", doc_code="EE", doc_title="T", section="3.3", title="t", parent_title="p",
+                  text="re-test on medical grounds", source="x.md", format="markdown")]
+    r = Retriever(docs, np.eye(1, dtype=np.float32))
+    monkeypatch.setattr(r, "embed_query", lambda q: np.array([1.0], dtype=np.float32))
+    monkeypatch.setattr(llm, "available", lambda: True)
+    monkeypatch.setattr(pipeline, "known_conflicts", lambda: {})
+    monkeypatch.setattr(llm, "chat", lambda *a, **k: (
+        '{"status":"answered","answer":"The rulebook does not contain a specific clause about falling ill during an '
+        'exam. The closest rule is the re-test for a missed mid-term.","citations":["EE §3.3"]}', {}))
+    resp = pipeline.ask("What if I fall ill during the exam?", r)
+    assert resp.status == "not_covered" and resp.citations == []
+    assert resp.passages[0].closest
+
+    # A real answer that merely mentions a detail is not downgraded.
+    monkeypatch.setattr(llm, "chat", lambda *a, **k: (
+        '{"status":"answered","answer":"Yes, you get a re-test within two weeks. The rule does not mention weekends.",'
+        '"citations":["EE §3.3"]}', {}))
+    assert pipeline.ask("Do I get a re-test?", r).status == "answered"
+
+
 def test_audit_escalates_answer_that_leans_on_a_known_disagreement(monkeypatch):
     """Model says 'answered' citing AR §0.1; the audit knows AR §0.1 and AR §1.1 disagree and
     AR §1.1 was also retrieved, so the response must become a conflict naming both."""

@@ -28,6 +28,7 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
+        "seed": 7,  # honoured by some providers; harmless elsewhere
     }
     if json_mode:
         payload["response_format"] = {"type": "json_object"}

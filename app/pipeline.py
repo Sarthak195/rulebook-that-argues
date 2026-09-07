@@ -33,6 +33,8 @@ Rules:
 - Cite section ids exactly as they appear in square brackets, for example "AR §4.3". Never invent a section id.
 - Keep "answer" to 2-5 sentences. Speak to the student directly.
 - If the question is unrelated to the rulebook entirely, use "not_covered".
+- Never add the word "only" to a rule that does not contain it. A clause that grants something in one situation does not deny it in another; if the question is about the other situation, the answer is "not_covered".
+- Your "status" must agree with your "answer": if your answer says the rulebook does not address, specify, mention or contain something, the status is "not_covered".
 
 Reply with exactly this JSON shape:
 {{"status": "answered" | "not_covered" | "conflict",
@@ -44,6 +46,17 @@ Reply with exactly this JSON shape:
 AUTHORITY_QUERY = "inconsistency between these regulations and another policy, interpretation, decision shall be final"
 
 SECTION_ID_RE = re.compile(r"\b([A-Z]{2,4})\s*§?\s*(\d+(?:\.\d+)?)\b")
+
+# The model's own words saying the rulebook is silent. If the status field disagrees with them,
+# the words win: they were written while looking at the passages, the status is a label.
+SILENCE_RE = re.compile(
+    r"\b(rulebook|regulations?|policy|passages?|corpus|handbook|schedule|documents?)\b[^.]{0,60}?"
+    r"\b(do(?:es)? not|don't|doesn't|did not|never)\s+"
+    r"(address|specify|mention|contain|cover|provide|state|say|define|set out|deal with|include|explicitly)\b"
+    r"|\bno (?:specific |explicit |such )?(?:clause|provision|rule|section|passage|mention)\b"
+    r"|\bnot (?:addressed|covered|mentioned|specified)\b|\bis silent\b",
+    re.IGNORECASE,
+)
 
 
 def normalise_ids(raw, valid: set[str]) -> list[str]:
@@ -128,6 +141,12 @@ def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskRes
             citations = list(dict.fromkeys(sections + citations))
     if status == "answered" and not citations:
         notes.append("answered without a valid citation; downgraded to not_covered")
+        status = "not_covered"
+    if status == "answered" and SILENCE_RE.search(answer.split(". ")[0] + "."):
+        # Only the first sentence counts: "The rulebook does not address X" is a verdict; a later
+        # "it does not mention weekends" inside a real answer is a detail.
+        notes.append("model's own answer says the rulebook is silent; downgraded to not_covered")
+        closest = closest or citations
         status = "not_covered"
     if status == "not_covered":
         citations = []
