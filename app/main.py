@@ -1,0 +1,84 @@
+"""FastAPI service: POST /ask plus a static HTML front end and a few helper endpoints."""
+from __future__ import annotations
+
+import json
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / ".env")  # must run before app.config reads the environment
+
+from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi.concurrency import run_in_threadpool  # noqa: E402
+from fastapi.responses import FileResponse  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+
+from . import config, llm  # noqa: E402
+from .llm import LLMError  # noqa: E402
+from .pipeline import ask  # noqa: E402
+from .retriever import Retriever, load_index  # noqa: E402
+from .schemas import AskRequest, AskResponse  # noqa: E402
+
+STATIC = ROOT / "static"
+TESTS = ROOT / "tests" / "questions.json"
+state: dict[str, Retriever] = {}
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    r = load_index()
+    r.embed_query("warm up the encoder")
+    state["retriever"] = r
+    yield
+
+
+app = FastAPI(title="The Rulebook That Argues With Itself", version="1.0", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+
+@app.get("/", include_in_schema=False)
+async def index():
+    return FileResponse(STATIC / "index.html")
+
+
+@app.get("/health")
+async def health():
+    r = state.get("retriever")
+    return {
+        "ok": r is not None,
+        "sections": len(r.chunks) if r else 0,
+        "embedding_model": config.EMBEDDING_MODEL,
+        "llm_available": llm.available(),
+        "llm_model": config.OPENROUTER_MODEL if llm.available() else None,
+        "top_k": config.TOP_K,
+        "min_similarity": config.MIN_SIMILARITY,
+    }
+
+
+@app.post("/ask", response_model=AskResponse)
+async def ask_endpoint(req: AskRequest):
+    r = state.get("retriever")
+    if r is None:
+        raise HTTPException(503, "index not loaded yet")
+    try:
+        return await run_in_threadpool(ask, req.question, r, req.top_k)
+    except LLMError as e:
+        raise HTTPException(502, f"LLM error: {e}") from e
+
+
+@app.get("/sections")
+async def sections():
+    r = state.get("retriever")
+    if r is None:
+        raise HTTPException(503, "index not loaded yet")
+    return [{"id": c.id, "doc": c.doc_title, "title": c.title, "parent": c.parent_title,
+             "format": c.format, "source": c.source, "words": len(c.text.split())} for c in r.chunks]
+
+
+@app.get("/questions")
+async def questions():
+    if not TESTS.exists():
+        return {"answerable": [], "conflict": [], "not_covered": []}
+    return json.loads(TESTS.read_text(encoding="utf-8"))
