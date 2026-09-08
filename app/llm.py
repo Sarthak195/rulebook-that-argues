@@ -58,26 +58,43 @@ class Entry:
     model: str
     url: str
     key: str
-    seed: bool  # whether the endpoint accepts a "seed" parameter
+    seed: bool      # whether the endpoint accepts a "seed" parameter
+    slot: int = 0   # which of the provider's keys; each key is its own quota
+    nkeys: int = 1
+
+    @property
+    def account(self) -> str:
+        """Provider plus key slot: the unit that rate limits apply to."""
+        return self.provider if self.nkeys == 1 else f"{self.provider}#{self.slot + 1}"
 
     @property
     def id(self) -> str:
-        return self.model if self.provider == "openrouter" else f"{self.provider}/{self.model}"
+        if self.provider == "openrouter" and self.nkeys == 1:
+            return self.model
+        return f"{self.account}/{self.model}"
+
+
+def _keys_for(provider: str) -> list[str]:
+    """Prefer the *_API_KEYS list; fall back to the single *_API_KEY (tests set the latter)."""
+    many = getattr(config, f"{provider.upper()}_API_KEYS", None) or []
+    one = getattr(config, f"{provider.upper()}_API_KEY", "") or ""
+    keys = [k for k in many if k] or ([one] if one else [])
+    return keys
 
 
 def providers() -> dict[str, dict]:
     """Read from config on every call so tests and scripts can override values at runtime."""
     return {
-        "codecraft": {"url": config.CODECRAFT_URL, "key": config.CODECRAFT_API_KEY, "seed": False, "models": config.CODECRAFT_MODELS},
-        "openrouter": {"url": config.OPENROUTER_URL, "key": config.OPENROUTER_API_KEY, "seed": True,
+        "codecraft": {"url": config.CODECRAFT_URL, "keys": _keys_for("codecraft"), "seed": False, "models": config.CODECRAFT_MODELS},
+        "openrouter": {"url": config.OPENROUTER_URL, "keys": _keys_for("openrouter"), "seed": True,
                        "models": [config.OPENROUTER_MODEL] + [m for m in config.OPENROUTER_FALLBACKS if m != config.OPENROUTER_MODEL]},
-        "groq": {"url": config.GROQ_URL, "key": config.GROQ_API_KEY, "seed": True, "models": config.GROQ_MODELS},
-        "gemini": {"url": config.GEMINI_URL, "key": config.GEMINI_API_KEY, "seed": False, "models": config.GEMINI_MODELS},
+        "groq": {"url": config.GROQ_URL, "keys": _keys_for("groq"), "seed": True, "models": config.GROQ_MODELS},
+        "gemini": {"url": config.GEMINI_URL, "keys": _keys_for("gemini"), "seed": False, "models": config.GEMINI_MODELS},
     }
 
 
 def available() -> bool:
-    return any(p["key"] for p in providers().values())
+    return any(p["keys"] for p in providers().values())
 
 
 _dead: dict[str, float] = {}
@@ -134,12 +151,16 @@ def full_chain(primary: str | None = None) -> list[Entry]:
     table = providers()
     for name in config.PROVIDER_ORDER:
         p = table.get(name)
-        if not p or not p["key"]:
+        if not p or not p["keys"]:
             continue
         models = list(p["models"])
         if primary and name == "openrouter":
             models = [primary] + [m for m in models if m != primary]
-        out.extend(Entry(name, m, p["url"], p["key"], p["seed"]) for m in models)
+        keys = p["keys"]
+        # Model-major order: the preferred model on every key comes before any fallback model,
+        # so a second key extends quota without lowering quality.
+        out.extend(Entry(name, m, p["url"], k, p["seed"], slot=i, nkeys=len(keys))
+                   for m in models for i, k in enumerate(keys))
     return out
 
 
@@ -252,7 +273,7 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
 
 def _try(messages: list[dict], entry: Entry, *, spread: bool, **kw) -> tuple[str, dict]:
     """One model: call it, and on failure park it (or its whole provider) before re-raising."""
-    gate = _Gates(_batch_gate, _gate(entry.provider)) if spread else _Gates(_gate(entry.provider))
+    gate = _Gates(_batch_gate, _gate(entry.account)) if spread else _Gates(_gate(entry.account))
     try:
         return _chat_once(messages, entry, gate=gate, spread=spread, **kw)
     except ModelUnavailable:
@@ -380,7 +401,7 @@ def _remember_quota(entry: Entry, resp: httpx.Response) -> None:
         return
     rl["seen_at"] = int(time.time())
     rl["model"] = entry.id
-    _quota[entry.provider] = rl
+    _quota[entry.account] = rl
     rem = rl.get("x-ratelimit-remaining-tokens")
     reset = parse_duration(rl.get("x-ratelimit-reset-tokens"))
     if rem is not None and reset is not None:

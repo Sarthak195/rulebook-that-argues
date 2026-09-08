@@ -14,6 +14,14 @@ def _list(name: str, default: str) -> list[str]:
     return [m.strip() for m in os.getenv(name, default).split(",") if m.strip()]
 
 
+def _keys(name: str) -> list[str]:
+    """Every provider accepts several keys (X_API_KEYS, comma-separated) as well as one
+    (X_API_KEY). Each key is its own quota; the spread pool rotates across keys and models."""
+    many = _list(f"{name}_API_KEYS", "")
+    one = os.getenv(f"{name}_API_KEY", "").strip()
+    return many or ([one] if one else [])
+
+
 # ---- LLM providers ---------------------------------------------------------------------------
 # Every provider speaks the OpenAI chat-completions dialect. A call walks PROVIDER_ORDER and,
 # within each provider, its model list, skipping providers without a key and models that were
@@ -30,10 +38,12 @@ SPREAD_PROVIDERS = _list("SPREAD_PROVIDERS", "groq,gemini")
 # CodeCraft API (https://codecraftapi.com): a paid, OpenAI-compatible gateway to many models.
 # Keys look like cc_ followed by 48 characters.
 CODECRAFT_API_KEY = os.getenv("CODECRAFT_API_KEY", "").strip()
+CODECRAFT_API_KEYS = _keys("CODECRAFT")
 CODECRAFT_URL = os.getenv("CODECRAFT_URL", "https://codecraftapi.com/v1/chat/completions").strip()
 CODECRAFT_MODELS = _list("CODECRAFT_MODELS", "gpt-4o-mini,claude-haiku-4.5,gemini-2.5-flash")
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
+OPENROUTER_API_KEYS = _keys("OPENROUTER")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 # Probed 8 Sep 2026 (scripts/probe_models.py) after minimax-m3:free was withdrawn:
 #   nvidia/nemotron-3-super-120b-a12b:free  4/4, JSON, 3-30 s      <- primary
@@ -50,12 +60,14 @@ OPENROUTER_FALLBACKS = _list(
 )
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
+GROQ_API_KEYS = _keys("GROQ")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 # Probed 8 Sep 2026 on the free tier: all three 4/4 on the response-type probe;
 # gpt-oss-120b answers in 1.4-2.0 s, gpt-oss-20b in 1-2 s, qwen3.8-27b in 1-7 s.
 GROQ_MODELS = _list("GROQ_MODELS", "openai/gpt-oss-120b,openai/gpt-oss-20b,qwen/qwen3.8-27b")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_API_KEYS = _keys("GEMINI")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 # Probed 8 Sep 2026 on a free AI Studio key: gemini-2.5-flash 4/4 at 3.6-5.6 s; gemini-3.8-flash
 # hit demand and quota errors after two answers; gemini-2.5-flash-lite is not enabled for the key.

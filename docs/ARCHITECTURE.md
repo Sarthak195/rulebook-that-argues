@@ -219,7 +219,15 @@ the evaluation ran and a live question hung:
   they wait for their own pool to refill instead.
 
 A gateway that is down (CodeCraft during its outage) must not slow the chain: a 5xx gets one
-quick retry, and one 5xx parks every model of that provider for 90 s. Groq's catalogue had also changed since the code was first
+quick retry, and one 5xx parks every model of that provider for 90 s.
+
+**Several keys per provider.** `GEMINI_API_KEYS` (and the same for the other providers) takes
+a comma-separated list. Each key becomes its own quota slot: entries are named
+`gemini#2/gemini-2.5-flash`, rate limits, buckets and parking are tracked per slot, and the
+spread pool rotates across slots as well as models, so a batch run's throughput scales with
+the number of keys. Ordering is model-major, so the preferred model on every key comes before
+any fallback model. Google's free quota is per project; several projects under one account is
+the intended way to get several quotas. Groq's catalogue had also changed since the code was first
 written (Llama 3.3 70B was gone), which is why the liveness sweep exists: assumptions about
 which models a provider serves today do not survive a night.
 

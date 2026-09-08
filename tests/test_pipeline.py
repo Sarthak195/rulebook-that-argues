@@ -267,14 +267,36 @@ def test_daily_cap_parks_the_model_for_the_stated_wait(monkeypatch):
     assert llm.extract_json("<think>\nreasoning {with braces}\n</think>\n{\"status\": \"answered\"}") == {"status": "answered"}
 
 
+def test_multiple_keys_become_separate_quota_slots(monkeypatch):
+    from app import config, llm
+
+    monkeypatch.setattr(config, "PROVIDER_ORDER", ["gemini"])
+    monkeypatch.setattr(config, "GEMINI_API_KEYS", ["k1", "k2"])
+    monkeypatch.setattr(config, "GEMINI_MODELS", ["flash", "latest"])
+    monkeypatch.setattr(llm, "_dead", {})
+    chain = llm.full_chain()
+    assert [e.id for e in chain] == ["gemini#1/flash", "gemini#2/flash", "gemini#1/latest", "gemini#2/latest"]
+    assert [e.key for e in chain] == ["k1", "k2", "k1", "k2"]
+    assert chain[0].account == "gemini#1" and chain[1].account == "gemini#2"
+    # Parking one key's model leaves the other key's copy live.
+    llm.park("gemini#1/flash", 60)
+    assert [e.id for e in llm.model_chain()][0] == "gemini#2/flash"
+    # A single key keeps the old ids.
+    monkeypatch.setattr(config, "GEMINI_API_KEYS", ["only"])
+    assert [e.id for e in llm.full_chain()] == ["gemini/flash", "gemini/latest"]
+
+
 def test_chain_spans_providers_in_order_and_skips_missing_keys(monkeypatch):
     from app import config, llm
 
     monkeypatch.setattr(config, "PROVIDER_ORDER", ["groq", "gemini", "openrouter"])
     monkeypatch.setattr(config, "GROQ_API_KEY", "g")
+    monkeypatch.setattr(config, "GROQ_API_KEYS", [])
     monkeypatch.setattr(config, "GROQ_MODELS", ["llama-3.3-70b-versatile"])
     monkeypatch.setattr(config, "GEMINI_API_KEY", "")  # no key: skipped entirely
+    monkeypatch.setattr(config, "GEMINI_API_KEYS", [])
     monkeypatch.setattr(config, "OPENROUTER_API_KEY", "o")
+    monkeypatch.setattr(config, "OPENROUTER_API_KEYS", [])
     monkeypatch.setattr(config, "OPENROUTER_MODEL", "x/y:free")
     monkeypatch.setattr(config, "OPENROUTER_FALLBACKS", [])
     monkeypatch.setattr(llm, "_dead", {})

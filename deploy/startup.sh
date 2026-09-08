@@ -15,6 +15,7 @@ KEY=$(curl -sf -H "Metadata-Flavor: Google" "$META/openrouter-key" || true)
 CODECRAFT=$(curl -sf -H "Metadata-Flavor: Google" "$META/codecraft-key" || true)
 GROQ=$(curl -sf -H "Metadata-Flavor: Google" "$META/groq-key" || true)
 GEMINI=$(curl -sf -H "Metadata-Flavor: Google" "$META/gemini-key" || true)
+GEMINI_KEYS=$(curl -sf -H "Metadata-Flavor: Google" "$META/gemini-keys" || true)   # comma-separated, several quotas
 REPO=$(curl -sf -H "Metadata-Flavor: Google" "$META/repo-url" || echo "https://github.com/Sarthak195/rulebook-that-argues.git")
 MODEL=$(curl -sf -H "Metadata-Flavor: Google" "$META/openrouter-model" || echo "nvidia/nemotron-3-super-120b-a12b:free")
 APP=/opt/rulebook
@@ -43,6 +44,7 @@ printf 'OPENROUTER_API_KEY=%s\nOPENROUTER_MODEL=%s\n' "$KEY" "$MODEL" > .env
 [ -n "$CODECRAFT" ] && printf 'CODECRAFT_API_KEY=%s\n' "$CODECRAFT" >> .env
 [ -n "$GROQ" ] && printf 'GROQ_API_KEY=%s\n' "$GROQ" >> .env
 [ -n "$GEMINI" ] && printf 'GEMINI_API_KEY=%s\n' "$GEMINI" >> .env
+[ -n "$GEMINI_KEYS" ] && printf 'GEMINI_API_KEYS=%s\n' "$GEMINI_KEYS" >> .env
 chmod 600 .env
 echo "code at $(git rev-parse --short HEAD)"
 
