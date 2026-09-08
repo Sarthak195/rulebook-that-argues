@@ -115,6 +115,26 @@ model, and both runs shared the key with live use of the deployed site, so their
 the full set takes 5 to 10 minutes on the free tier when nothing else is using the key, and
 the run is a server-side job, so it can be started and left alone.
 
+### Final: ten Gemini keys, 47/47 in 18 seconds
+
+The last change of the day was quota, not code. Ten free AI Studio keys, each from its own
+Google Cloud project and therefore its own quota, plus the original one, give eleven slots. The
+chain treats each as a separate unit (`gemini#3/gemini-3.5-flash-lite`), the batch pool rotates
+across them, and the server runs eight questions in flight. New projects cannot use
+`gemini-2.5-flash` ("no longer available to new users"), so the primary became
+`gemini-3.5-flash-lite`, which scores 4/4 on the probe at 1.5 to 3 s on every key;
+`gemini-3.6-flash` was tried and dropped (20 to 55 s per answer, malformed JSON once in five).
+
+| run | configuration | score | wall time |
+|---|---|---|---|
+| single Gemini key, `gemini-2.5-flash`, 2 workers | free tier, ~10 requests/min | 45/47 (2 errors when every model was limited at once) | 1,310 s |
+| eleven Gemini slots, 8 workers, with `gemini-3.6-flash` in the list | | 46/47 (1 malformed-JSON error from 3.6) | 120 s |
+| **eleven Gemini slots, 8 workers, Lite models only** (`results/eval_final_vm.json`, the server-side run) | | **47/47** | **18 s** |
+
+Median latency 1.7 s, p90 6.9 s. The confusion matrix is the identity; the borderline
+questions all came back `not_covered`. This is the run the Evaluation tab shows and the video
+records.
+
 ### Free-tier daily caps, and what the Evaluation tab shows when they are gone
 
 By early afternoon on 8 September the repeated runs above had used Groq's free allowance of

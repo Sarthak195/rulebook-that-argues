@@ -67,6 +67,9 @@ gcloud compute ssh rulebook-vm --zone asia-south1-a --command \
 # add a free Groq or Gemini key (picked up by the startup script on the next boot, or add the
 # line to /opt/rulebook/.env over ssh and restart for an immediate effect)
 gcloud compute instances add-metadata rulebook-vm --zone asia-south1-a --metadata "groq-key=gsk_..."
+# several Gemini keys: a comma list must go through a file, gcloud splits commas otherwise
+echo "key1,key2,key3" > keys.txt
+gcloud compute instances add-metadata rulebook-vm --zone asia-south1-a --metadata-from-file gemini-keys=keys.txt
 gcloud compute ssh rulebook-vm --zone asia-south1-a --command \
   "echo 'GROQ_API_KEY=gsk_...' | sudo tee -a /opt/rulebook/.env >/dev/null && sudo systemctl restart rulebook"
 
