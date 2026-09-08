@@ -15,11 +15,18 @@ def _list(name: str, default: str) -> list[str]:
 
 
 def _keys(name: str) -> list[str]:
-    """Every provider accepts several keys (X_API_KEYS, comma-separated) as well as one
-    (X_API_KEY). Each key is its own quota; the spread pool rotates across keys and models."""
-    many = _list(f"{name}_API_KEYS", "")
+    """Every provider accepts several keys: X_API_KEYS (comma-separated), or numbered lines
+    X_API_KEY1, X_API_KEY2, ... , as well as the single X_API_KEY. Each key is its own quota; the
+    spread pool rotates across keys and models. Duplicates are dropped, order kept."""
+    found = _list(f"{name}_API_KEYS", "")
+    for n in range(1, 51):
+        v = os.getenv(f"{name}_API_KEY{n}", "").strip()
+        if v:
+            found.append(v)
     one = os.getenv(f"{name}_API_KEY", "").strip()
-    return many or ([one] if one else [])
+    if one:
+        found.append(one)
+    return list(dict.fromkeys(found))
 
 
 # ---- LLM providers ---------------------------------------------------------------------------
@@ -34,6 +41,10 @@ PROVIDER_ORDER = _list("PROVIDER_ORDER", "codecraft,groq,gemini,openrouter")
 # instead of always taking the first, because every model has its own per-minute token bucket.
 # Add openrouter here to use its models as well; on a free-tier key that is 50 requests a day.
 SPREAD_PROVIDERS = _list("SPREAD_PROVIDERS", "groq,gemini")
+# Whether batch calls may fall through to the other providers once the spread pool has been
+# unavailable for SPREAD_MAX_WAIT. Off by default: the fallbacks' small daily quotas are for
+# live questions, and a failed row in a batch is cheaper than a dead demo.
+SPREAD_FALLBACK = os.getenv("SPREAD_FALLBACK", "0").strip() in {"1", "true", "yes"}
 
 # CodeCraft API (https://codecraftapi.com): a paid, OpenAI-compatible gateway to many models.
 # Keys look like cc_ followed by 48 characters.
@@ -69,9 +80,11 @@ GROQ_MODELS = _list("GROQ_MODELS", "openai/gpt-oss-120b,openai/gpt-oss-20b,qwen/
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_API_KEYS = _keys("GEMINI")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-# Probed 8 Sep 2026 on a free AI Studio key: gemini-2.5-flash 4/4 at 3.6-5.6 s; gemini-3.8-flash
-# hit demand and quota errors after two answers; gemini-2.5-flash-lite is not enabled for the key.
-GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-2.5-flash,gemini-flash-latest")
+# Probed 8 Sep 2026 on free AI Studio keys. New projects cannot use gemini-2.5-flash ("no longer
+# available to new users"); gemini-3.5-flash-lite and gemini-flash-lite-latest score 4/4 at
+# 1.5-3 s on every key, gemini-2.5-flash 4/4 at 3.6-5.6 s on an older project, gemini-3.6-flash
+# 3/4 at 20-55 s, gemini-3.8-flash hits quota after two answers. Order: fast and universal first.
+GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-3.5-flash-lite,gemini-2.5-flash,gemini-flash-lite-latest,gemini-3.6-flash")
 
 # The audit judges ~50-200 clause pairs in one batch; it may pin a different OpenRouter model
 # than the one that answers live questions. Empty means "same chain as everything else".

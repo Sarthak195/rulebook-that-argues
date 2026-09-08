@@ -266,6 +266,9 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
             if not live and min(_dead.get(e.id, 0.0) for e in all_pool) > deadline:
                 break
             _wait_for_headroom(live or all_pool, deadline)
+        if not config.SPREAD_FALLBACK:
+            raise LLMError("spread pool unavailable for %ds and SPREAD_FALLBACK is off -> " % SPREAD_MAX_WAIT
+                           + " | ".join(errors)[:600])
 
     with _pending_lock:
         _interactive_pending += 0 if spread else 1
