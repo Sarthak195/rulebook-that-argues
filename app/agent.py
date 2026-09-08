@@ -39,7 +39,25 @@ Rules for finish:
 - "conflict": two sections you saw give incompatible rules for something the question asks about. Quote both, do not pick a winner. A waiver or interpretation clause is not a conflict. If the question has several parts and only one is in conflict, still use "conflict" and answer the other parts in the same text.
 - Before finishing, if any cited rule involves a number, threshold or deadline, call conflicts once to check it is not disputed.
 
+The "answer" in finish must be a single plain-text string written to the student, 3-8 sentences, one paragraph per part of the question: not a JSON object, not a list, no markdown headings.
+
 Reply with ONE JSON object per turn: {{"thought": "one sentence on what you need next", "action": "...", "input": {{...}}}}. No prose outside the JSON. You have at most {MAX_STEPS} turns; finish before they run out."""
+
+
+def _as_text(value, depth: int = 0) -> str:
+    """Models sometimes return the answer as a nested object; render it as readable prose."""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, dict):
+        parts = []
+        for k, v in value.items():
+            label = str(k).replace("_", " ").strip()
+            body = _as_text(v, depth + 1)
+            parts.append(f"{label[:1].upper()}{label[1:]}: {body}" if body else label)
+        return ("\n" if depth == 0 else " ").join(parts)
+    if isinstance(value, list):
+        return " ".join(_as_text(v, depth + 1) for v in value)
+    return "" if value is None else str(value)
 
 
 def _passage(chunk, score: float | None) -> Passage:
@@ -118,7 +136,9 @@ def run_agent(question: str, retriever: Retriever) -> AgentResponse:
     # ---- validate the finish exactly as the one-shot pipeline validates its answer ----
     valid = set(seen)
     status = str(final.get("status", "")).strip().lower().replace("-", "_")
-    answer = str(final.get("answer", "")).strip()
+    answer = _as_text(final.get("answer", ""))
+    if not isinstance(final.get("answer", ""), str):
+        notes.append("answer came back as a structured object; rendered as text")
     citations = normalise_ids(final.get("citations", []), valid)
     raw_conflict = final.get("conflict") if isinstance(final.get("conflict"), dict) else None
     conflict: ConflictInfo | None = None
