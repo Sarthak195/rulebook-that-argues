@@ -175,7 +175,7 @@ questions). Same-day comparisons on the full set:
 | Gemini 3.5 + 3.1 Flash Lite, one key | 46/47 (3.1 answered a not-covered question) | 182 s |
 | Mistral 8B + Nemo + 14B, locally | 45/47 | 43 s |
 | Mistral 8B + Nemo + 14B, on the VM | 45/47 | 35 s |
-| Gemma 4 26B via the Gemini API, two keys | see `results/runs/run11.md` | slow: 4 to 24 s per answer on the probe |
+| Gemma 4 26B via the Gemini API, two keys | 42/47 (five replies wrapped in a `<thought>` block did not parse) | 831 s, median 10 s per question |
 
 ### Free-tier daily caps, and what the Evaluation tab shows when they are gone
 
