@@ -72,6 +72,15 @@ Click `Conflict audit`.
 > three contradictions I planted, and it cleared the distractors: the clause that lets the
 > Academic Council waive rules is not a contradiction, and the audit knows that.
 
+**2:05 (optional, if you have 25 s to spare) The agent**
+
+Click `Agent`, click the first example chip (58% attendance after hospital, plus a missed mid-term).
+
+> For questions with several parts there is an agent. It plans: searches the rulebook with its
+> own queries, opens the sections it needs, checks the list of known contradictions, then
+> answers. The steps are on the right. It can only cite sections it actually opened, and the
+> same validators run on its answer.
+
 **2:30 Evaluation results** (20 s)
 
 Click `Evaluation`; the run has finished.
