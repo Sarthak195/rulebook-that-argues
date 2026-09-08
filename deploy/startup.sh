@@ -45,6 +45,10 @@ printf 'OPENROUTER_API_KEY=%s\nOPENROUTER_MODEL=%s\n' "$KEY" "$MODEL" > .env
 [ -n "$GROQ" ] && printf 'GROQ_API_KEY=%s\n' "$GROQ" >> .env
 [ -n "$GEMINI" ] && printf 'GEMINI_API_KEY=%s\n' "$GEMINI" >> .env
 [ -n "$GEMINI_KEYS" ] && printf 'GEMINI_API_KEYS=%s\n' "$GEMINI_KEYS" >> .env
+# Any further .env lines (PROVIDER_ORDER, EXTRA_PROVIDERS and their URL/KEY/MODELS lines, ...)
+# come from the "extra-env" metadata attribute, one line per setting, so a reboot keeps them.
+EXTRA_ENV=$(curl -sf -H "Metadata-Flavor: Google" "$META/extra-env" || true)
+[ -n "$EXTRA_ENV" ] && printf '%s\n' "$EXTRA_ENV" >> .env
 chmod 600 .env
 echo "code at $(git rev-parse --short HEAD)"
 

@@ -1,0 +1,34 @@
+[
+ {
+  "model": "open-mistral-nemo",
+  "ok": true,
+  "ms": 811,
+  "served": "ministral-8b-2512",
+  "note": ""
+ },
+ {
+  "model": "ministral-8b-latest",
+  "ok": true,
+  "ms": 2992,
+  "served": "ministral-8b-latest",
+  "note": ""
+ },
+ {
+  "model": "magistral-small-latest",
+  "ok": false,
+  "ms": 431,
+  "note": "HTTP 429: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\""
+ },
+ {
+  "model": "mistral-small-latest",
+  "ok": false,
+  "ms": 588,
+  "note": "HTTP 429: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\""
+ },
+ {
+  "model": "mistral-medium-latest",
+  "ok": false,
+  "ms": 660,
+  "note": "HTTP 429: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\""
+ }
+]
