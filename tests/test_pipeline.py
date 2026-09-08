@@ -140,6 +140,50 @@ def test_spread_rotates_across_spread_provider_models_then_fails_over(monkeypatc
     assert [e.id for e in llm.model_chain()][0] == "groq/a"           # plain chain is unaffected
 
 
+def test_eval_job_runs_in_background_grades_and_persists(monkeypatch, tmp_path):
+    """The server-side evaluation: rows fill in as a thread pool works, the summary is kept
+    up to date, the state survives on disk, and a run interrupted by a restart is marked so."""
+    import json
+    import time
+
+    from app import evaljob
+    from app.schemas import AskResponse
+
+    monkeypatch.setattr(evaljob, "STATE_PATH", tmp_path / "eval_live.json")
+    monkeypatch.setattr(evaljob, "_state", {"status": "idle", "started_at": None, "finished_at": None, "done": 0,
+                                            "total": 0, "workers": 0, "spread": False, "rows": [], "summary": None})
+    monkeypatch.setattr(evaljob, "jobs", lambda: [
+        ("answerable", {"id": "A1", "question": "q1", "expected_sections": ["AR §1.1"]}),
+        ("not_covered", {"id": "N1", "question": "q2"}),
+        ("conflict", {"id": "C1", "question": "q3", "expected_sections": ["AR §1.1", "AR §2.1"]}),
+    ])
+
+    def fake_ask(question, retriever, top_k=None, spread=False):
+        status = {"q1": "answered", "q2": "answered", "q3": "conflict"}[question]  # q2 is a deliberate miss
+        return AskResponse(question=question, status=status, answer="a", citations=["AR §1.1"], passages=[],
+                           conflict=None if status != "conflict" else {"sections": ["AR §1.1", "AR §2.1"], "explanation": "e"},
+                           top_similarity=0.9, llm_used=True, mode="llm", model="m", latency_ms=1)
+
+    monkeypatch.setattr(evaljob, "ask", fake_ask)
+    s = evaljob.start(retriever=None, workers=2, spread=True)
+    assert s["status"] == "running" and s["total"] == 3
+    for _ in range(100):
+        if evaljob.state()["status"] == "done":
+            break
+        time.sleep(0.02)
+    s = evaljob.state()
+    assert s["status"] == "done" and s["done"] == 3
+    assert s["summary"]["passed"] == 2 and s["summary"]["matrix"]["not_covered"]["answered"] == 1
+    assert {r["id"]: r["pass"] for r in s["rows"]} == {"A1": True, "N1": False, "C1": True}
+
+    saved = json.loads((tmp_path / "eval_live.json").read_text(encoding="utf-8"))
+    assert saved["status"] == "done"
+    saved["status"] = "running"
+    (tmp_path / "eval_live.json").write_text(json.dumps(saved), encoding="utf-8")
+    evaljob.load_saved()
+    assert evaljob.state()["status"] == "interrupted"
+
+
 def test_chain_spans_providers_in_order_and_skips_missing_keys(monkeypatch):
     from app import config, llm
 

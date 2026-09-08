@@ -16,9 +16,9 @@ to pipeline to evaluation to deployment.
 
 - Open http://34.93.55.172/ (or the HTTPS tunnel URL in `docs/DEPLOYMENT.md`, or run locally
   with `uvicorn app.main:app`). The header must show `groq/openai/gpt-oss-120b` and "models live".
-- Open a second tab on the `Evaluation` view, click `Run all questions`, and let it finish
-  (6 to 10 minutes; Groq's free tier is capped at 8,000 tokens per minute per model). Keep that
-  tab for the totals shot.
+- Open the `Evaluation` view, click `Run all questions`, and let it finish (3 to 6 minutes;
+  Groq's free tier is capped at 8,000 tokens per minute per model). The run happens on the
+  server, so you can refresh or leave the page; the finished table stays there for the video.
 - Ask one question in the first tab to warm up.
 - Read `docs/VIDEO_SCRIPT.md` once. It is timed at about three minutes.
 - Single answers take about 2 seconds, 3 to 4 with the verification pass. Do not cut waits out

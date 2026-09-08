@@ -140,10 +140,12 @@
   <section id="view-eval" class="view">
     <div class="card">
       <h2>Labelled test set, graded live</h2>
-      <p class="hint" style="margin:0 0 6px">18 answerable questions, 4 questions that hit the 3 planted contradictions, 25 questions the rulebook cannot answer. A row passes only if the response type is right <em>and</em> the expected sections are cited or named.</p>
+      <p class="hint" style="margin:0 0 6px">18 answerable questions, 4 questions that hit the 3 planted contradictions, 25 questions the rulebook cannot answer. A row passes only if the response type is right <em>and</em> the expected sections are cited or named. The run happens on the server: refresh, close the tab, or open it elsewhere and it carries on; the last finished run stays here.</p>
       <div class="row" style="margin-top:6px">
         <button class="primary" id="run-eval">Run all questions</button>
+        <button id="cancel-eval" class="chip" hidden>Cancel</button>
         <label class="hint"><input type="checkbox" id="only-fails"> show failures only</label>
+        <span class="hint" id="eval-when"></span>
       </div>
       <div class="stats" id="stats"></div>
       <div class="scroll" id="matrix"></div>
@@ -265,54 +267,56 @@ async function askNow() {
 $('#ask').onclick = askNow;
 $('#q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askNow(); } });
 
-// ---------- evaluation ----------
-const EXP = { answerable: 'answered', conflict: 'conflict', not_covered: 'not_covered' };
-function gradeRow(cat, item, r) {
-  const exp = EXP[cat];
-  if (r.status !== exp) return [false, `got ${r.status}`];
-  if (cat === 'answerable') { const hit = item.expected_sections.filter(s => r.citations.includes(s)); return hit.length ? [true, 'cited ' + hit.join(', ')] : [false, 'cited ' + r.citations.join(', ') + ' but expected ' + item.expected_sections.join(' or ')]; }
-  if (cat === 'conflict') { const named = r.conflict ? r.conflict.sections : []; const miss = item.expected_sections.filter(s => !named.includes(s)); return miss.length ? [false, 'missing ' + miss.join(', ')] : [true, 'named ' + named.join(' vs ')]; }
-  return [true, 'silent, as expected'];
+// ---------- evaluation: a server-side job, polled; survives refresh ----------
+const S = ['answered', 'not_covered', 'conflict'];
+let evalTimer = null;
+const fmtTime = (t) => t ? new Date(t * 1000).toLocaleTimeString() : '';
+function applyFailFilter() {
+  const only = $('#only-fails').checked;
+  document.querySelectorAll('#eval-table tbody tr').forEach(tr => { tr.style.display = (only && !tr.classList.contains('fail')) ? 'none' : ''; });
 }
-async function runEval() {
-  if (!TESTS) return;
-  const btn = $('#run-eval'); btn.disabled = true;
+function renderEval(s) {
+  const running = s.status === 'running';
+  const btn = $('#run-eval'); btn.disabled = running; btn.textContent = running ? `Running… ${s.done}/${s.total}` : 'Run all questions';
+  $('#cancel-eval').hidden = !running;
+  const rows = s.rows || [];
+  const sum = s.summary || { passed: 0, graded: 0, per_category: {}, matrix: null };
+  const when = s.status === 'idle' ? 'not run yet' : running ? `started ${fmtTime(s.started_at)}` : `${s.status} ${fmtTime(s.finished_at)}${s.started_at && s.finished_at ? ` in ${Math.round(s.finished_at - s.started_at)} s` : ''}`;
+  $('#eval-when').textContent = rows.length ? `${when} · ${s.spread ? 'spread across models' : 'preferred model'} · ${s.workers} in flight` : '';
+  $('#stats').innerHTML = rows.length ? `<div class="stat"><b>${sum.passed}/${sum.graded}</b><span>passed (${rows.length} total)</span></div>` +
+    Object.entries(sum.per_category || {}).map(([c, v]) => `<div class="stat"><b>${v.passed}/${v.total}</b><span>${c}</span></div>`).join('') : '';
+  const m = sum.matrix;
+  $('#matrix').innerHTML = m ? '<table class="matrix"><tr><th>expected ＼ predicted</th>' + S.map(x => `<th>${x}</th>`).join('') + '<th>error</th></tr>' +
+    S.map(e => `<tr><th>${e}</th>` + S.concat(['error']).map(p => { const v = (m[e] || {})[p] || 0; return `<td class="${v ? (e === p ? 'diag' : 'off') : ''}">${v}</td>`; }).join('') + '</tr>').join('') + '</table>' : '';
   const tbody = $('#eval-table tbody'); tbody.innerHTML = '';
-  const jobs = []; for (const cat of Object.keys(EXP)) for (const it of TESTS[cat]) jobs.push([cat, it]);
-  const rows = jobs.map(([cat, it]) => { const tr = document.createElement('tr'); tr.className = 'pending'; tr.dataset.cat = cat; tr.innerHTML = `<td>${esc(it.id)}</td><td class="q">${esc(it.question)}</td><td>${EXP[cat]}</td><td>…</td><td></td><td></td>`; tbody.appendChild(tr); return tr; });
-  const results = {}; const matrix = {}; let done = 0, passed = 0;
-  const update = () => {
-    const perCat = {}; for (const [cat] of jobs) perCat[cat] = perCat[cat] || { p: 0, n: 0 };
-    for (const k in results) { const [cat, ok] = results[k]; perCat[cat].n++; if (ok) perCat[cat].p++; }
-    $('#stats').innerHTML = `<div class="stat"><b>${passed}/${done}</b><span>passed so far (${jobs.length} total)</span></div>` +
-      Object.entries(perCat).map(([c, v]) => `<div class="stat"><b>${v.p}/${v.n}</b><span>${c}</span></div>`).join('');
-    const S = ['answered', 'not_covered', 'conflict'];
-    $('#matrix').innerHTML = '<table class="matrix"><tr><th>expected ＼ predicted</th>' + S.map(s => `<th>${s}</th>`).join('') + '</tr>' +
-      S.map(e => `<tr><th>${e}</th>` + S.map(p => { const v = (matrix[e] || {})[p] || 0; return `<td class="${v ? (e === p ? 'diag' : 'off') : ''}">${v}</td>`; }).join('') + '</tr>').join('') + '</table>';
-  };
-  update();
-  // Three workers with spread=true: each call rotates to a different model, so three in flight
-  // land on three separate per-minute token buckets instead of queueing on one.
-  const WORKERS = 3;
-  const worker = async (idx) => {
-    for (let i = idx; i < jobs.length; i += WORKERS) {
-      const [cat, it] = jobs[i]; const tr = rows[i];
-      try {
-        const r = await askApi(it.question, true); const [ok, why] = gradeRow(cat, it, r);
-        results[it.id] = [cat, ok]; done++; if (ok) passed++;
-        matrix[EXP[cat]] = matrix[EXP[cat]] || {}; matrix[EXP[cat]][r.status] = (matrix[EXP[cat]][r.status] || 0) + 1;
-        tr.className = ok ? 'pass' : 'fail';
-        tr.children[3].innerHTML = `<span class="badge ${r.status}">${r.status.replace('_', ' ')}</span>`;
-        tr.children[4].textContent = (r.conflict ? r.conflict.sections : r.citations).join(', ');
-        tr.children[5].innerHTML = esc(why) + `<div class="hint">${esc(r.answer)}</div><div class="hint" style="font-family:var(--mono)">${esc(r.model || '')} · ${r.latency_ms} ms</div>`;
-      } catch (e) { results[it.id] = [cat, false]; done++; tr.className = 'fail'; tr.children[3].textContent = 'error'; tr.children[5].textContent = e.message; }
-      update();
-    }
-  };
-  await Promise.all(Array.from({ length: WORKERS }, (_, i) => worker(i)));
-  btn.disabled = false;
+  for (const r of rows) {
+    const tr = document.createElement('tr');
+    const pending = !r.status || r.status === 'pending';
+    tr.className = pending ? 'pending' : (r.pass ? 'pass' : 'fail');
+    const got = pending ? '…' : (S.includes(r.status) ? `<span class="badge ${r.status}">${r.status.replace('_', ' ')}</span>` : esc(r.status));
+    const cited = pending ? '' : ((r.conflict_sections && r.conflict_sections.length ? r.conflict_sections : r.citations) || []).join(', ');
+    const detail = pending ? '' : esc(r.why || '') + `<div class="hint">${esc(r.answer || '')}</div><div class="hint" style="font-family:var(--mono)">${esc(r.model || '')} · ${r.latency_ms || 0} ms</div>`;
+    tr.innerHTML = `<td>${esc(r.id)}</td><td class="q">${esc(r.question)}</td><td>${esc(r.expected)}</td><td>${got}</td><td>${esc(cited)}</td><td>${detail}</td>`;
+    tbody.appendChild(tr);
+  }
+  applyFailFilter();
 }
-$('#run-eval').onclick = runEval;
+async function refreshEval() {
+  clearTimeout(evalTimer);
+  try {
+    const s = await (await fetch('/eval')).json();
+    renderEval(s);
+    if (s.status === 'running') evalTimer = setTimeout(refreshEval, 2000);
+  } catch (e) { $('#eval-when').textContent = 'cannot reach the server: ' + e.message; }
+}
+$('#run-eval').onclick = async () => {
+  $('#run-eval').disabled = true;
+  try { await fetch('/eval/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workers: 3, spread: true }) }); }
+  catch (e) { $('#eval-when').textContent = e.message; }
+  refreshEval();
+};
+$('#cancel-eval').onclick = async () => { await fetch('/eval/cancel', { method: 'POST' }); refreshEval(); };
+document.querySelector('nav button[data-view="eval"]').addEventListener('click', refreshEval);
 
 // ---------- audit ----------
 let auditLoaded = false;
@@ -339,7 +343,7 @@ async function loadAudit() {
   } catch (e) { list.innerHTML = `<p class="error">${esc(e.message)}</p>`; }
 }
 document.querySelector('nav button[data-view="audit"]').addEventListener('click', loadAudit);
-$('#only-fails').onchange = (e) => { document.querySelectorAll('#eval-table tbody tr').forEach(tr => { tr.style.display = (e.target.checked && !tr.classList.contains('fail')) ? 'none' : ''; }); };
+$('#only-fails').onchange = applyFailFilter;
 
 // Shareable links: /?q=... asks on load; /?tab=eval or /?tab=audit opens that tab.
 // Must run last, after every tab's click listener is registered.

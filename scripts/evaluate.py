@@ -28,25 +28,9 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv(ROOT / ".env")
 
 from app import config  # noqa: E402
+from app.grading import EXPECTED, STATUSES, grade  # noqa: E402
 from app.pipeline import ask  # noqa: E402
 from app.retriever import load_index  # noqa: E402
-
-STATUSES = ["answered", "not_covered", "conflict"]
-EXPECTED = {"answerable": "answered", "conflict": "conflict", "not_covered": "not_covered"}
-
-
-def grade(category: str, item: dict, resp) -> tuple[bool, str]:
-    exp = EXPECTED[category]
-    if resp.status != exp:
-        return False, f"status {resp.status} != {exp}"
-    if category == "answerable":
-        hit = [s for s in item["expected_sections"] if s in resp.citations]
-        return (True, f"cited {hit}") if hit else (False, f"cited {resp.citations}, expected one of {item['expected_sections']}")
-    if category == "conflict":
-        named = resp.conflict.sections if resp.conflict else []
-        missing = [s for s in item["expected_sections"] if s not in named]
-        return (True, f"named {named}") if not missing else (False, f"named {named}, missing {missing}")
-    return True, "silent, as expected"
 
 
 def run_one(retriever, category: str, item: dict, spread: bool = False) -> dict:

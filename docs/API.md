@@ -91,6 +91,26 @@ checking what a citation points at.
 The labelled test set from `tests/questions.json` (`answerable`, `conflict`, `not_covered`,
 `borderline`). The front end uses it for the example chips and the evaluation tab.
 
+## `GET /eval`, `POST /eval/run`, `POST /eval/cancel`
+
+The labelled test set as a **server-side job**. `POST /eval/run` (optional body
+`{"workers": 3, "spread": true}`) starts it if nothing is running and returns the state;
+`GET /eval` returns progress and results, so a page can refresh, close, or open elsewhere and
+re-attach; `POST /eval/cancel` lets in-flight questions finish and skips the rest. State is
+written to `results/eval_live.json` after every row; a run cut off by a server restart shows as
+`interrupted`. The last finished run stays available until the next one starts.
+
+```json
+{"status": "running", "started_at": 1788841000.1, "finished_at": null, "done": 12, "total": 47,
+ "workers": 3, "spread": true,
+ "summary": {"passed": 12, "graded": 12, "total": 47, "per_category": {"answerable": {"passed": 12, "total": 12}, "...": {}},
+             "matrix": {"answered": {"answered": 12, "not_covered": 0, "conflict": 0, "error": 0}, "...": {}}},
+ "rows": [{"id": "A01", "category": "answerable", "question": "...", "expected": "answered", "status": "answered",
+           "pass": true, "why": "cited ['AR §4.1']", "citations": ["AR §4.1"], "conflict_sections": [],
+           "answer": "...", "model": "groq/openai/gpt-oss-120b", "notes": [], "latency_ms": 1900},
+          {"id": "A13", "category": "answerable", "question": "...", "expected": "answered", "status": "pending"}]}
+```
+
 ## `GET /audit`
 
 The cached corpus-wide contradiction audit (`results/conflict_audit.json`). If none has been run,

@@ -66,11 +66,11 @@ def main() -> int:
             page.wait_for_selector("#run-eval", timeout=30_000)
             page.click("#run-eval")
             t0 = time.time()
-            while time.time() - t0 < 600:
-                pending = page.query_selector_all("#eval-table tbody tr.pending")
-                if not pending and page.query_selector_all("#eval-table tbody tr"):
-                    break
-                time.sleep(3)
+            # The run is a server-side job: the button is disabled while it runs and re-enabled
+            # when the server reports done, so wait for that transition rather than for rows.
+            page.wait_for_function("() => document.querySelector('#run-eval').disabled", timeout=60_000)
+            page.wait_for_function("() => !document.querySelector('#run-eval').disabled", timeout=900_000)
+            page.wait_for_timeout(500)
             stats = page.inner_text("#stats").split("\n")[0]
             rows = page.query_selector_all("#eval-table tbody tr")
             passed = len(page.query_selector_all("#eval-table tbody tr.pass"))

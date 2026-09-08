@@ -14,8 +14,9 @@ from fastapi import FastAPI, HTTPException, Request  # noqa: E402
 from fastapi.concurrency import run_in_threadpool  # noqa: E402
 from fastapi.responses import FileResponse, JSONResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
+from pydantic import BaseModel, Field  # noqa: E402
 
-from . import config, llm  # noqa: E402
+from . import config, evaljob, llm  # noqa: E402
 from .audit import load_audit  # noqa: E402
 from .llm import LLMError  # noqa: E402
 from .pipeline import ask  # noqa: E402
@@ -32,6 +33,7 @@ async def lifespan(_: FastAPI):
     r = load_index()
     r.embed_query("warm up the encoder")
     state["retriever"] = r
+    evaljob.load_saved()
     yield
 
 
@@ -93,6 +95,31 @@ async def questions():
     if not TESTS.exists():
         return {"answerable": [], "conflict": [], "not_covered": []}
     return json.loads(TESTS.read_text(encoding="utf-8"))
+
+
+class EvalRunRequest(BaseModel):
+    workers: int = Field(3, ge=1, le=6)
+    spread: bool = True
+
+
+@app.get("/eval")
+async def eval_state():
+    """Progress and results of the current or last evaluation run (survives page refreshes)."""
+    return evaljob.state()
+
+
+@app.post("/eval/run")
+async def eval_run(req: EvalRunRequest | None = None):
+    r = state.get("retriever")
+    if r is None:
+        raise HTTPException(503, "index not loaded yet")
+    req = req or EvalRunRequest()
+    return evaljob.start(r, workers=req.workers, spread=req.spread)
+
+
+@app.post("/eval/cancel")
+async def eval_cancel():
+    return evaljob.cancel()
 
 
 @app.get("/audit")
