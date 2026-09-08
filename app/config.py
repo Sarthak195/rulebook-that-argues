@@ -9,28 +9,49 @@ ROOT = Path(__file__).resolve().parents[1]
 CORPUS_DIR = Path(os.getenv("CORPUS_DIR", ROOT / "corpus"))
 INDEX_DIR = Path(os.getenv("INDEX_DIR", ROOT / "index"))
 
+
+def _list(name: str, default: str) -> list[str]:
+    return [m.strip() for m in os.getenv(name, default).split(",") if m.strip()]
+
+
+# ---- LLM providers ---------------------------------------------------------------------------
+# Every provider speaks the OpenAI chat-completions dialect. A call walks PROVIDER_ORDER and,
+# within each provider, its model list, skipping providers without a key and models that were
+# recently seen dead or rate-limited (see app.llm). All defaults are free tiers:
+#   OpenRouter  ":free" models; 50 requests/day on a free-tier key, 1,000/day once $10 credits exist
+#   Groq        free tier, generous per-day limits, fast; key from https://console.groq.com/keys
+#   Gemini      free tier via Google AI Studio; key from https://aistudio.google.com/apikey
+PROVIDER_ORDER = _list("PROVIDER_ORDER", "groq,gemini,openrouter")
+
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
-# Free models only by default. Measured on the test set: minimax/minimax-m3:free answers in ~2 s
-# with reliable JSON. The "openrouter/free" router is deliberately not used: it can hand a
-# question to a safety-classifier model that never returns JSON.
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 # Probed 8 Sep 2026 (scripts/probe_models.py) after minimax-m3:free was withdrawn:
 #   nvidia/nemotron-3-super-120b-a12b:free  4/4, JSON, 3-30 s      <- primary
 #   poolside/laguna-s-2.1:free              4/4, 6-12 s
 #   google/gemma-4-31b-it:free              good when not rate-limited upstream
 #   inclusionai/ling-3.0-flash-sante:free   fast, occasionally malformed JSON (retried)
+# The "openrouter/free" router is deliberately not used: it can hand a question to a
+# safety-classifier model that never returns JSON.
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free").strip()
-# Tried in order when the primary is withdrawn, rate-limited or overloaded. Free models appear
-# and disappear on OpenRouter without notice; keep several here. Comma-separated in the env.
-OPENROUTER_FALLBACKS = [m.strip() for m in os.getenv(
+OPENROUTER_FALLBACKS = _list(
     "OPENROUTER_FALLBACKS",
     "poolside/laguna-s-2.1:free,google/gemma-4-31b-it:free,inclusionai/ling-3.0-flash-sante:free,"
     "dots-studio/dots-3-note-preview:free,google/gemma-4-26b-a4b-it:free",
-).split(",") if m.strip()]
-# The audit judges ~100-200 clause pairs in one batch; it may use a different (cheaper or
-# stronger) model than the one that answers live questions.
-AUDIT_MODEL = os.getenv("AUDIT_MODEL", "").strip() or OPENROUTER_MODEL
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+)
 
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODELS = _list("GROQ_MODELS", "llama-3.3-70b-versatile,llama-3.1-8b-instant")
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-2.5-flash,gemini-2.0-flash")
+
+# The audit judges ~50-200 clause pairs in one batch; it may pin a different OpenRouter model
+# than the one that answers live questions. Empty means "same chain as everything else".
+AUDIT_MODEL = os.getenv("AUDIT_MODEL", "").strip()
+
+# ---- embeddings and retrieval -----------------------------------------------------------------
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5").strip()
 # bge models are trained with this instruction on the query side only.
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
@@ -39,7 +60,6 @@ TOP_K = int(os.getenv("TOP_K", "6"))
 # Second, narrower LLM call on every "answered": do the cited passages explicitly govern this
 # situation, or a neighbouring one? Costs one extra call; set VERIFY_ANSWERS=0 to disable.
 VERIFY_ANSWERS = os.getenv("VERIFY_ANSWERS", "1").strip() not in {"0", "false", "no"}
-# Below this best-passage cosine similarity we do not even ask the LLM: the corpus is silent.
 # Measured on this corpus with bge-small: off-topic questions ("capital of France") peak at ~0.44,
 # the weakest genuinely-covered question scores ~0.55. Adjacent-but-unanswered questions score
 # 0.55-0.75, so the gate cannot catch them; that is the LLM's job.

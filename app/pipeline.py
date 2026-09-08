@@ -135,13 +135,13 @@ def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskRes
         best = passages[0]
         best.cited = True
         return done(status="answered", citations=[best.id], llm_used=False, mode="offline-fallback", model=None,
-                    answer=f"[Offline mode: OPENROUTER_API_KEY is not set, so this is the closest passage, not a "
+                    answer=f"[Offline mode: no LLM provider key is set, so this is the closest passage, not a "
                            f"verified answer] {best.id} {best.title}: {best.text}")
 
     # 3. Ask the model to classify and answer from the passages only.
     user_msg = f"Question: {question}\n\nPassages, ordered by retrieval rank:\n\n{passage_block(hits)}"
     data, usage = classify([{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user_msg}])
-    used_model = usage.get("model") or config.OPENROUTER_MODEL
+    used_model = usage.get("model") or "unknown"
 
     valid = {p.id for p in passages}
     status = str(data.get("status", "")).strip().lower().replace("-", "_")

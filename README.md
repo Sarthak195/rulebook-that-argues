@@ -138,9 +138,15 @@ API reference in [`docs/API.md`](docs/API.md); the deployed VM and how it was bu
 - **The corpus is fictional.** Using a real university's text would have meant planting
   contradictions in someone else's regulations. Structure and language mirror Indian B.Tech.
   regulations.
-- **Free models are slow and rate-limited.** Answers take 2 to 9 s; the client retries with
-  backoff on 429. The `openrouter/free` router is deliberately avoided: in testing it handed a
-  question to a content-safety classifier that replied "User Safety: safe".
+- **Free models are slow, rate-limited, and impermanent.** Answers take 3 to 15 s. The client
+  retries with backoff on 429 and fails over across a chain of free models; the default model
+  used for the evaluation, `minimax/minimax-m3:free`, was withdrawn by OpenRouter the next
+  morning, which is why the chain exists. The `openrouter/free` router is deliberately avoided:
+  in testing it handed a question to a content-safety classifier that replied "User Safety: safe".
+- **Free-tier quotas are small.** An OpenRouter key without credits gets 50 free-model requests
+  per day (1,000 with $10 of credits on the account, still using only free models). The health
+  endpoint and the page header show what is left. Free Groq and Google AI Studio keys are
+  accepted as alternative providers in the same chain; see `.env.example`.
 - **One paid run exists** (`results/eval_gemini-2.5-flash.md`, three cents, made before the
   free-only rule) and is kept as a reference. Nothing uses it.
 - **Thresholds are tuned to this corpus and embedding model.** Swap either and re-measure.

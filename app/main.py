@@ -58,8 +58,9 @@ async def health():
         "sections": len(r.chunks) if r else 0,
         "embedding_model": config.EMBEDDING_MODEL,
         "llm_available": llm.available(),
-        "llm_model": config.OPENROUTER_MODEL if llm.available() else None,
+        "llm_model": (llm.model_chain()[0].id if llm.available() and llm.model_chain() else None),
         "llm_chain": llm.model_status() if llm.available() else {},
+        "quota": llm.quota_status(),
         "top_k": config.TOP_K,
         "min_similarity": config.MIN_SIMILARITY,
     }

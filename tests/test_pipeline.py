@@ -94,17 +94,18 @@ def test_model_chain_fails_over_when_a_free_model_is_withdrawn(monkeypatch):
     must succeed on the next model and the dead one must be parked for later calls."""
     from app import config, llm
 
+    monkeypatch.setattr(config, "PROVIDER_ORDER", ["openrouter"])
     monkeypatch.setattr(config, "OPENROUTER_API_KEY", "test")
     monkeypatch.setattr(config, "OPENROUTER_MODEL", "dead/model:free")
     monkeypatch.setattr(config, "OPENROUTER_FALLBACKS", ["alive/model:free"])
     monkeypatch.setattr(llm, "_dead", {})
     calls: list[str] = []
 
-    def fake_once(messages, model, **kw):
-        calls.append(model)
-        if model == "dead/model:free":
+    def fake_once(messages, entry, **kw):
+        calls.append(entry.model)
+        if entry.model == "dead/model:free":
             raise llm.ModelUnavailable("HTTP 404: This model is unavailable for free")
-        return '{"ok": true}', {"model": model}
+        return '{"ok": true}', {"model": entry.id}
 
     monkeypatch.setattr(llm, "_chat_once", fake_once)
     content, usage = llm.chat([{"role": "user", "content": "hi"}])
@@ -118,6 +119,24 @@ def test_model_chain_fails_over_when_a_free_model_is_withdrawn(monkeypatch):
     monkeypatch.setattr(llm, "_chat_once", lambda *a, **k: (_ for _ in ()).throw(llm.LLMError("429 after retries")))
     with pytest.raises(llm.LLMError, match="every model in the chain failed"):
         llm.chat([{"role": "user", "content": "x"}])
+
+
+def test_chain_spans_providers_in_order_and_skips_missing_keys(monkeypatch):
+    from app import config, llm
+
+    monkeypatch.setattr(config, "PROVIDER_ORDER", ["groq", "gemini", "openrouter"])
+    monkeypatch.setattr(config, "GROQ_API_KEY", "g")
+    monkeypatch.setattr(config, "GROQ_MODELS", ["llama-3.3-70b-versatile"])
+    monkeypatch.setattr(config, "GEMINI_API_KEY", "")  # no key: skipped entirely
+    monkeypatch.setattr(config, "OPENROUTER_API_KEY", "o")
+    monkeypatch.setattr(config, "OPENROUTER_MODEL", "x/y:free")
+    monkeypatch.setattr(config, "OPENROUTER_FALLBACKS", [])
+    monkeypatch.setattr(llm, "_dead", {})
+    ids = [e.id for e in llm.full_chain()]
+    assert ids == ["groq/llama-3.3-70b-versatile", "x/y:free"]
+    assert [e.seed for e in llm.full_chain()] == [True, True]
+    # An explicit OpenRouter model (the audit's AUDIT_MODEL) goes first within that provider only.
+    assert [e.id for e in llm.full_chain("a/b:free")] == ["groq/llama-3.3-70b-versatile", "a/b:free", "x/y:free"]
 
 
 def test_validator_downgrades_unbacked_claims(monkeypatch):

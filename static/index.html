@@ -176,7 +176,11 @@ document.querySelectorAll('nav button').forEach(b => b.addEventListener('click',
 
 // ---------- health ----------
 fetch('/health').then(r => r.json()).then(h => {
-  $('#health').textContent = `${h.sections} sections · ${h.embedding_model} · ${h.llm_available ? h.llm_model : 'LLM OFFLINE (no key)'}`;
+  const chain = Object.values(h.llm_chain || {});
+  const live = chain.filter(s => s === 'live').length;
+  const orq = (h.quota || {}).openrouter;
+  const left = orq && orq['x-ratelimit-remaining'] !== undefined ? ` · OpenRouter free calls left today: ${orq['x-ratelimit-remaining']}` : '';
+  $('#health').textContent = `${h.sections} sections · ${h.embedding_model} · ${h.llm_available ? `${h.llm_model} (${live}/${chain.length} models live)${left}` : 'LLM OFFLINE (no key)'}`;
 }).catch(() => { $('#health').textContent = 'server unreachable'; });
 
 // ---------- examples ----------

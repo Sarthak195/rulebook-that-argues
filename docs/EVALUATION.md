@@ -84,6 +84,18 @@ section holds two rules; it now requires the answer to use a disputed value.
 
 Runs 6 and 7 are the committed `results/eval_report.md` (run 7).
 
+### 8 September: the free model disappeared, then the daily quota did
+
+The morning after those runs OpenRouter withdrew `minimax/minimax-m3:free`. A probe of the
+remaining free models (`results/runs/` has nothing for it; the log is in the commit message of
+`ab60673`) found `nvidia/nemotron-3-super-120b-a12b:free` and `poolside/laguna-s-2.1:free`
+answering 4/4, so the client gained a failover chain and the primary changed. An evaluation on
+the new primary (`runs/run6`) got through the 18 answerable questions at 18/18 and then hit
+OpenRouter's free-tier quota of **50 requests per day** on this key; the remaining 29 questions
+errored with `Rate limit exceeded: free-models-per-day` and are recorded as errors, not as
+model mistakes. The quota resets at 00:00 UTC. The client now reads the rate-limit headers, the
+health endpoint reports them, and free Groq and Gemini keys can be added as extra providers.
+
 ### Reference run on a paid model (done once, before the free-only rule)
 
 `google/gemini-2.5-flash`, `results/eval_gemini-2.5-flash.md`, on the *original* test set:

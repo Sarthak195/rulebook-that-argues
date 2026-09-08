@@ -54,7 +54,7 @@ def judge_pair(r: Retriever, i: int, j: int, s: float) -> dict:
     user = (f"Clause 1 [{a.id}] {a.doc_title} > {a.parent_title} > {a.title}\n{a.text}\n\n"
             f"Clause 2 [{b.id}] {b.doc_title} > {b.parent_title} > {b.title}\n{b.text}")
     content, _ = llm.chat([{"role": "system", "content": JUDGE_PROMPT}, {"role": "user", "content": user}],
-                          model=config.AUDIT_MODEL, max_tokens=400)
+                          model=config.AUDIT_MODEL or None, max_tokens=400)
     data = llm.extract_json(content)
     return {
         "a_id": a.id, "b_id": b.id, "similarity": round(s, 4),
@@ -67,7 +67,7 @@ def judge_pair(r: Retriever, i: int, j: int, s: float) -> dict:
 def run_audit(r: Retriever, *, threshold: float = 0.80, max_pairs: int = 200, cross_document_only: bool = False,
               workers: int = 4, log=print) -> dict:
     if not llm.available():
-        raise llm.LLMError("OPENROUTER_API_KEY is not set; the audit needs the LLM judge")
+        raise llm.LLMError("no LLM provider key is set; the audit needs the LLM judge")
     t0 = time.time()
     pairs = candidate_pairs(r, threshold, max_pairs, cross_document_only)
     log(f"{len(pairs)} candidate pairs at cosine >= {threshold} (cross-document only: {cross_document_only})")
@@ -90,7 +90,8 @@ def run_audit(r: Retriever, *, threshold: float = 0.80, max_pairs: int = 200, cr
         })
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "model": config.AUDIT_MODEL, "embedding_model": config.EMBEDDING_MODEL,
+        "model": (config.AUDIT_MODEL or (llm.model_chain()[0].id if llm.model_chain() else "")),
+        "embedding_model": config.EMBEDDING_MODEL,
         "threshold": threshold, "cross_document_only": cross_document_only,
         "sections": len(r.chunks), "pairs_checked": len(pairs), "seconds": round(time.time() - t0, 1),
         "conflicts": conflicts,

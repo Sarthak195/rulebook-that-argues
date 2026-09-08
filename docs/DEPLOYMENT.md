@@ -60,9 +60,21 @@ gcloud compute instances get-serial-port-output rulebook-vm --zone asia-south1-a
 # deploy a new commit: the startup script pulls and restarts on every boot
 gcloud compute instances reset rulebook-vm --zone asia-south1-a
 
-# or without a reboot
+# or without a reboot (the service takes 20-40 s to load the embedding model on an e2-small)
 gcloud compute ssh rulebook-vm --zone asia-south1-a --command \
   "cd /opt/rulebook && sudo git pull --ff-only && sudo systemctl restart rulebook"
+
+# add a free Groq or Gemini key (picked up by the startup script on the next boot, or add the
+# line to /opt/rulebook/.env over ssh and restart for an immediate effect)
+gcloud compute instances add-metadata rulebook-vm --zone asia-south1-a --metadata "groq-key=gsk_..."
+gcloud compute ssh rulebook-vm --zone asia-south1-a --command \
+  "echo 'GROQ_API_KEY=gsk_...' | sudo tee -a /opt/rulebook/.env >/dev/null && sudo systemctl restart rulebook"
+
+# change the model without a reboot (the startup script rewrites .env from metadata on boot,
+# so also update the metadata for future boots)
+gcloud compute instances add-metadata rulebook-vm --zone asia-south1-a --metadata "openrouter-model=<id>"
+gcloud compute ssh rulebook-vm --zone asia-south1-a --command \
+  "sudo sed -i 's#^OPENROUTER_MODEL=.*#OPENROUTER_MODEL=<id>#' /opt/rulebook/.env && sudo systemctl restart rulebook"
 
 # logs
 gcloud compute ssh rulebook-vm --zone asia-south1-a --command "sudo journalctl -u rulebook -n 100 --no-pager"
