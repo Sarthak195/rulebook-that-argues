@@ -59,7 +59,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 # Probed 8 Sep 2026 on a free AI Studio key: gemini-2.5-flash 4/4 at 3.6-5.6 s; gemini-3.8-flash
 # hit demand and quota errors after two answers; gemini-2.5-flash-lite is not enabled for the key.
-GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-2.5-flash,gemini-3.5-flash,gemini-flash-latest")
+GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-2.5-flash,gemini-flash-latest")
 
 # The audit judges ~50-200 clause pairs in one batch; it may pin a different OpenRouter model
 # than the one that answers live questions. Empty means "same chain as everything else".
