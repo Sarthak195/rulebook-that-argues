@@ -2,7 +2,8 @@
 
     python scripts/ui_test.py                          # against http://127.0.0.1:8000
     python scripts/ui_test.py http://34.93.55.172      # against the deployed VM
-    python scripts/ui_test.py --no-eval                # skip the 2-4 minute evaluation run
+    python scripts/ui_test.py --no-eval                # skip the evaluation run entirely
+    python scripts/ui_test.py --no-run                 # do not start a run: screenshot and check whatever the tab shows
 
 Checks, in a real Chromium: the three response types render with the right badge and the
 cited passage is highlighted; the audit tab lists the planted contradictions; the evaluation tab
@@ -32,6 +33,7 @@ def main() -> int:
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     base = (args[0] if args else "http://127.0.0.1:8000").rstrip("/")
     run_eval = "--no-eval" not in sys.argv
+    start_run = "--no-run" not in sys.argv
     IMG.mkdir(parents=True, exist_ok=True)
     failures: list[str] = []
 
@@ -64,12 +66,15 @@ def main() -> int:
         if run_eval:
             page.goto(f"{base}/?tab=eval")
             page.wait_for_selector("#run-eval", timeout=30_000)
-            page.click("#run-eval")
             t0 = time.time()
-            # The run is a server-side job: the button is disabled while it runs and re-enabled
-            # when the server reports done, so wait for that transition rather than for rows.
-            page.wait_for_function("() => document.querySelector('#run-eval').disabled", timeout=60_000)
-            page.wait_for_function("() => !document.querySelector('#run-eval').disabled", timeout=900_000)
+            if start_run:
+                page.click("#run-eval")
+                # The run is a server-side job: the button is disabled while it runs and re-enabled
+                # when the server reports done, so wait for that transition rather than for rows.
+                page.wait_for_function("() => document.querySelector('#run-eval').disabled", timeout=60_000)
+            # Either way, wait until no run is in progress, then read the table as shown.
+            page.wait_for_function("() => !document.querySelector('#run-eval').disabled", timeout=1_800_000)
+            page.wait_for_selector("#eval-table tbody tr", timeout=30_000)
             page.wait_for_timeout(500)
             stats = page.inner_text("#stats").split("\n")[0]
             rows = page.query_selector_all("#eval-table tbody tr")

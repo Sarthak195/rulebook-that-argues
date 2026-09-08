@@ -365,7 +365,7 @@ _events_lock = threading.Lock()
 def _log_event(entry: Entry, *, status, ms: int, note: str = "", spread: bool = False) -> None:
     with _events_lock:
         _events.append({"t": round(time.time(), 1), "model": entry.id, "status": status, "ms": ms,
-                        "spread": spread, "note": note[:400]})
+                        "spread": spread, "note": " ".join(note.split())[:400]})
         del _events[:-300]
 
 
