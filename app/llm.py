@@ -224,7 +224,7 @@ def _try(messages: list[dict], entry: Entry, *, spread: bool, **kw) -> tuple[str
     """One model: call it, and on failure park it (or its whole provider) before re-raising."""
     gate = _Gates(_batch_gate, _gate(entry.provider)) if spread else _Gates(_gate(entry.provider))
     try:
-        return _chat_once(messages, entry, gate=gate, **kw)
+        return _chat_once(messages, entry, gate=gate, spread=spread, **kw)
     except ModelUnavailable:
         _dead[entry.id] = time.time() + DEAD_TTL
         raise
@@ -250,7 +250,7 @@ RETRY_STATUSES = {408, 409, 425, 429, 500, 502, 503, 504}
 
 
 def _chat_once(messages: list[dict], entry: Entry, *, temperature: float, max_tokens: int,
-               json_mode: bool, timeout: float, gate=None) -> tuple[str, dict]:
+               json_mode: bool, timeout: float, gate=None, spread: bool = False) -> tuple[str, dict]:
     gate = gate if gate is not None else _Gates()
     payload: dict = {"model": entry.model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
     if entry.seed:
@@ -265,12 +265,12 @@ def _chat_once(messages: list[dict], entry: Entry, *, temperature: float, max_to
     }
     last_err = "no attempts made"
     for attempt in range(3):
-        resp = _post_with_retries(entry, payload, headers, timeout, gate)
+        resp = _post_with_retries(entry, payload, headers, timeout, gate, spread=spread)
         if resp.status_code != 200 and json_mode and resp.status_code in (400, 422):
             # Some models reject response_format; retry without it and rely on the prompt.
             payload.pop("response_format", None)
             json_mode = False
-            resp = _post_with_retries(entry, payload, headers, timeout, gate)
+            resp = _post_with_retries(entry, payload, headers, timeout, gate, spread=spread)
         if resp.status_code != 200:
             body = resp.text[:300]
             if resp.status_code in (401, 402, 403, 404) or any(h in body.lower() for h in UNAVAILABLE_HINTS):
@@ -319,6 +319,23 @@ TOKENS_PER_CALL = 2600   # a question with six passages is ~2,000-2,500 tokens i
 _interactive_pending = 0
 _pending_lock = threading.Lock()
 
+# Last 300 provider requests, newest last: what was called, what came back, how long it took.
+# GET /llmlog serves it. This is how "why is it slow" gets answered with facts.
+_events: list[dict] = []
+_events_lock = threading.Lock()
+
+
+def _log_event(entry: Entry, *, status, ms: int, note: str = "", spread: bool = False) -> None:
+    with _events_lock:
+        _events.append({"t": round(time.time(), 1), "model": entry.id, "status": status, "ms": ms,
+                        "spread": spread, "note": note[:160]})
+        del _events[:-300]
+
+
+def recent_events(n: int = 100) -> list[dict]:
+    with _events_lock:
+        return list(_events[-n:])
+
 
 def _remember_quota(entry: Entry, resp: httpx.Response) -> None:
     rl = {k.lower(): v for k, v in resp.headers.items() if k.lower().startswith("x-ratelimit")}
@@ -359,7 +376,7 @@ def _batch_yield_to_interactive(deadline: float) -> None:
 
 
 def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: float, gate,
-                       attempts: int = RATE_LIMIT_ATTEMPTS) -> httpx.Response:
+                       attempts: int = RATE_LIMIT_ATTEMPTS, spread: bool = False) -> httpx.Response:
     """Free tiers rate-limit aggressively; back off a little instead of failing the question,
     but only a little: a 429 gets at most `attempts` requests with waits capped at
     MAX_RETRY_WAIT, after which the caller parks this model and moves to the next. A daily
@@ -369,14 +386,21 @@ def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: floa
     last: httpx.Response | None = None
     server_errors = 0
     for attempt in range(attempts):
+        t_wait = time.time()
         try:
             with gate:
+                waited = int((time.time() - t_wait) * 1000)
+                t0 = time.time()
                 resp = httpx.post(entry.url, json=payload, headers=headers, timeout=timeout)
         except httpx.HTTPError as e:
+            _log_event(entry, status="network", ms=int((time.time() - t_wait) * 1000), note=str(e), spread=spread)
             if attempt >= 1:
                 raise LLMError(f"network error talking to {entry.provider}: {e}") from e
             time.sleep(delay)
             continue
+        _log_event(entry, status=resp.status_code, ms=int((time.time() - t0) * 1000), spread=spread,
+                   note=(f"waited {waited} ms for a slot; " if waited > 200 else "") +
+                        (resp.text[:120] if resp.status_code != 200 else ""))
         _remember_quota(entry, resp)
         if resp.status_code == 429 and "per-day" in resp.text:
             return resp

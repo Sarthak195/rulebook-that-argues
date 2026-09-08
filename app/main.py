@@ -122,6 +122,12 @@ async def eval_cancel():
     return evaljob.cancel()
 
 
+@app.get("/llmlog")
+async def llmlog(n: int = 100):
+    """The last provider requests: model, HTTP status, latency, and any wait for a slot or error."""
+    return {"events": llm.recent_events(n), "buckets": llm.quota_status().get("buckets", {}), "chain": llm.model_status()}
+
+
 @app.get("/audit")
 async def audit():
     """Latest corpus-wide contradiction audit (run scripts/audit.py to refresh)."""

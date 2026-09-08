@@ -202,6 +202,22 @@ Measured on the 47-question set (see `docs/EVALUATION.md`): accuracy is unchange
 on, because the two smaller Groq models also pass the probe; the smaller models simply answer
 a share of the questions.
 
+Three more rules, each learned from a stack dump of the deployed service (`py-spy dump`) while
+the evaluation ran and a live question hung:
+
+- **A slot is held only while a request is in flight, never during a backoff sleep.** The
+  first version held it through the sleep, so two batch workers asleep on a 429 blocked every
+  other thread on the semaphore.
+- **Route on the provider's bucket headers.** Groq reports remaining tokens and the refill
+  time on every response. A batch call picks a model with a call's worth of headroom, or waits
+  for the earliest refill; a live question prefers a sibling model with headroom over waiting
+  for a drained favourite. Firing at a drained bucket and sleeping on the 429 was where the
+  time went. A 429 that still happens gets at most three attempts with waits capped at 15 s,
+  then the model is parked for 20 s.
+- **Live questions come first.** Batch work pauses while any live question is waiting for a
+  model, and batch calls never spill onto fallback providers (their daily quotas are small);
+  they wait for their own pool to refill instead.
+
 A gateway that is down (CodeCraft during its outage) must not slow the chain: a 5xx gets one
 quick retry, and one 5xx parks every model of that provider for 90 s. Groq's catalogue had also changed since the code was first
 written (Llama 3.3 70B was gone), which is why the liveness sweep exists: assumptions about
