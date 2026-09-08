@@ -51,7 +51,10 @@ SPREAD_FALLBACK = os.getenv("SPREAD_FALLBACK", "0").strip() in {"1", "true", "ye
 CODECRAFT_API_KEY = os.getenv("CODECRAFT_API_KEY", "").strip()
 CODECRAFT_API_KEYS = _keys("CODECRAFT")
 CODECRAFT_URL = os.getenv("CODECRAFT_URL", "https://codecraftapi.com/v1/chat/completions").strip()
-CODECRAFT_MODELS = _list("CODECRAFT_MODELS", "gpt-4o-mini,claude-haiku-4.5,gemini-2.5-flash")
+CODECRAFT_MODELS = _list("CODECRAFT_MODELS", "deepseek-v4-flash-0731,gpt-5.6-luna,gemini-3.7-flash")
+# Seconds to wait for one response, per provider. CodeCraft queued 35-50 s per request during
+# its recovery on 8 Sep; the default 60 s would have timed out real questions.
+PROVIDER_TIMEOUTS = {"codecraft": float(os.getenv("CODECRAFT_TIMEOUT", "150")), "openrouter": 90.0, "groq": 60.0, "gemini": 60.0}
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 OPENROUTER_API_KEYS = _keys("OPENROUTER")

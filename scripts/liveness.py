@@ -73,7 +73,13 @@ def main() -> int:
     if not key:
         print(f"no key configured for {args.provider}")
         return 2
-    models = list_models(url, key)
+    try:
+        models = list_models(url, key)
+    except Exception as e:  # a gateway in trouble may not even list; fall back to what we know
+        print(f"could not list models ({type(e).__name__}: {str(e)[:80]}); using --only or the configured list")
+        fallback = {"codecraft": config.CODECRAFT_MODELS, "openrouter": [config.OPENROUTER_MODEL] + config.OPENROUTER_FALLBACKS,
+                    "groq": config.GROQ_MODELS, "gemini": config.GEMINI_MODELS}[args.provider]
+        models = [{"id": m} for m in (args.only or fallback)]
     price = {}
     for m in models:
         p = m.get("pricing") or {}

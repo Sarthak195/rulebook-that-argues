@@ -303,6 +303,7 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
 def _try(messages: list[dict], entry: Entry, *, spread: bool, **kw) -> tuple[str, dict]:
     """One model: call it, and on failure park it (or its whole provider) before re-raising."""
     gate = _Gates(_batch_gate, _gate(entry.account)) if spread else _Gates(_gate(entry.account))
+    kw = dict(kw, timeout=max(kw.get("timeout", 60.0), config.PROVIDER_TIMEOUTS.get(entry.provider, 60.0)))
     try:
         return _chat_once(messages, entry, gate=gate, spread=spread, **kw)
     except ModelUnavailable:
