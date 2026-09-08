@@ -103,6 +103,18 @@ left as a miss. Borderline questions all came back `not_covered` on this model. 
 with two concurrent workers and hit Groq's per-minute limits, so the recorded median latency
 (5.4 s) is inflated by backoff; a single question answers in 1.5 to 2 s.
 
+### Spread mode: accuracy holds, throughput is bounded by the provider
+
+`results/runs/run8` and `run9` ran with `--spread` (calls rotated across Groq's three models,
+three workers). Run 8: 46/47, answered entirely by `gpt-oss-20b` and `qwen3.8-27b` because the
+120B model's minute bucket was drained by a preceding run. Run 9: **47/47**, answered by all
+three Groq models plus one OpenRouter fallback. So spreading across the smaller models does not
+cost accuracy on this set. Wall time, though, is governed by Groq's 8,000 tokens per minute per
+model, and both runs shared the key with live use of the deployed site, so their wall times
+(580 s and 2,619 s) say more about contention than about the pipeline. The practical guidance:
+the full set takes 5 to 10 minutes on the free tier when nothing else is using the key, and
+the run is a server-side job, so it can be started and left alone.
+
 ### 8 September: the free model disappeared, then the daily quota did
 
 The morning after those runs OpenRouter withdrew `minimax/minimax-m3:free`. A probe of the
