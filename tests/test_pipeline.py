@@ -184,6 +184,45 @@ def test_eval_job_runs_in_background_grades_and_persists(monkeypatch, tmp_path):
     assert evaljob.state()["status"] == "interrupted"
 
 
+def test_bucket_headers_route_around_a_drained_model(monkeypatch):
+    import time
+
+    from app import config, llm
+
+    assert llm.parse_duration("48.352s") == 48.352
+    assert llm.parse_duration("1m30.5s") == 90.5
+    assert abs(llm.parse_duration("2h29m45.6s") - 8985.6) < 1e-6
+    assert llm.parse_duration("1ms") == 0.001 and llm.parse_duration(None) is None and llm.parse_duration("soon") is None
+
+    monkeypatch.setattr(config, "PROVIDER_ORDER", ["groq"])
+    monkeypatch.setattr(config, "GROQ_API_KEY", "g")
+    monkeypatch.setattr(config, "GROQ_MODELS", ["a", "b"])
+    monkeypatch.setattr(llm, "_dead", {})
+    monkeypatch.setattr(llm, "_bucket", {})
+    a, b = llm.full_chain()
+    assert llm.has_headroom(a)  # unknown means yes
+
+    class Resp:
+        headers = {"x-ratelimit-remaining-tokens": "900", "x-ratelimit-reset-tokens": "40s"}
+
+    llm._remember_quota(a, Resp())
+    assert not llm.has_headroom(a) and llm.has_headroom(b)
+    llm._bucket[a.id]["reset_at"] = time.time() - 1  # refilled
+    assert llm.has_headroom(a)
+
+    # A live question tries the sibling with headroom first when the preferred model is drained.
+    llm._remember_quota(a, Resp())
+    calls: list[str] = []
+
+    def fake_once(messages, entry, **kw):
+        calls.append(entry.model)
+        return '{"ok": true}', {"model": entry.id}
+
+    monkeypatch.setattr(llm, "_chat_once", fake_once)
+    llm.chat([{"role": "user", "content": "hi"}])
+    assert calls == ["b"]
+
+
 def test_chain_spans_providers_in_order_and_skips_missing_keys(monkeypatch):
     from app import config, llm
 

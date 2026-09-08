@@ -140,8 +140,12 @@ def model_status() -> dict:
 
 
 def quota_status() -> dict:
-    """Last rate-limit headers seen per provider (OpenRouter: x-ratelimit-limit/remaining/reset)."""
-    return dict(_quota)
+    """Last rate-limit headers seen per provider, plus per-model token buckets where known."""
+    now = time.time()
+    out = dict(_quota)
+    out["buckets"] = {mid: {"remaining_tokens": b["remaining"], "refills_in_s": max(0, round(b["reset_at"] - now, 1))}
+                      for mid, b in _bucket.items()}
+    return out
 
 
 _rr = itertools.count()
@@ -170,36 +174,49 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
     errors: list[str] = []
     kw = dict(temperature=temperature, max_tokens=max_tokens, json_mode=json_mode, timeout=timeout)
 
+    global _interactive_pending
     if spread:
-        # Batch work stays inside its own pool: rotate over the live pool models; if every one
-        # is parked, wait for the earliest to unpark (they unpark within seconds) instead of
-        # spilling onto the fallback providers and their small daily quotas.
+        # Batch work stays inside its own pool: rotate over the live pool models that still have
+        # a call's worth of tokens in their minute bucket; if none has, wait for the earliest
+        # refill (seconds) instead of firing at a drained model and sleeping on the 429, and
+        # never spill onto the fallback providers and their small daily quotas. A live question
+        # waiting anywhere pauses batch work.
         deadline = time.time() + SPREAD_MAX_WAIT
         while True:
+            _batch_yield_to_interactive(deadline)
             now = time.time()
             all_pool = [e for e in full_chain(model) if e.provider in config.SPREAD_PROVIDERS]
             if not all_pool:
                 break
             live = [e for e in all_pool if _dead.get(e.id, 0.0) <= now]
-            if live:
-                k = next(_rr) % len(live)
-                for entry in live[k:] + live[:k]:
+            ready = [e for e in live if has_headroom(e)]
+            if ready:
+                k = next(_rr) % len(ready)
+                for entry in ready[k:] + ready[:k]:
                     try:
                         return _try(messages, entry, spread=True, **kw)
                     except LLMError as e:
                         errors.append(f"{entry.id}: {e}")
             if time.time() >= deadline:
                 break
-            wake = min(_dead.get(e.id, 0.0) for e in all_pool)
-            time.sleep(max(0.5, min(5.0, wake - time.time())))
+            _wait_for_headroom(live or all_pool, deadline)
 
-    for entry in model_chain(model):
-        if spread and entry.provider in config.SPREAD_PROVIDERS:
-            continue  # tried above
-        try:
-            return _try(messages, entry, spread=spread, **kw)
-        except LLMError as e:
-            errors.append(f"{entry.id}: {e}")
+    with _pending_lock:
+        _interactive_pending += 0 if spread else 1
+    try:
+        chain = [e for e in model_chain(model) if not (spread and e.provider in config.SPREAD_PROVIDERS)]
+        # A live question prefers the configured order, but a model whose bucket is known to be
+        # drained is tried after its siblings with headroom: a two-second answer from the
+        # second model beats a fifteen-second wait for the first.
+        ordered = [e for e in chain if has_headroom(e)] + [e for e in chain if not has_headroom(e)]
+        for entry in ordered:
+            try:
+                return _try(messages, entry, spread=spread, **kw)
+            except LLMError as e:
+                errors.append(f"{entry.id}: {e}")
+    finally:
+        with _pending_lock:
+            _interactive_pending -= 0 if spread else 1
     raise LLMError("every model in the chain failed -> " + " | ".join(errors)[:700])
 
 
@@ -280,12 +297,65 @@ def _chat_once(messages: list[dict], entry: Entry, *, temperature: float, max_to
     raise LLMError(last_err)
 
 
+_DURATION_RE = re.compile(r"(\d+(?:\.\d+)?)(ms|h|m|s)")
+
+
+def parse_duration(text: str | None) -> float | None:
+    """Groq's reset headers look like '48.352s', '1m30.5s', '2h29m45.6s', '1ms'. Seconds out."""
+    if not text:
+        return None
+    total, matched = 0.0, False
+    for num, unit in _DURATION_RE.findall(text):
+        matched = True
+        total += float(num) * {"ms": 0.001, "s": 1, "m": 60, "h": 3600}[unit]
+    return total if matched else None
+
+
+# Per-model token buckets as last reported by the provider (Groq sends remaining tokens and
+# the time until the bucket refills on every response). Used to route around a drained model
+# instead of firing at it and sleeping on the 429.
+_bucket: dict[str, dict] = {}
+TOKENS_PER_CALL = 2600   # a question with six passages is ~2,000-2,500 tokens in and out
+_interactive_pending = 0
+_pending_lock = threading.Lock()
+
+
 def _remember_quota(entry: Entry, resp: httpx.Response) -> None:
     rl = {k.lower(): v for k, v in resp.headers.items() if k.lower().startswith("x-ratelimit")}
-    if rl:
-        rl["seen_at"] = int(time.time())
-        rl["model"] = entry.id
-        _quota[entry.provider] = rl
+    if not rl:
+        return
+    rl["seen_at"] = int(time.time())
+    rl["model"] = entry.id
+    _quota[entry.provider] = rl
+    rem = rl.get("x-ratelimit-remaining-tokens")
+    reset = parse_duration(rl.get("x-ratelimit-reset-tokens"))
+    if rem is not None and reset is not None:
+        try:
+            _bucket[entry.id] = {"remaining": int(float(rem)), "reset_at": time.time() + reset}
+        except ValueError:
+            pass
+
+
+def has_headroom(entry: Entry, need: int = TOKENS_PER_CALL) -> bool:
+    """False only when the provider told us this model's minute bucket is too low for one call
+    and has not refilled yet. Unknown means yes."""
+    b = _bucket.get(entry.id)
+    if not b or b["reset_at"] <= time.time():
+        return True
+    return b["remaining"] >= need
+
+
+def _wait_for_headroom(entries: list[Entry], deadline: float) -> None:
+    """Sleep until some entry's bucket refills (or the deadline), in short steps."""
+    resets = [b["reset_at"] for e in entries if (b := _bucket.get(e.id)) and b["reset_at"] > time.time()]
+    wake = min(resets) if resets else time.time() + 1.0
+    time.sleep(max(0.3, min(5.0, min(wake, deadline) - time.time())))
+
+
+def _batch_yield_to_interactive(deadline: float) -> None:
+    """Batch work pauses while a live question is waiting for a model."""
+    while _interactive_pending > 0 and time.time() < deadline:
+        time.sleep(0.3)
 
 
 def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: float, gate,
