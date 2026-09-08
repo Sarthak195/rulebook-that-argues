@@ -114,7 +114,7 @@ async def eval_run(req: EvalRunRequest | None = None):
     if r is None:
         raise HTTPException(503, "index not loaded yet")
     req = req or EvalRunRequest()
-    workers = req.workers or (min(8, max(3, llm.spread_slots() * 2)) if req.spread else 2)
+    workers = req.workers or (min(8, max(3, llm.spread_buckets())) if req.spread else 2)
     return evaljob.start(r, workers=workers, spread=req.spread)
 
 

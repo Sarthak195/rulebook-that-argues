@@ -117,7 +117,7 @@ LIMITED_TTL = 20.0   # 429 after retries: per-minute limits clear quickly, try a
 # evaluation tab, a batch script) must queue here rather than turn into 429s, retries and
 # parked models. Three in flight per provider, of which batch work (spread=True) may hold at
 # most two, so a live question asked while the evaluation runs always has a slot of its own.
-MAX_IN_FLIGHT = 3
+MAX_IN_FLIGHT = 4
 MAX_BATCH_IN_FLIGHT = 2
 _gates: dict[str, threading.Semaphore] = {}
 _gates_lock = threading.Lock()
@@ -133,10 +133,21 @@ def spread_slots() -> int:
     return len(seen)
 
 
+def spread_buckets() -> int:
+    """Per-minute buckets the batch pool can draw on: every (key, model) pair of the spread
+    providers, since a provider limits each model separately."""
+    n = 0
+    for name in config.PROVIDER_ORDER:
+        if name in config.SPREAD_PROVIDERS:
+            p = providers().get(name, {})
+            n += len(p.get("keys", [])) * len(p.get("models", []))
+    return n
+
+
 def batch_concurrency() -> int:
-    """How many batch calls may be in flight at once: two per quota slot, capped at eight, and
-    never more than leaves a slot free for live questions on a single-key setup."""
-    return max(MAX_BATCH_IN_FLIGHT, min(8, 2 * spread_slots()))
+    """How many batch calls may be in flight at once: one per bucket, at least two, at most
+    eight. The per-account gate (MAX_IN_FLIGHT) keeps one slot free for live questions."""
+    return max(MAX_BATCH_IN_FLIGHT, min(8, spread_buckets()))
 
 
 _batch_gate = threading.Semaphore(batch_concurrency())
