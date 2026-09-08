@@ -36,7 +36,9 @@ def _keys(name: str) -> list[str]:
 #   OpenRouter  ":free" models; 50 requests/day on a free-tier key, 1,000/day once $10 credits exist
 #   Groq        free tier, generous per-day limits, fast; key from https://console.groq.com/keys
 #   Gemini      free tier via Google AI Studio; key from https://aistudio.google.com/apikey
-PROVIDER_ORDER = _list("PROVIDER_ORDER", "codecraft,groq,gemini,openrouter")
+# Gemini first (fast, one free project), then Groq and OpenRouter free models, CodeCraft last:
+# it answered 4/4 on the probe but at 70-137 s per question while its gateway was recovering.
+PROVIDER_ORDER = _list("PROVIDER_ORDER", "gemini,groq,openrouter,codecraft")
 # Spread mode (batch jobs, the evaluation tab): rotate across the live models of these providers
 # instead of always taking the first, because every model has its own per-minute token bucket.
 # Add openrouter here to use its models as well; on a free-tier key that is 50 requests a day.
