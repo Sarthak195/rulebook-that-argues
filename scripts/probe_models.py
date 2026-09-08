@@ -1,9 +1,11 @@
-"""Try candidate OpenRouter models on one question of each response type.
+"""Try candidate models on one question of each response type.
 
     python scripts/probe_models.py google/gemma-4-31b-it:free nvidia/nemotron-3-super-120b-a12b:free
+    python scripts/probe_models.py codecraft:deepseek-v4-flash-0731 groq:llama-3.3-70b-versatile
 
-Prints status, citations, latency and which concrete model served the call. Use it to pick a
-model before running the full evaluation; free models differ a lot in JSON discipline.
+A bare id is an OpenRouter model; "provider:model" selects another configured provider
+(codecraft, groq, gemini). Prints status, citations, latency and which model served the call.
+Use it to pick a model before running the full evaluation; models differ a lot in JSON discipline.
 """
 from __future__ import annotations
 
@@ -36,9 +38,21 @@ def main() -> None:
     r = load_index(log=lambda *a: None)
     r.embed_query("warm up")
     config.OPENROUTER_FALLBACKS = []  # probe each model on its own; no failover while measuring
-    for m in models:
-        config.OPENROUTER_MODEL = m
-        print(f"\n=== {m}", flush=True)
+    for spec in models:
+        provider, _, m = spec.partition(":") if ":" in spec and not spec.endswith(":free") else ("openrouter", "", spec)
+        config.PROVIDER_ORDER = [provider]
+        if provider == "openrouter":
+            config.OPENROUTER_MODEL = m
+        elif provider == "codecraft":
+            config.CODECRAFT_MODELS = [m]
+        elif provider == "groq":
+            config.GROQ_MODELS = [m]
+        elif provider == "gemini":
+            config.GEMINI_MODELS = [m]
+        else:
+            print(f"\n=== {spec}: unknown provider {provider!r}")
+            continue
+        print(f"\n=== {spec}", flush=True)
         score = 0
         for expected, q in PROBES:
             t0 = time.time()

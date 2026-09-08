@@ -21,7 +21,13 @@ def _list(name: str, default: str) -> list[str]:
 #   OpenRouter  ":free" models; 50 requests/day on a free-tier key, 1,000/day once $10 credits exist
 #   Groq        free tier, generous per-day limits, fast; key from https://console.groq.com/keys
 #   Gemini      free tier via Google AI Studio; key from https://aistudio.google.com/apikey
-PROVIDER_ORDER = _list("PROVIDER_ORDER", "groq,gemini,openrouter")
+PROVIDER_ORDER = _list("PROVIDER_ORDER", "codecraft,groq,gemini,openrouter")
+
+# CodeCraft API (https://codecraftapi.com): a paid, OpenAI-compatible gateway to many models.
+# Keys look like cc_ followed by 48 characters.
+CODECRAFT_API_KEY = os.getenv("CODECRAFT_API_KEY", "").strip()
+CODECRAFT_URL = os.getenv("CODECRAFT_URL", "https://codecraftapi.com/v1/chat/completions").strip()
+CODECRAFT_MODELS = _list("CODECRAFT_MODELS", "gpt-4o-mini,claude-haiku-4.5,gemini-2.5-flash")
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"

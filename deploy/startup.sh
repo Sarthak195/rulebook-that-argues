@@ -12,6 +12,7 @@ echo "=== rulebook startup $(date -u +%FT%TZ) ==="
 
 META="http://metadata.google.internal/computeMetadata/v1/instance/attributes"
 KEY=$(curl -sf -H "Metadata-Flavor: Google" "$META/openrouter-key" || true)
+CODECRAFT=$(curl -sf -H "Metadata-Flavor: Google" "$META/codecraft-key" || true)
 GROQ=$(curl -sf -H "Metadata-Flavor: Google" "$META/groq-key" || true)
 GEMINI=$(curl -sf -H "Metadata-Flavor: Google" "$META/gemini-key" || true)
 REPO=$(curl -sf -H "Metadata-Flavor: Google" "$META/repo-url" || echo "https://github.com/Sarthak195/rulebook-that-argues.git")
@@ -39,6 +40,7 @@ else
 fi
 cd "$APP"
 printf 'OPENROUTER_API_KEY=%s\nOPENROUTER_MODEL=%s\n' "$KEY" "$MODEL" > .env
+[ -n "$CODECRAFT" ] && printf 'CODECRAFT_API_KEY=%s\n' "$CODECRAFT" >> .env
 [ -n "$GROQ" ] && printf 'GROQ_API_KEY=%s\n' "$GROQ" >> .env
 [ -n "$GEMINI" ] && printf 'GEMINI_API_KEY=%s\n' "$GEMINI" >> .env
 chmod 600 .env

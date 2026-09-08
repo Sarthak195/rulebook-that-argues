@@ -43,6 +43,7 @@ class Entry:
 def providers() -> dict[str, dict]:
     """Read from config on every call so tests and scripts can override values at runtime."""
     return {
+        "codecraft": {"url": config.CODECRAFT_URL, "key": config.CODECRAFT_API_KEY, "seed": False, "models": config.CODECRAFT_MODELS},
         "openrouter": {"url": config.OPENROUTER_URL, "key": config.OPENROUTER_API_KEY, "seed": True,
                        "models": [config.OPENROUTER_MODEL] + [m for m in config.OPENROUTER_FALLBACKS if m != config.OPENROUTER_MODEL]},
         "groq": {"url": config.GROQ_URL, "key": config.GROQ_API_KEY, "seed": True, "models": config.GROQ_MODELS},
@@ -104,7 +105,7 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
          max_tokens: int = 900, json_mode: bool = True, timeout: float = 60.0) -> tuple[str, dict]:
     """Return (content, usage). Tries the chain in order. Raises LLMError when all fail."""
     if not available():
-        raise LLMError("no LLM provider key is set (OPENROUTER_API_KEY, GROQ_API_KEY or GEMINI_API_KEY)")
+        raise LLMError("no LLM provider key is set (CODECRAFT_API_KEY, OPENROUTER_API_KEY, GROQ_API_KEY or GEMINI_API_KEY)")
     errors: list[str] = []
     for entry in model_chain(model):
         try:
