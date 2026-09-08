@@ -190,10 +190,18 @@ def model_chain(primary: str | None = None) -> list[Entry]:
     return live or chain
 
 
-def park(model_id: str | None, ttl: float = SICK_TTL) -> None:
-    """Skip a model for a while, e.g. after it returned unparseable JSON."""
-    if model_id:
-        _dead[model_id] = time.time() + ttl
+def park(model_id: str | None, ttl: float = SICK_TTL, model_wide: bool = False) -> None:
+    """Skip a model for a while, e.g. after it returned unparseable JSON. JSON discipline is a
+    property of the model, not of the key, so model_wide parks the same model on every key."""
+    if not model_id:
+        return
+    until = time.time() + ttl
+    _dead[model_id] = until
+    if model_wide:
+        model = model_id.split("/", 1)[-1] if "/" in model_id else model_id
+        for e in full_chain():
+            if e.model == model or e.id.endswith("/" + model):
+                _dead[e.id] = until
 
 
 def model_status() -> dict:

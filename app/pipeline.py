@@ -83,8 +83,9 @@ def normalise_ids(raw, valid: set[str]) -> list[str]:
     return out
 
 
-def classify(messages: list[dict], attempts: int = 2, spread: bool = False) -> tuple[dict, dict]:
-    """Call the model chain and parse JSON; on malformed JSON park that model and try again."""
+def classify(messages: list[dict], attempts: int = 3, spread: bool = False) -> tuple[dict, dict]:
+    """Call the model chain and parse JSON; on malformed JSON park that model (on every key,
+    since JSON discipline is the model's habit, not the key's) and try the next one."""
     last: Exception | None = None
     for _ in range(attempts):
         content, usage = llm.chat(messages, spread=spread)
@@ -92,7 +93,7 @@ def classify(messages: list[dict], attempts: int = 2, spread: bool = False) -> t
             return llm.extract_json(content), usage
         except llm.LLMError as e:
             last = e
-            llm.park(usage.get("model"))
+            llm.park(usage.get("model"), model_wide=True)
     assert last is not None
     raise last
 

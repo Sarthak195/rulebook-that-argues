@@ -84,7 +84,7 @@ GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/compl
 # available to new users"); gemini-3.5-flash-lite and gemini-flash-lite-latest score 4/4 at
 # 1.5-3 s on every key, gemini-2.5-flash 4/4 at 3.6-5.6 s on an older project, gemini-3.6-flash
 # 3/4 at 20-55 s, gemini-3.8-flash hits quota after two answers. Order: fast and universal first.
-GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-3.5-flash-lite,gemini-2.5-flash,gemini-flash-lite-latest,gemini-3.6-flash")
+GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-3.5-flash-lite,gemini-2.5-flash,gemini-flash-lite-latest")
 
 # The audit judges ~50-200 clause pairs in one batch; it may pin a different OpenRouter model
 # than the one that answers live questions. Empty means "same chain as everything else".
