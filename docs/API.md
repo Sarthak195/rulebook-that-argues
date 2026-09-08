@@ -74,6 +74,22 @@ chain fails (quota exhausted, models withdrawn or rate-limited) or while the ind
 loading. Always a JSON body `{"detail": "..."}`. 503 rather than 502 because the Cloudflare
 tunnel replaces an origin 502 with its own HTML page.
 
+## `POST /agent`
+
+Multi-step answering for questions with several parts. Request `{"question": "..."}`. The model
+plans with four tools, `search` (its own query against the index), `open` (a section by id),
+`conflicts` (the audited contradictions), and `finish`; at most five turns. The response has
+the same fields as `/ask` plus:
+
+| field | meaning |
+|---|---|
+| `steps` | `[{n, thought, action, input, observation}]`, the trace |
+| `passages` | every section the agent looked at, cited ones flagged |
+| `fell_back` | true when the agent did not finish within its budget and the one-shot pipeline answered |
+
+Citations are limited to sections the agent actually saw; the other validators are the same as
+for `/ask`. Errors as for `/ask`.
+
 ## `GET /health`
 
 ```json

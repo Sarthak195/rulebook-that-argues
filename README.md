@@ -29,7 +29,14 @@ The hard row is the middle one. "What if I miss the exam for a family wedding?" 
 medical-absence clause at 0.60 similarity. A confident chatbot answers from it. This one says the
 rulebook only covers illness and deputation, and stops.
 
-Two things the brief did not ask for:
+Three things the brief did not ask for:
+
+- **A multi-step agent** (`Agent` tab, `POST /agent`). For questions with several parts, the
+  model plans instead of answering in one shot: it searches the rulebook with its own queries,
+  opens sections by id, consults the audited contradictions, then finishes. Every step is shown.
+  The final answer goes through the same validators as a plain question: it can only cite
+  sections it actually looked at, a conflict needs two real sections, and if it cannot finish
+  within five steps the one-shot pipeline answers and the trace says so.
 
 - **Corpus-wide conflict audit** (`Conflict audit` tab, `scripts/audit.py`). Instead of waiting
   for somebody to ask the right question, every section is compared with every similar section

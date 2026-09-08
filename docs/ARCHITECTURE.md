@@ -123,6 +123,26 @@ and another policy, interpretation, decision shall be final") retrieves the clau
 inconsistencies. On this corpus that is `AR §15.1`. The brief's third clause is always the
 committee that can waive both; the UI shows it under the conflict as "who can settle this".
 
+## 5b. Multi-step agent (`app/agent.py`)
+
+The one-shot pipeline retrieves once and answers once, which is right for one question about
+one rule. Questions with several parts ("58% attendance after hospital, and I missed a
+mid-term: what are my options?") need several looks, so `/agent` runs a small plan-act loop:
+
+- The model replies with one JSON action per turn: `search` with its own query (top 5
+  sections), `open` a section by id (full text), `conflicts` (the audited contradictions with
+  confidence ≥ 0.8), or `finish` with the same `{status, answer, citations, conflict}` shape the
+  one-shot pipeline uses. Five turns at most; the prompt tells it to check `conflicts` before
+  finishing whenever a cited rule carries a number or deadline.
+- Every section returned by `search` or `open` is remembered. At `finish`, citations are
+  normalised and filtered to that set, so the agent cannot cite what it did not see; the
+  conflict, silence and audit-escalation checks from the one-shot pipeline run on the result.
+- If the agent runs out of turns or the model stops returning JSON, the one-shot pipeline
+  answers and the response says `fell_back: true`, with the partial trace kept.
+
+The trace (thought, action, input, observation summary) is part of the response and is drawn
+in the `Agent` tab beside the answer and the sections it looked at.
+
 ## 6. Corpus-wide audit (`app/audit.py`)
 
 Contradictions are, by definition, about the same topic, so they sit close together in
