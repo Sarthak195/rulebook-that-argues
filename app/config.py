@@ -22,6 +22,10 @@ def _list(name: str, default: str) -> list[str]:
 #   Groq        free tier, generous per-day limits, fast; key from https://console.groq.com/keys
 #   Gemini      free tier via Google AI Studio; key from https://aistudio.google.com/apikey
 PROVIDER_ORDER = _list("PROVIDER_ORDER", "codecraft,groq,gemini,openrouter")
+# Spread mode (batch jobs, the evaluation tab): rotate across the live models of these providers
+# instead of always taking the first, because every model has its own per-minute token bucket.
+# Add openrouter here to use its models as well; on a free-tier key that is 50 requests a day.
+SPREAD_PROVIDERS = _list("SPREAD_PROVIDERS", "groq")
 
 # CodeCraft API (https://codecraftapi.com): a paid, OpenAI-compatible gateway to many models.
 # Keys look like cc_ followed by 48 characters.

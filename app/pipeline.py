@@ -83,11 +83,11 @@ def normalise_ids(raw, valid: set[str]) -> list[str]:
     return out
 
 
-def classify(messages: list[dict], attempts: int = 2) -> tuple[dict, dict]:
+def classify(messages: list[dict], attempts: int = 2, spread: bool = False) -> tuple[dict, dict]:
     """Call the model chain and parse JSON; on malformed JSON park that model and try again."""
     last: Exception | None = None
     for _ in range(attempts):
-        content, usage = llm.chat(messages)
+        content, usage = llm.chat(messages, spread=spread)
         try:
             return llm.extract_json(content), usage
         except llm.LLMError as e:
@@ -112,7 +112,9 @@ def passage_block(hits: list[Hit]) -> str:
     return "\n\n".join(parts)
 
 
-def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskResponse:
+def ask(question: str, retriever: Retriever, top_k: int | None = None, spread: bool = False) -> AskResponse:
+    """spread=True rotates calls across providers' live models (batch runs); single questions
+    keep the default order so the demo always gets the preferred model when it is available."""
     t0 = time.time()
     question = question.strip()
     hits = retriever.search(question, k=top_k or config.TOP_K)
@@ -140,7 +142,7 @@ def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskRes
 
     # 3. Ask the model to classify and answer from the passages only.
     user_msg = f"Question: {question}\n\nPassages, ordered by retrieval rank:\n\n{passage_block(hits)}"
-    data, usage = classify([{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user_msg}])
+    data, usage = classify([{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user_msg}], spread=spread)
     used_model = usage.get("model") or "unknown"
 
     valid = {p.id for p in passages}
@@ -188,7 +190,7 @@ def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskRes
         try:
             v_content, _ = llm.chat([{"role": "system", "content": VERIFY_PROMPT},
                                      {"role": "user", "content": f"Question: {question}\n\nCited passages:\n\n{cited_block}"}],
-                                    max_tokens=200)
+                                    max_tokens=200, spread=spread)
             verdict = llm.extract_json(v_content)
             if verdict.get("explicit") is False:
                 notes.append(f"attribution check: cited passages govern a related situation, not this one ({str(verdict.get('reason', '')).strip()[:160]})")

@@ -49,10 +49,10 @@ def grade(category: str, item: dict, resp) -> tuple[bool, str]:
     return True, "silent, as expected"
 
 
-def run_one(retriever, category: str, item: dict) -> dict:
+def run_one(retriever, category: str, item: dict, spread: bool = False) -> dict:
     t0 = time.time()
     try:
-        resp = ask(item["question"], retriever)
+        resp = ask(item["question"], retriever, spread=spread)
         ok, why = grade(category, item, resp)
         retrieved = [p.id for p in resp.passages]
         expected = item.get("expected_sections", [])
@@ -62,7 +62,7 @@ def run_one(retriever, category: str, item: dict) -> dict:
             "citations": resp.citations, "conflict_sections": resp.conflict.sections if resp.conflict else [],
             "retrieved": retrieved, "top_similarity": resp.top_similarity,
             "retrieval_recall": (all(s in retrieved for s in expected) if expected else None),
-            "answer": resp.answer, "mode": resp.mode, "notes": resp.validation_notes,
+            "answer": resp.answer, "mode": resp.mode, "notes": resp.validation_notes, "model": resp.model,
             "latency_ms": int((time.time() - t0) * 1000),
         }
     except Exception as e:  # keep going; one failure must not hide the rest
@@ -79,6 +79,7 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out", default="results/eval_report.md", help="markdown report path; JSON goes next to it")
+    ap.add_argument("--spread", action="store_true", help="rotate calls across providers' live models (see SPREAD_PROVIDERS)")
     args = ap.parse_args()
 
     tests = json.loads((ROOT / "tests" / "questions.json").read_text(encoding="utf-8"))
@@ -89,12 +90,15 @@ def main() -> int:
 
     retriever = load_index()
     retriever.embed_query("warm up")
-    print(f"model: {config.OPENROUTER_MODEL} | embeddings: {config.EMBEDDING_MODEL} | top_k={config.TOP_K} "
-          f"| gate={config.MIN_SIMILARITY} | {len(jobs)} questions\n")
+    from app import llm
+    chain = [e.id for e in llm.full_chain()]
+    print(f"chain: {chain[:4]}{'...' if len(chain) > 4 else ''} | spread={args.spread} | embeddings: {config.EMBEDDING_MODEL} "
+          f"| top_k={config.TOP_K} | gate={config.MIN_SIMILARITY} | {len(jobs)} questions | {args.workers} workers\n")
 
+    t_start = time.time()
     results: list[dict] = []
     with ThreadPoolExecutor(max_workers=args.workers) as ex:
-        for res in ex.map(lambda j: run_one(retriever, *j), jobs):
+        for res in ex.map(lambda j: run_one(retriever, *j, spread=args.spread), jobs):
             results.append(res)
             mark = "PASS" if res["pass"] else "FAIL"
             print(f"{mark} {res['id']}  {res['expected_status']:>11} -> {res['status']:<11} {res['why']}")
@@ -114,9 +118,12 @@ def main() -> int:
 
     # ---- summary -------------------------------------------------------------
     by_cat = {cat: [r for r in results if r["category"] == cat] for cat in EXPECTED}
+    models_used = sorted({r.get("model") for r in results if r.get("model")})
+    wall = int(time.time() - t_start)
     lines = ["# Evaluation report", "",
-             f"Model `{config.OPENROUTER_MODEL}` via OpenRouter, embeddings `{config.EMBEDDING_MODEL}`, "
-             f"top_k={config.TOP_K}, similarity gate={config.MIN_SIMILARITY}.", "",
+             f"Models that answered: {', '.join('`%s`' % m for m in models_used) or 'none'}; chain head `{chain[0] if chain else '-'}`; "
+             f"spread={'on' if args.spread else 'off'}; {args.workers} workers; wall time {wall}s. "
+             f"Embeddings `{config.EMBEDDING_MODEL}`, top_k={config.TOP_K}, similarity gate={config.MIN_SIMILARITY}.", "",
              "| Category | Passed | Total | Accuracy |", "|---|---|---|---|"]
     total_pass = 0
     for cat, rs in by_cat.items():

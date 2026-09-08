@@ -10,6 +10,9 @@ Status = Literal["answered", "not_covered", "conflict"]
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=3, max_length=1000)
     top_k: int | None = Field(None, ge=1, le=12)
+    # Batch callers (the evaluation tab) set this to rotate across providers' live models so
+    # consecutive calls hit different per-minute token buckets. Single questions leave it off.
+    spread: bool = False
 
 
 class Passage(BaseModel):

@@ -180,7 +180,30 @@ parallel) and `scripts/probe_models.py provider:model` runs the four-question qu
 
 Final choice for the submission: **Groq, `openai/gpt-oss-120b`** on the free tier, 4/4 on the
 probe at 1.4 to 2.0 s per answer, with `openai/gpt-oss-20b` and `qwen/qwen3.8-27b` behind it,
-then the OpenRouter free models. Groq's catalogue had also changed since the code was first
+then the OpenRouter free models.
+
+### Pacing and spread
+
+Groq's free tier allows 1,000 requests a day but only **8,000 tokens per minute per model**, and
+a question costs about 2,500 tokens (system prompt, six passages, answer) plus the verification
+call. Two rules keep batch work inside that:
+
+- **At most two calls in flight per provider** (a semaphore in the client). A burst of parallel
+  questions queues instead of turning into 429s, retries and parked models. A 429 after retries
+  parks the model for 20 s, not 90.
+- **Spread mode** for batch callers (`spread: true` on `/ask`, `--spread` on `evaluate.py`, on by
+  default in the Evaluation tab): consecutive calls rotate round-robin across the live models of
+  `SPREAD_PROVIDERS` (default `groq`), so three workers hit three separate per-minute buckets.
+  Single questions keep the plain order and always get the preferred model when it is up.
+  Adding `openrouter` to `SPREAD_PROVIDERS` uses its free models too, but on a free-tier key that
+  is 50 requests a day, less than one evaluation run, so it is off by default.
+
+Measured on the 47-question set (see `docs/EVALUATION.md`): accuracy is unchanged with spread
+on, because the two smaller Groq models also pass the probe; the smaller models simply answer
+a share of the questions.
+
+A gateway that is down (CodeCraft during its outage) must not slow the chain: a 5xx gets one
+quick retry, and one 5xx parks every model of that provider for 90 s. Groq's catalogue had also changed since the code was first
 written (Llama 3.3 70B was gone), which is why the liveness sweep exists: assumptions about
 which models a provider serves today do not survive a night.
 

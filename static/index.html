@@ -240,8 +240,8 @@ function renderAnswer(r) {
   $('#meta').textContent = `${r.mode} · ${r.model || 'no LLM'} · top similarity ${r.top_similarity.toFixed(3)} · ${r.latency_ms} ms`;
 }
 
-async function askApi(question) {
-  const res = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question }) });
+async function askApi(question, spread = false) {
+  const res = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question, spread }) });
   const text = await res.text();
   let data = null;
   try { data = JSON.parse(text); } catch (_) { /* proxies (Cloudflare) replace 5xx bodies with HTML */ }
@@ -291,20 +291,20 @@ async function runEval() {
       S.map(e => `<tr><th>${e}</th>` + S.map(p => { const v = (matrix[e] || {})[p] || 0; return `<td class="${v ? (e === p ? 'diag' : 'off') : ''}">${v}</td>`; }).join('') + '</tr>').join('') + '</table>';
   };
   update();
-  // Two workers, not more: free tiers rate-limit per minute, and a burst of parallel questions
-  // turns into retries and parked models rather than faster answers.
-  const WORKERS = 2;
+  // Three workers with spread=true: each call rotates to a different model, so three in flight
+  // land on three separate per-minute token buckets instead of queueing on one.
+  const WORKERS = 3;
   const worker = async (idx) => {
     for (let i = idx; i < jobs.length; i += WORKERS) {
       const [cat, it] = jobs[i]; const tr = rows[i];
       try {
-        const r = await askApi(it.question); const [ok, why] = gradeRow(cat, it, r);
+        const r = await askApi(it.question, true); const [ok, why] = gradeRow(cat, it, r);
         results[it.id] = [cat, ok]; done++; if (ok) passed++;
         matrix[EXP[cat]] = matrix[EXP[cat]] || {}; matrix[EXP[cat]][r.status] = (matrix[EXP[cat]][r.status] || 0) + 1;
         tr.className = ok ? 'pass' : 'fail';
         tr.children[3].innerHTML = `<span class="badge ${r.status}">${r.status.replace('_', ' ')}</span>`;
         tr.children[4].textContent = (r.conflict ? r.conflict.sections : r.citations).join(', ');
-        tr.children[5].innerHTML = esc(why) + `<div class="hint">${esc(r.answer)}</div>`;
+        tr.children[5].innerHTML = esc(why) + `<div class="hint">${esc(r.answer)}</div><div class="hint" style="font-family:var(--mono)">${esc(r.model || '')} · ${r.latency_ms} ms</div>`;
       } catch (e) { results[it.id] = [cat, false]; done++; tr.className = 'fail'; tr.children[3].textContent = 'error'; tr.children[5].textContent = e.message; }
       update();
     }

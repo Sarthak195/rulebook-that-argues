@@ -121,6 +121,25 @@ def test_model_chain_fails_over_when_a_free_model_is_withdrawn(monkeypatch):
         llm.chat([{"role": "user", "content": "x"}])
 
 
+def test_spread_rotates_across_spread_provider_models_then_fails_over(monkeypatch):
+    from app import config, llm
+
+    monkeypatch.setattr(config, "PROVIDER_ORDER", ["groq", "openrouter"])
+    monkeypatch.setattr(config, "SPREAD_PROVIDERS", ["groq"])
+    monkeypatch.setattr(config, "GROQ_API_KEY", "g")
+    monkeypatch.setattr(config, "GROQ_MODELS", ["a", "b", "c"])
+    monkeypatch.setattr(config, "OPENROUTER_API_KEY", "o")
+    monkeypatch.setattr(config, "OPENROUTER_MODEL", "x/y:free")
+    monkeypatch.setattr(config, "OPENROUTER_FALLBACKS", [])
+    monkeypatch.setattr(llm, "_dead", {})
+    import itertools
+    monkeypatch.setattr(llm, "_rr", itertools.count())
+    heads = [[e.id for e in llm.spread_chain()][0] for _ in range(4)]
+    assert heads == ["groq/a", "groq/b", "groq/c", "groq/a"]           # round-robin over the pool
+    assert [e.id for e in llm.spread_chain()][-1] == "x/y:free"       # non-pool entries stay as failover
+    assert [e.id for e in llm.model_chain()][0] == "groq/a"           # plain chain is unaffected
+
+
 def test_chain_spans_providers_in_order_and_skips_missing_keys(monkeypatch):
     from app import config, llm
 

@@ -9,6 +9,7 @@ briefly. The concrete model that answered is returned in usage["model"].
 """
 from __future__ import annotations
 
+import itertools
 import json
 import re
 import threading
@@ -117,13 +118,31 @@ def quota_status() -> dict:
     return dict(_quota)
 
 
+_rr = itertools.count()
+
+
+def spread_chain(primary: str | None = None) -> list[Entry]:
+    """Chain for batch work: the live models of SPREAD_PROVIDERS rotated round-robin so that
+    consecutive calls land on different per-minute token buckets, then everything else as
+    failover. Falls back to the plain chain when no spread provider is live."""
+    chain = model_chain(primary)
+    pool = [e for e in chain if e.provider in config.SPREAD_PROVIDERS]
+    if len(pool) < 2:
+        return chain
+    k = next(_rr) % len(pool)
+    rotated = pool[k:] + pool[:k]
+    return rotated + [e for e in chain if e not in pool]
+
+
 def chat(messages: list[dict], *, model: str | None = None, temperature: float = 0.0,
-         max_tokens: int = 900, json_mode: bool = True, timeout: float = 60.0) -> tuple[str, dict]:
-    """Return (content, usage). Tries the chain in order. Raises LLMError when all fail."""
+         max_tokens: int = 900, json_mode: bool = True, timeout: float = 60.0,
+         spread: bool = False) -> tuple[str, dict]:
+    """Return (content, usage). Tries the chain in order (rotated across providers' models when
+    spread=True). Raises LLMError when all fail."""
     if not available():
         raise LLMError("no LLM provider key is set (CODECRAFT_API_KEY, OPENROUTER_API_KEY, GROQ_API_KEY or GEMINI_API_KEY)")
     errors: list[str] = []
-    for entry in model_chain(model):
+    for entry in (spread_chain(model) if spread else model_chain(model)):
         try:
             with _gate(entry.provider):
                 return _chat_once(messages, entry, temperature=temperature, max_tokens=max_tokens,
@@ -132,9 +151,18 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
             _dead[entry.id] = time.time() + DEAD_TTL
             errors.append(f"{entry.id}: {e}")
         except LLMError as e:
-            limited = "429" in str(e)
-            _dead[entry.id] = time.time() + (LIMITED_TTL if limited else SICK_TTL)
-            errors.append(f"{entry.id}: {e}")
+            msg = str(e)
+            if "429" in msg:
+                _dead[entry.id] = time.time() + LIMITED_TTL
+            elif msg.startswith("HTTP 5") or "network error" in msg:
+                # A 5xx or a dead socket is the gateway, not the model: park every model of
+                # this provider so the next call does not pay the same price three times.
+                for other in full_chain():
+                    if other.provider == entry.provider:
+                        _dead[other.id] = time.time() + SICK_TTL
+            else:
+                _dead[entry.id] = time.time() + SICK_TTL
+            errors.append(f"{entry.id}: {msg}")
     raise LLMError("every model in the chain failed -> " + " | ".join(errors)[:700])
 
 
@@ -200,22 +228,29 @@ def _remember_quota(entry: Entry, resp: httpx.Response) -> None:
 
 
 def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: float, attempts: int = 5) -> httpx.Response:
-    """Free tiers rate-limit aggressively; back off instead of failing the question. A daily
-    quota (OpenRouter's free-models-per-day) is not worth waiting for: give up at once."""
+    """Free tiers rate-limit aggressively; back off instead of failing the question. Two things
+    are not worth waiting for: a daily quota (OpenRouter's free-models-per-day) and a gateway
+    that is down (5xx): those get one quick retry at most, and the caller parks the provider."""
     delay = 2.0
     last: httpx.Response | None = None
+    server_errors = 0
     for attempt in range(attempts):
         try:
             resp = httpx.post(entry.url, json=payload, headers=headers, timeout=timeout)
         except httpx.HTTPError as e:
-            if attempt == attempts - 1:
+            if attempt >= 1:
                 raise LLMError(f"network error talking to {entry.provider}: {e}") from e
             time.sleep(delay)
-            delay = min(delay * 2, 20)
             continue
         _remember_quota(entry, resp)
         if resp.status_code == 429 and "per-day" in resp.text:
             return resp
+        if resp.status_code >= 500:
+            server_errors += 1
+            if server_errors >= 2:
+                return resp
+            time.sleep(delay)
+            continue
         if resp.status_code not in RETRY_STATUSES or attempt == attempts - 1:
             return resp
         last = resp
