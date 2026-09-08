@@ -84,9 +84,9 @@ section holds two rules; it now requires the answer to use a disputed value.
 
 Runs 6 and 7 are the committed `results/eval_report.md` (run 7).
 
-### Final run on the submitted configuration: Groq, `openai/gpt-oss-120b`
+### Groq, `openai/gpt-oss-120b`, before its daily cap ran out
 
-`results/runs/run7`, the committed `results/eval_report.md`:
+`results/runs/run7` (also `results/eval_report.md`, the last batch-script run):
 
 | Category | Passed | Total | Accuracy |
 |---|---|---|---|
