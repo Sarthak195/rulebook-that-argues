@@ -14,17 +14,73 @@ class LLMError(RuntimeError):
     pass
 
 
+class ModelUnavailable(LLMError):
+    """The model is gone, not free any more, or refuses this key: no point retrying it soon."""
+
+
 def available() -> bool:
     return bool(config.OPENROUTER_API_KEY)
 
 
+# Free models come and go on OpenRouter without notice (minimax-m3:free was withdrawn overnight
+# during this project). So a call is made against a chain of models: the configured one first,
+# then the fallbacks. A model that answers "unavailable" is parked for DEAD_TTL seconds; one that
+# merely failed after retries is parked briefly. The concrete model used is returned in usage.
+_dead: dict[str, float] = {}
+DEAD_TTL = 600.0
+SICK_TTL = 90.0
+
+
+def full_chain(primary: str | None = None) -> list[str]:
+    first = primary or config.OPENROUTER_MODEL
+    return [first] + [m for m in config.OPENROUTER_FALLBACKS if m != first]
+
+
+def model_chain(primary: str | None = None) -> list[str]:
+    """The chain minus models parked as dead or sick; if everything is parked, try everything."""
+    chain = full_chain(primary)
+    now = time.time()
+    live = [m for m in chain if _dead.get(m, 0.0) <= now]
+    return live or chain
+
+
+def park(model: str | None, ttl: float = SICK_TTL) -> None:
+    """Skip a model for a while, e.g. after it returned unparseable JSON."""
+    if model:
+        _dead[model] = time.time() + ttl
+
+
+def model_status() -> dict:
+    now = time.time()
+    return {m: ("parked" if _dead.get(m, 0.0) > now else "live") for m in full_chain()}
+
+
 def chat(messages: list[dict], *, model: str | None = None, temperature: float = 0.0,
          max_tokens: int = 900, json_mode: bool = True, timeout: float = 60.0) -> tuple[str, dict]:
-    """Return (content, usage). Raises LLMError with a readable message on failure."""
+    """Return (content, usage). Tries the model chain in order. Raises LLMError when all fail."""
     if not available():
         raise LLMError("OPENROUTER_API_KEY is not set")
+    errors: list[str] = []
+    for m in model_chain(model):
+        try:
+            return _chat_once(messages, m, temperature=temperature, max_tokens=max_tokens, json_mode=json_mode, timeout=timeout)
+        except ModelUnavailable as e:
+            _dead[m] = time.time() + DEAD_TTL
+            errors.append(f"{m}: {e}")
+        except LLMError as e:
+            _dead[m] = time.time() + SICK_TTL
+            errors.append(f"{m}: {e}")
+    raise LLMError("every model in the chain failed -> " + " | ".join(errors)[:600])
+
+
+UNAVAILABLE_HINTS = ("unavailable", "not found", "no endpoints", "not a valid model", "does not exist",
+                     "insufficient credits", "key limit", "payment required")
+
+
+def _chat_once(messages: list[dict], model: str, *, temperature: float, max_tokens: int,
+               json_mode: bool, timeout: float) -> tuple[str, dict]:
     payload: dict = {
-        "model": model or config.OPENROUTER_MODEL,
+        "model": model,
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
@@ -41,13 +97,16 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
     last_err = "no attempts made"
     for attempt in range(3):
         resp = _post_with_retries(payload, headers, timeout)
-        if resp.status_code != 200 and json_mode and resp.status_code in (400, 404, 422):
+        if resp.status_code != 200 and json_mode and resp.status_code in (400, 422):
             # Some models reject response_format; retry without it and rely on the prompt.
             payload.pop("response_format", None)
             json_mode = False
             resp = _post_with_retries(payload, headers, timeout)
         if resp.status_code != 200:
-            raise LLMError(f"OpenRouter HTTP {resp.status_code}: {resp.text[:300]}")
+            body = resp.text[:300]
+            if resp.status_code in (402, 403, 404) or any(h in body.lower() for h in UNAVAILABLE_HINTS):
+                raise ModelUnavailable(f"HTTP {resp.status_code}: {body}")
+            raise LLMError(f"OpenRouter HTTP {resp.status_code}: {body}")
         try:
             data = resp.json()
         except ValueError:
@@ -60,7 +119,10 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
             return content, usage
         # Free-tier providers sometimes return HTTP 200 with {"error": {...}} or an empty
         # completion ("Provider returned error"). Treat both as transient.
-        last_err = f"OpenRouter error: {json.dumps(data.get('error') or 'empty completion')[:300]}"
+        err_text = json.dumps(data.get("error") or "empty completion")[:300]
+        if any(h in err_text.lower() for h in UNAVAILABLE_HINTS):
+            raise ModelUnavailable(err_text)
+        last_err = f"OpenRouter error: {err_text}"
         time.sleep(2.0 * (attempt + 1))
     raise LLMError(last_err)
 
@@ -104,5 +166,8 @@ def extract_json(text: str) -> dict:
         pass
     start, end = cleaned.find("{"), cleaned.rfind("}")
     if start != -1 and end > start:
-        return json.loads(cleaned[start:end + 1])
+        try:
+            return json.loads(cleaned[start:end + 1])
+        except json.JSONDecodeError as e:
+            raise LLMError(f"model returned malformed JSON ({e.msg} at {e.pos}): {text[:200]!r}") from e
     raise LLMError(f"model did not return JSON: {text[:200]!r}")

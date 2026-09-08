@@ -83,6 +83,20 @@ def normalise_ids(raw, valid: set[str]) -> list[str]:
     return out
 
 
+def classify(messages: list[dict], attempts: int = 2) -> tuple[dict, dict]:
+    """Call the model chain and parse JSON; on malformed JSON park that model and try again."""
+    last: Exception | None = None
+    for _ in range(attempts):
+        content, usage = llm.chat(messages)
+        try:
+            return llm.extract_json(content), usage
+        except llm.LLMError as e:
+            last = e
+            llm.park(usage.get("model"))
+    assert last is not None
+    raise last
+
+
 def hit_to_passage(h: Hit) -> Passage:
     c = h.chunk
     return Passage(id=c.id, doc_code=c.doc_code, doc_title=c.doc_title, section=c.section, title=c.title,
@@ -126,8 +140,8 @@ def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskRes
 
     # 3. Ask the model to classify and answer from the passages only.
     user_msg = f"Question: {question}\n\nPassages, ordered by retrieval rank:\n\n{passage_block(hits)}"
-    content, _usage = llm.chat([{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user_msg}])
-    data = llm.extract_json(content)
+    data, usage = classify([{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user_msg}])
+    used_model = usage.get("model") or config.OPENROUTER_MODEL
 
     valid = {p.id for p in passages}
     status = str(data.get("status", "")).strip().lower().replace("-", "_")
@@ -229,4 +243,4 @@ def ask(question: str, retriever: Retriever, top_k: int | None = None) -> AskRes
             authority = Authority(id=a[0].chunk.id, title=a[0].chunk.title, text=a[0].chunk.text)
 
     return done(status=status, answer=answer, citations=citations, conflict=conflict, resolution_authority=authority,
-                llm_used=True, mode="llm", model=config.OPENROUTER_MODEL)
+                llm_used=True, mode="llm", model=used_model)

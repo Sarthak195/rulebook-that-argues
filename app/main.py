@@ -10,9 +10,9 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / ".env")  # must run before app.config reads the environment
 
-from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi import FastAPI, HTTPException, Request  # noqa: E402
 from fastapi.concurrency import run_in_threadpool  # noqa: E402
-from fastapi.responses import FileResponse  # noqa: E402
+from fastapi.responses import FileResponse, JSONResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 from . import config, llm  # noqa: E402
@@ -39,6 +39,12 @@ app = FastAPI(title="The Rulebook That Argues With Itself", version="1.0", lifes
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 
+@app.exception_handler(Exception)
+async def unhandled(_: Request, exc: Exception):
+    """Always answer JSON, so the front end can show the reason instead of a parse error."""
+    return JSONResponse(status_code=500, content={"detail": f"{type(exc).__name__}: {exc}"[:500]})
+
+
 @app.get("/", include_in_schema=False)
 async def index():
     return FileResponse(STATIC / "index.html")
@@ -53,6 +59,7 @@ async def health():
         "embedding_model": config.EMBEDDING_MODEL,
         "llm_available": llm.available(),
         "llm_model": config.OPENROUTER_MODEL if llm.available() else None,
+        "llm_chain": llm.model_status() if llm.available() else {},
         "top_k": config.TOP_K,
         "min_similarity": config.MIN_SIMILARITY,
     }

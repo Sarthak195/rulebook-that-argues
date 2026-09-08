@@ -238,8 +238,14 @@ function renderAnswer(r) {
 
 async function askApi(question) {
   const res = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question }) });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || res.statusText);
+  const text = await res.text();
+  let data = null;
+  try { data = JSON.parse(text); } catch (_) { /* proxies (Cloudflare) replace 5xx bodies with HTML */ }
+  if (!res.ok) {
+    const detail = data && data.detail ? data.detail : `HTTP ${res.status} ${res.statusText}: ${text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200)}`;
+    throw new Error(detail);
+  }
+  if (!data) throw new Error(`Server returned something that is not JSON: ${text.slice(0, 200)}`);
   return data;
 }
 

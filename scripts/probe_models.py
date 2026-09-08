@@ -35,9 +35,10 @@ def main() -> None:
     models = sys.argv[1:] or [config.OPENROUTER_MODEL]
     r = load_index(log=lambda *a: None)
     r.embed_query("warm up")
+    config.OPENROUTER_FALLBACKS = []  # probe each model on its own; no failover while measuring
     for m in models:
         config.OPENROUTER_MODEL = m
-        print(f"\n=== {m}")
+        print(f"\n=== {m}", flush=True)
         score = 0
         for expected, q in PROBES:
             t0 = time.time()

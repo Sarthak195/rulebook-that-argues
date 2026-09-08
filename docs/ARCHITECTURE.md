@@ -155,6 +155,23 @@ response type against candidate models:
 The client retries with exponential backoff on 429 and 5xx, which free tiers need.
 `AUDIT_MODEL` can point the batch audit at a different model than the live answerer.
 
+### Free models are volatile, so the client uses a chain
+
+On the morning of 8 September, twelve hours after the evaluation above, OpenRouter withdrew
+`minimax/minimax-m3:free` ("This model is unavailable for free. The paid version is available
+now"). Every call failed, the API returned 502, and the Cloudflare tunnel replaced the 502 with
+an HTML page, which surfaced in the browser as a JSON parse error. Three changes followed:
+
+- **A model chain.** `OPENROUTER_MODEL` is tried first, then each of `OPENROUTER_FALLBACKS`. A
+  model that answers "unavailable", 402, 403 or 404 is parked for ten minutes; one that fails
+  after its retries is parked for ninety seconds. The concrete model that answered is returned
+  in every response's `model` field, and `GET /health` shows the chain with each model's state.
+- **Errors are always JSON.** A global handler turns any unhandled exception into
+  `{"detail": ...}`, and the front end reads the body as text first, so a proxy's HTML error page
+  is shown as a readable message instead of a parse error.
+- **The probe script disables the chain** while measuring, so a dead model is reported as dead
+  rather than silently answered by its fallback.
+
 ## 8. What the system cannot do
 
 - It cannot tell that a *positive list* answers a question by omission unless the model reads

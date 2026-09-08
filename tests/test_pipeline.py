@@ -89,6 +89,37 @@ def test_attribution_check_downgrades_answer_from_neighbouring_rule(monkeypatch)
     assert pipeline.ask("What if I miss the exam because I am ill?", r).status == "answered"
 
 
+def test_model_chain_fails_over_when_a_free_model_is_withdrawn(monkeypatch):
+    """First model answers 'unavailable for free' (as minimax-m3:free did overnight); the call
+    must succeed on the next model and the dead one must be parked for later calls."""
+    from app import config, llm
+
+    monkeypatch.setattr(config, "OPENROUTER_API_KEY", "test")
+    monkeypatch.setattr(config, "OPENROUTER_MODEL", "dead/model:free")
+    monkeypatch.setattr(config, "OPENROUTER_FALLBACKS", ["alive/model:free"])
+    monkeypatch.setattr(llm, "_dead", {})
+    calls: list[str] = []
+
+    def fake_once(messages, model, **kw):
+        calls.append(model)
+        if model == "dead/model:free":
+            raise llm.ModelUnavailable("HTTP 404: This model is unavailable for free")
+        return '{"ok": true}', {"model": model}
+
+    monkeypatch.setattr(llm, "_chat_once", fake_once)
+    content, usage = llm.chat([{"role": "user", "content": "hi"}])
+    assert content == '{"ok": true}' and usage["model"] == "alive/model:free"
+    assert calls == ["dead/model:free", "alive/model:free"]
+    assert llm.model_status()["dead/model:free"] == "parked"
+
+    llm.chat([{"role": "user", "content": "again"}])
+    assert calls[-1] == "alive/model:free" and calls.count("dead/model:free") == 1  # parked, not retried
+
+    monkeypatch.setattr(llm, "_chat_once", lambda *a, **k: (_ for _ in ()).throw(llm.LLMError("429 after retries")))
+    with pytest.raises(llm.LLMError, match="every model in the chain failed"):
+        llm.chat([{"role": "user", "content": "x"}])
+
+
 def test_validator_downgrades_unbacked_claims(monkeypatch):
     """An 'answered' with no valid citation, or a 'conflict' with one section, must not survive."""
     import numpy as np
