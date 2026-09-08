@@ -144,6 +144,23 @@ configuration is the one the Evaluation tab shows). The multi-key code stays, fo
 genuinely separate, such as different providers or paid accounts, and the documentation now says
 what it must not be used for.
 
+### Mistral as a second free provider, and why it is a fallback rather than a partner
+
+Mistral's free plan (one account) allows 188 requests and 625,000 tokens a minute on
+`ministral-8b-2512`, so it was tried as a batch partner beside Gemini. Accuracy on the probe was
+4/4 for Ministral 8B, 14B and Nemo, but on the full set the Mistral models over-abstain on
+questions where a general rule plainly covers the specific case ("a two-week absence" against
+"absences of seven days or more"; "how long can a break of study be" against "one semester or
+one academic year"): 46/47 with 14B in the mix twice, 45/47 with 8B and Nemo, always the same
+shape of miss, always on a Mistral model. Gemini-only runs remain 47/47. So Mistral sits behind
+Gemini for live questions, where its speed and quota are welcome, and stays out of the batch
+rotation. (`mistral-large` is outside the free tier; `mistral-small` is capped at 20,000 tokens
+a minute, too tight for a batch; Cerebras, once free, now answers 402 on every model.)
+
+Final server-side run on the submitted configuration (`results/eval_final_vm_single_project.json`):
+**47/47**, Gemini Flash Lite on one project, 228 s because the day's earlier runs had drained the
+per-minute buckets; median latency 2.7 s.
+
 ### Free-tier daily caps, and what the Evaluation tab shows when they are gone
 
 By early afternoon on 8 September the repeated runs above had used Groq's free allowance of

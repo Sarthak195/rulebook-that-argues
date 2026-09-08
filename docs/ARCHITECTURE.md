@@ -178,9 +178,12 @@ is `PROVIDER_ORDER`, default `codecraft,groq,gemini,openrouter`, and a provider 
 skipped. `scripts/liveness.py` pings every model a provider lists (one tiny call each, in
 parallel) and `scripts/probe_models.py provider:model` runs the four-question quality probe.
 
-Final choice for the submission: **Groq, `openai/gpt-oss-120b`** on the free tier, 4/4 on the
-probe at 1.4 to 2.0 s per answer, with `openai/gpt-oss-20b` and `qwen/qwen3.8-27b` behind it,
-then the OpenRouter free models.
+Groq was the choice for a few hours (`openai/gpt-oss-120b`, 4/4 on the probe at 1.4 to 2.0 s)
+until its 200,000-tokens-a-day cap ran out. The submitted chain is **Gemini Flash Lite on one
+AI Studio project**, then Mistral's free plan (`ministral-8b-2512`, `open-mistral-nemo`; the
+14B and Small models were tried and set aside, see `docs/EVALUATION.md`), then the OpenRouter
+and Groq free models. Any further OpenAI-compatible provider can be added through
+`EXTRA_PROVIDERS` without code changes.
 
 ### Pacing and spread
 

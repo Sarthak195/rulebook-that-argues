@@ -42,9 +42,10 @@ Two things the brief did not ask for:
 ## Results
 
 Submitted configuration: Google AI Studio free tier, one project, `gemini-3.5-flash-lite` (with
-`gemini-2.5-flash` and `gemini-flash-lite-latest` behind it); OpenRouter and Groq free models as
-fallback; embeddings `BAAI/bge-small-en-v1.5`. Details in [`docs/EVALUATION.md`](docs/EVALUATION.md)
-and [`results/`](results/).
+`gemini-2.5-flash` and `gemini-flash-lite-latest` behind it); then Mistral's free plan
+(`ministral-8b-2512`, `open-mistral-nemo`) as the first fallback for live questions; then
+OpenRouter and Groq free models; embeddings `BAAI/bge-small-en-v1.5`. Details in
+[`docs/EVALUATION.md`](docs/EVALUATION.md) and [`results/`](results/).
 
 | Category | Passed | Total |
 |---|---|---|

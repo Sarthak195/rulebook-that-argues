@@ -13,9 +13,17 @@
 First boot: VM created 16:44 UTC, service healthy at 16:51 UTC, six and a half minutes, of which
 five were pip installing torch.
 
-The deployed instance runs with `PROVIDER_ORDER=gemini,openrouter,groq` and a single AI Studio
-key. Ten keys from ten projects were tried for an hour and Google suspended eight of the projects
-for quota circumvention; see `docs/EVALUATION.md`.
+The deployed instance runs with `PROVIDER_ORDER=gemini,mistral,openrouter,groq`,
+`SPREAD_PROVIDERS=gemini`, a single AI Studio key and a Mistral free-plan key. Ten Gemini keys
+from ten projects were tried for an hour and Google suspended eight of the projects for quota
+circumvention; see `docs/EVALUATION.md`. Settings beyond the fixed keys (provider order, the
+Mistral lines) live in the `extra-env` instance metadata attribute, which the startup script
+appends to `.env` on every boot:
+
+```bash
+printf 'EXTRA_PROVIDERS=mistral\nMISTRAL_URL=...\nMISTRAL_API_KEY=...\nMISTRAL_MODELS=...\nPROVIDER_ORDER=...\n' > extra.txt
+gcloud compute instances add-metadata rulebook-vm --zone asia-south1-a --metadata-from-file extra-env=extra.txt
+```
 
 Cost: about USD 0.02 per hour for the VM while it runs, plus the static IP. Stop it with
 `gcloud compute instances stop rulebook-vm --zone asia-south1-a` when the round is over.
