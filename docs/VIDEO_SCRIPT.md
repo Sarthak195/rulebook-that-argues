@@ -8,9 +8,12 @@ Before recording:
 - open the app in one tab, the GitHub repo in a second tab, `results/conflict_audit.md` is not
   needed (the Conflict audit tab shows it)
 - refresh the app once so the header shows `139 sections · bge-small · minimax/minimax-m3:free`
-- have the `Evaluation` tab's run finished once already so you know it works on this network;
-  the free model answers in 2 to 8 seconds, so the 47-question run takes about 2 minutes,
-  which is why the script starts it early and comes back to it
+- **run the `Evaluation` tab once before recording and leave the finished table on screen in a
+  second browser tab.** Groq's free tier allows 8,000 tokens per minute per model, so the
+  47-question run takes 6 to 10 minutes; it is paced automatically, but it is too long to wait
+  for on camera. In the video, click `Run all questions` to show it grading live for a few rows,
+  then switch to the tab with the finished run for the totals and the confusion matrix.
+- single questions answer in about 2 seconds; a question that needs the verification pass takes 3 to 4
 
 ---
 
@@ -72,7 +75,7 @@ Click `Conflict audit`.
 
 **2:30 Evaluation results** (20 s)
 
-Click `Evaluation`. The run should be finished.
+Switch to the tab where the evaluation finished before recording.
 
 > Back to the test set. 18 answerable, 4 conflicts, 25 questions the corpus cannot answer,
 > including the adjacent ones. This is the confusion matrix. Everything is on the free

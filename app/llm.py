@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 import time
 from dataclasses import dataclass
 
@@ -57,8 +58,23 @@ def available() -> bool:
 
 _dead: dict[str, float] = {}
 _quota: dict[str, dict] = {}
-DEAD_TTL = 600.0
-SICK_TTL = 90.0
+DEAD_TTL = 600.0     # withdrawn / unauthorised: do not bother it for ten minutes
+SICK_TTL = 90.0      # failed after retries (5xx, empty bodies)
+LIMITED_TTL = 20.0   # 429 after retries: per-minute limits clear quickly, try again soon
+
+# Free tiers limit requests per minute per provider. A burst of parallel questions (the
+# evaluation tab, a batch script) must queue here rather than turn into 429s, retries and
+# parked models. Two in flight per provider is enough to keep a demo snappy.
+MAX_IN_FLIGHT = int(config.__dict__.get("MAX_IN_FLIGHT", 2))
+_gates: dict[str, threading.Semaphore] = {}
+_gates_lock = threading.Lock()
+
+
+def _gate(provider: str) -> threading.Semaphore:
+    with _gates_lock:
+        if provider not in _gates:
+            _gates[provider] = threading.Semaphore(MAX_IN_FLIGHT)
+        return _gates[provider]
 
 
 def full_chain(primary: str | None = None) -> list[Entry]:
@@ -109,13 +125,15 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
     errors: list[str] = []
     for entry in model_chain(model):
         try:
-            return _chat_once(messages, entry, temperature=temperature, max_tokens=max_tokens,
-                              json_mode=json_mode, timeout=timeout)
+            with _gate(entry.provider):
+                return _chat_once(messages, entry, temperature=temperature, max_tokens=max_tokens,
+                                  json_mode=json_mode, timeout=timeout)
         except ModelUnavailable as e:
             _dead[entry.id] = time.time() + DEAD_TTL
             errors.append(f"{entry.id}: {e}")
         except LLMError as e:
-            _dead[entry.id] = time.time() + SICK_TTL
+            limited = "429" in str(e)
+            _dead[entry.id] = time.time() + (LIMITED_TTL if limited else SICK_TTL)
             errors.append(f"{entry.id}: {e}")
     raise LLMError("every model in the chain failed -> " + " | ".join(errors)[:700])
 

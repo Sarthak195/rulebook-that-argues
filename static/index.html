@@ -291,8 +291,11 @@ async function runEval() {
       S.map(e => `<tr><th>${e}</th>` + S.map(p => { const v = (matrix[e] || {})[p] || 0; return `<td class="${v ? (e === p ? 'diag' : 'off') : ''}">${v}</td>`; }).join('') + '</tr>').join('') + '</table>';
   };
   update();
+  // Two workers, not more: free tiers rate-limit per minute, and a burst of parallel questions
+  // turns into retries and parked models rather than faster answers.
+  const WORKERS = 2;
   const worker = async (idx) => {
-    for (let i = idx; i < jobs.length; i += 3) {
+    for (let i = idx; i < jobs.length; i += WORKERS) {
       const [cat, it] = jobs[i]; const tr = rows[i];
       try {
         const r = await askApi(it.question); const [ok, why] = gradeRow(cat, it, r);
@@ -306,7 +309,7 @@ async function runEval() {
       update();
     }
   };
-  await Promise.all([worker(0), worker(1), worker(2)]);
+  await Promise.all(Array.from({ length: WORKERS }, (_, i) => worker(i)));
   btn.disabled = false;
 }
 $('#run-eval').onclick = runEval;

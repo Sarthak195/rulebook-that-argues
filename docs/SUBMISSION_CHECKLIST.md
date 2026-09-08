@@ -15,10 +15,14 @@ to pipeline to evaluation to deployment.
 ## 2. Before recording
 
 - Open http://34.93.55.172/ (or the HTTPS tunnel URL in `docs/DEPLOYMENT.md`, or run locally
-  with `uvicorn app.main:app`). The header must read `139 sections · BAAI/bge-small-en-v1.5 · minimax/minimax-m3:free`.
-- Ask one question to warm the free model up.
+  with `uvicorn app.main:app`). The header must show `groq/openai/gpt-oss-120b` and "models live".
+- Open a second tab on the `Evaluation` view, click `Run all questions`, and let it finish
+  (6 to 10 minutes; Groq's free tier is capped at 8,000 tokens per minute per model). Keep that
+  tab for the totals shot.
+- Ask one question in the first tab to warm up.
 - Read `docs/VIDEO_SCRIPT.md` once. It is timed at about three minutes.
-- The free model answers in 2 to 9 seconds. Do not cut the wait out of the video; say "free tier" and let it load.
+- Single answers take about 2 seconds, 3 to 4 with the verification pass. Do not cut waits out
+  of the video; say "free tier" and let it load.
 
 ## 3. Record (2 to 3 minutes)
 
