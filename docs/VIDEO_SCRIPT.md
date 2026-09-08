@@ -8,9 +8,9 @@ Before recording:
 - open the app in one tab, the GitHub repo in a second tab, `results/conflict_audit.md` is not
   needed (the Conflict audit tab shows it)
 - refresh the app once so the header shows `139 sections · bge-small · minimax/minimax-m3:free`
-- **run the `Evaluation` tab before recording, not during.** On one free Gemini project it takes
-  several minutes at ten requests a minute. The run happens on the server and the finished table
-  stays on the tab, surviving refreshes, so record with the finished result on screen.
+- **the `Evaluation` tab finishes in about 35 seconds on the deployed Mistral setup**, so you can
+  click `Run all questions` on camera and watch it fill in; the finished table also stays on the
+  tab across refreshes. Run it once before recording to be sure the key is healthy.
 - single questions answer in about 2 seconds; a question that needs the verification pass takes 3 to 4
 
 ---
@@ -23,12 +23,13 @@ Before recording:
 > possible responses: answered with citations, not covered, and conflict. The job is to pick
 > the right one.
 
-**0:10 Show the evaluation, briefly** (15 s)
+**0:10 Start the evaluation** (15 s)
 
-Click `Evaluation`. The finished run from before recording is on screen.
+Click `Evaluation`, click `Run all questions`. Rows start filling in within seconds.
 
 > This is the labelled test set, 47 questions, graded on the server: the response type has to
-> be right and the cited sections have to be the expected ones. I will come back to the numbers.
+> be right and the cited sections have to be the expected ones. It takes about half a minute;
+> I will come back to it.
 
 Click back to `Ask`.
 
@@ -73,11 +74,12 @@ Click `Conflict audit`.
 
 **2:30 Evaluation results** (20 s)
 
-Click `Evaluation`; the finished run is there.
+Click `Evaluation`; the run has finished.
 
 > Back to the test set. 18 answerable, 4 conflicts, 25 questions the corpus cannot answer,
-> including the adjacent ones. This is the confusion matrix. Everything runs on free tiers,
-> Gemini Flash Lite with OpenRouter and Groq behind it; embeddings are local.
+> including the adjacent ones. This is the confusion matrix. Everything runs on Mistral's free
+> plan, three small models sharing the work; the two misses are the cautious kind, "not
+> covered" where the rule did apply, and they are recorded, not hidden. Embeddings are local.
 
 Read the pass count off the screen. Do not quote a number from memory.
 

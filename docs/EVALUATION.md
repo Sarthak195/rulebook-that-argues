@@ -161,6 +161,22 @@ Final server-side run on the submitted configuration (`results/eval_final_vm_sin
 **47/47**, Gemini Flash Lite on one project, 228 s because the day's earlier runs had drained the
 per-minute buckets; median latency 2.7 s.
 
+### Deployed at submission: Mistral only, 45/47 in 35 s
+
+Chosen for speed in the last hour: `results/eval_final_vm_mistral.json`, three Mistral models
+rotating, 45/47, wall time 35 s, median latency 2.2 s. The two misses are the over-abstentions
+described above (A15 on Ministral 14B, A17 on Ministral 8B this time; the miss moves between
+the Mistral models, never leaves that family, and never touches conflicts or not-covered
+questions). Same-day comparisons on the full set:
+
+| configuration | score | wall time |
+|---|---|---|
+| Gemini 3.5 Flash Lite, one key (four runs) | 47/47 | 134 to 228 s |
+| Gemini 3.5 + 3.1 Flash Lite, one key | 46/47 (3.1 answered a not-covered question) | 182 s |
+| Mistral 8B + Nemo + 14B, locally | 45/47 | 43 s |
+| Mistral 8B + Nemo + 14B, on the VM | 45/47 | 35 s |
+| Gemma 4 26B via the Gemini API, two keys | see `results/runs/run11.md` | slow: 4 to 24 s per answer on the probe |
+
 ### Free-tier daily caps, and what the Evaluation tab shows when they are gone
 
 By early afternoon on 8 September the repeated runs above had used Groq's free allowance of

@@ -13,7 +13,7 @@ local embedding model.
 | **Live** | http://34.93.55.172/ (GCE, Mumbai) · https://guy-easily-veterans-victorian.trycloudflare.com (HTTPS tunnel) · http://34.93.55.172.nip.io/ |
 | **Demo video** | _link goes here_ |
 | **Try a link** | [answered](http://34.93.55.172/?q=What%20is%20the%20minimum%20attendance%20required%20to%20appear%20for%20the%20end-semester%20examination%3F) · [not covered](http://34.93.55.172/?q=What%20happens%20if%20I%20miss%20the%20end-semester%20exam%20because%20of%20a%20family%20wedding%3F) · [conflict](http://34.93.55.172/?q=My%20attendance%20is%2058%25%20because%20I%20was%20hospitalised%20for%20three%20weeks.%20Can%20the%20shortage%20be%20condoned%3F) · [audit](http://34.93.55.172/?tab=audit) · [evaluation](http://34.93.55.172/?tab=eval) |
-| **Result** | 47/47 on the labelled test set, graded on the server, on Gemini Flash Lite from Google AI Studio's free tier; audit finds 3/3 planted contradictions plus one I had not planted |
+| **Result** | 45/47 on the labelled test set in 35 s on the deployed Mistral free plan (the two misses are over-cautious "not covered" answers); 47/47 on Gemini Flash Lite in four runs; audit finds 3/3 planted contradictions plus one I had not planted |
 
 ![conflict](docs/img/conflict.png)
 
@@ -41,19 +41,24 @@ Two things the brief did not ask for:
 
 ## Results
 
-Submitted configuration: Google AI Studio free tier, one project, `gemini-3.5-flash-lite` (with
-`gemini-2.5-flash` and `gemini-flash-lite-latest` behind it); then Mistral's free plan
-(`ministral-8b-2512`, `open-mistral-nemo`) as the first fallback for live questions; then
-OpenRouter and Groq free models; embeddings `BAAI/bge-small-en-v1.5`. Details in
+Deployed configuration (chosen for speed on the day of submission): Mistral's free plan, one
+account, `ministral-8b-2512`, `open-mistral-nemo` and `ministral-14b-2512` rotating across
+their per-minute buckets; embeddings `BAAI/bge-small-en-v1.5`. Details in
 [`docs/EVALUATION.md`](docs/EVALUATION.md) and [`results/`](results/).
 
 | Category | Passed | Total |
 |---|---|---|
-| answerable (status right **and** expected section cited) | 18 | 18 |
+| answerable (status right **and** expected section cited) | 16 | 18 |
 | conflict (status right **and** both sections named) | 4 | 4 |
 | not covered | 25 | 25 |
 | audit: planted contradictions found | 3 | 3 |
 | audit: false positives among 50 pairs | 2 | |
+
+The two misses are the safe kind: the Mistral models say "not covered" for a two-week absence
+when the rule says "seven days or more", and for "how long can a break of study be" when the
+rule says "one semester or one academic year". Nothing is invented, and no conflict is missed.
+Gemini 3.5 Flash Lite on one free project scores 47/47 in four runs today but takes two to four
+minutes per full run against Mistral's 35 s; either is one line in `.env`.
 
 A single question answers in about 1.8 s; the full set grades on the server in a few minutes
 at the free tier's per-minute rate. Earlier in the project the same 47 questions scored 47/47 on
