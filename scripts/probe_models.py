@@ -49,8 +49,10 @@ def main() -> None:
             config.GROQ_MODELS = [m]
         elif provider == "gemini":
             config.GEMINI_MODELS = [m]
+        elif provider in config.EXTRA_PROVIDERS:
+            config.EXTRA_PROVIDERS[provider]["models"] = [m]
         else:
-            print(f"\n=== {spec}: unknown provider {provider!r}")
+            print(f"\n=== {spec}: unknown provider {provider!r} (configure it via EXTRA_PROVIDERS)")
             continue
         print(f"\n=== {spec}", flush=True)
         score = 0

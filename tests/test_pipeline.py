@@ -286,6 +286,21 @@ def test_multiple_keys_become_separate_quota_slots(monkeypatch):
     assert [e.id for e in llm.full_chain()] == ["gemini/flash", "gemini/latest"]
 
 
+def test_extra_openai_compatible_provider_joins_the_chain(monkeypatch):
+    from app import config, llm
+
+    monkeypatch.setattr(config, "EXTRA_PROVIDERS", {"cerebras": {"url": "https://api.cerebras.ai/v1/chat/completions",
+                                                                  "keys": ["csk-1"], "models": ["gpt-oss-120b"], "seed": True, "timeout": 45.0}})
+    monkeypatch.setattr(config, "PROVIDER_ORDER", ["cerebras", "gemini"])
+    monkeypatch.setattr(config, "GEMINI_API_KEYS", ["g"])
+    monkeypatch.setattr(config, "GEMINI_MODELS", ["flash"])
+    monkeypatch.setattr(llm, "_dead", {})
+    chain = llm.full_chain()
+    assert [e.id for e in chain] == ["cerebras/gpt-oss-120b", "gemini/flash"]
+    assert chain[0].url.startswith("https://api.cerebras.ai") and chain[0].seed is True
+    assert llm.provider_timeout("cerebras") == 45.0 and llm.provider_timeout("gemini") == 60.0
+
+
 def test_chain_spans_providers_in_order_and_skips_missing_keys(monkeypatch):
     from app import config, llm
 

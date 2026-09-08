@@ -91,6 +91,26 @@ GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/compl
 # 3/4 at 20-55 s, gemini-3.8-flash hits quota after two answers. Order: fast and universal first.
 GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-3.5-flash-lite,gemini-2.5-flash,gemini-flash-lite-latest")
 
+# Any other OpenAI-compatible provider, without code changes. EXTRA_PROVIDERS names them; for
+# each NAME (upper-cased in the variable names) set NAME_URL (the /chat/completions URL),
+# NAME_API_KEY or NAME_API_KEYS, NAME_MODELS (comma list), optionally NAME_SEED=1 and
+# NAME_TIMEOUT. Then add the name to PROVIDER_ORDER. Example, Cerebras:
+#   EXTRA_PROVIDERS=cerebras
+#   CEREBRAS_URL=https://api.cerebras.ai/v1/chat/completions
+#   CEREBRAS_API_KEY=csk-...
+#   CEREBRAS_MODELS=gpt-oss-120b,llama-3.3-70b
+#   PROVIDER_ORDER=cerebras,gemini,groq,openrouter
+EXTRA_PROVIDERS: dict[str, dict] = {}
+for _name in _list("EXTRA_PROVIDERS", ""):
+    _up = _name.upper().replace("-", "_")
+    _url = os.getenv(f"{_up}_URL", "").strip()
+    if _url:
+        EXTRA_PROVIDERS[_name] = {
+            "url": _url, "keys": _keys(_up), "models": _list(f"{_up}_MODELS", ""),
+            "seed": os.getenv(f"{_up}_SEED", "0").strip() in {"1", "true", "yes"},
+            "timeout": float(os.getenv(f"{_up}_TIMEOUT", "60")),
+        }
+
 # The audit judges ~50-200 clause pairs in one batch; it may pin a different OpenRouter model
 # than the one that answers live questions. Empty means "same chain as everything else".
 AUDIT_MODEL = os.getenv("AUDIT_MODEL", "").strip()

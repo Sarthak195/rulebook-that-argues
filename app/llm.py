@@ -84,13 +84,23 @@ def _keys_for(provider: str) -> list[str]:
 
 def providers() -> dict[str, dict]:
     """Read from config on every call so tests and scripts can override values at runtime."""
-    return {
+    table = {
         "codecraft": {"url": config.CODECRAFT_URL, "keys": _keys_for("codecraft"), "seed": False, "models": config.CODECRAFT_MODELS},
         "openrouter": {"url": config.OPENROUTER_URL, "keys": _keys_for("openrouter"), "seed": True,
                        "models": [config.OPENROUTER_MODEL] + [m for m in config.OPENROUTER_FALLBACKS if m != config.OPENROUTER_MODEL]},
         "groq": {"url": config.GROQ_URL, "keys": _keys_for("groq"), "seed": True, "models": config.GROQ_MODELS},
         "gemini": {"url": config.GEMINI_URL, "keys": _keys_for("gemini"), "seed": False, "models": config.GEMINI_MODELS},
     }
+    for name, p in getattr(config, "EXTRA_PROVIDERS", {}).items():
+        table[name] = {"url": p["url"], "keys": list(p.get("keys", [])), "seed": bool(p.get("seed")), "models": list(p.get("models", []))}
+    return table
+
+
+def provider_timeout(provider: str) -> float:
+    extra = getattr(config, "EXTRA_PROVIDERS", {}).get(provider)
+    if extra:
+        return float(extra.get("timeout", 60.0))
+    return float(config.PROVIDER_TIMEOUTS.get(provider, 60.0))
 
 
 def available() -> bool:
@@ -303,7 +313,7 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
 def _try(messages: list[dict], entry: Entry, *, spread: bool, **kw) -> tuple[str, dict]:
     """One model: call it, and on failure park it (or its whole provider) before re-raising."""
     gate = _Gates(_batch_gate, _gate(entry.account)) if spread else _Gates(_gate(entry.account))
-    kw = dict(kw, timeout=max(kw.get("timeout", 60.0), config.PROVIDER_TIMEOUTS.get(entry.provider, 60.0)))
+    kw = dict(kw, timeout=max(kw.get("timeout", 60.0), provider_timeout(entry.provider)))
     try:
         return _chat_once(messages, entry, gate=gate, spread=spread, **kw)
     except ModelUnavailable:

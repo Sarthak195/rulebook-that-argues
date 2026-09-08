@@ -27,11 +27,13 @@ load_dotenv(ROOT / ".env")
 from app import config  # noqa: E402
 
 PROVIDERS = {
-    "codecraft": (config.CODECRAFT_URL, config.CODECRAFT_API_KEY),
-    "openrouter": (config.OPENROUTER_URL, config.OPENROUTER_API_KEY),
-    "groq": (config.GROQ_URL, config.GROQ_API_KEY),
-    "gemini": (config.GEMINI_URL, config.GEMINI_API_KEY),
+    "codecraft": (config.CODECRAFT_URL, config.CODECRAFT_API_KEYS[0] if config.CODECRAFT_API_KEYS else ""),
+    "openrouter": (config.OPENROUTER_URL, config.OPENROUTER_API_KEYS[0] if config.OPENROUTER_API_KEYS else ""),
+    "groq": (config.GROQ_URL, config.GROQ_API_KEYS[0] if config.GROQ_API_KEYS else ""),
+    "gemini": (config.GEMINI_URL, config.GEMINI_API_KEYS[0] if config.GEMINI_API_KEYS else ""),
 }
+for _name, _p in config.EXTRA_PROVIDERS.items():
+    PROVIDERS[_name] = (_p["url"], _p["keys"][0] if _p["keys"] else "")
 
 
 def list_models(url: str, key: str) -> list[dict]:
@@ -64,7 +66,7 @@ def ping(url: str, key: str, model: str, timeout: float) -> dict:
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser()
-    ap.add_argument("provider", choices=list(PROVIDERS))
+    ap.add_argument("provider", choices=sorted(PROVIDERS))
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--timeout", type=float, default=45.0)
     ap.add_argument("--only", nargs="*", help="model ids to test instead of the full list")
@@ -78,7 +80,7 @@ def main() -> int:
     except Exception as e:  # a gateway in trouble may not even list; fall back to what we know
         print(f"could not list models ({type(e).__name__}: {str(e)[:80]}); using --only or the configured list")
         fallback = {"codecraft": config.CODECRAFT_MODELS, "openrouter": [config.OPENROUTER_MODEL] + config.OPENROUTER_FALLBACKS,
-                    "groq": config.GROQ_MODELS, "gemini": config.GEMINI_MODELS}[args.provider]
+                    "groq": config.GROQ_MODELS, "gemini": config.GEMINI_MODELS}.get(args.provider) or config.EXTRA_PROVIDERS.get(args.provider, {}).get("models", [])
         models = [{"id": m} for m in (args.only or fallback)]
     price = {}
     for m in models:

@@ -28,6 +28,8 @@ PROVIDERS = {
     "openrouter": (config.OPENROUTER_URL, config.OPENROUTER_API_KEYS, config.OPENROUTER_MODEL),
     "codecraft": (config.CODECRAFT_URL, config.CODECRAFT_API_KEYS, config.CODECRAFT_MODELS[0] if config.CODECRAFT_MODELS else ""),
 }
+for _name, _p in config.EXTRA_PROVIDERS.items():
+    PROVIDERS[_name] = (_p["url"], _p["keys"], _p["models"][0] if _p["models"] else "")
 
 
 def main() -> int:
