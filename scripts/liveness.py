@@ -44,7 +44,9 @@ def list_models(url: str, key: str) -> list[dict]:
 
 def ping(url: str, key: str, model: str, timeout: float) -> dict:
     t0 = time.time()
-    payload = {"model": model, "max_tokens": 20, "temperature": 0,
+    # 160 tokens, not 20: reasoning models spend tokens thinking before the reply and come back
+    # empty on a tiny budget, which would misreport a working model as dead.
+    payload = {"model": model, "max_tokens": 160, "temperature": 0,
                "messages": [{"role": "user", "content": 'Reply with exactly this JSON and nothing else: {"ok": true}'}]}
     try:
         r = httpx.post(url, json=payload, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"}, timeout=timeout)
