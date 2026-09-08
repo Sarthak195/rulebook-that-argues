@@ -222,12 +222,17 @@ A gateway that is down (CodeCraft during its outage) must not slow the chain: a 
 quick retry, and one 5xx parks every model of that provider for 90 s.
 
 **Several keys per provider.** `GEMINI_API_KEYS` (and the same for the other providers) takes
-a comma-separated list. Each key becomes its own quota slot: entries are named
-`gemini#2/gemini-2.5-flash`, rate limits, buckets and parking are tracked per slot, and the
-spread pool rotates across slots as well as models, so a batch run's throughput scales with
-the number of keys. Ordering is model-major, so the preferred model on every key comes before
-any fallback model. Google's free quota is per project; several projects under one account is
-the intended way to get several quotas. Groq's catalogue had also changed since the code was first
+a comma-separated list, or numbered lines `GEMINI_API_KEY1`, `GEMINI_API_KEY2`, ... Each key
+becomes its own quota slot: entries are named `gemini#2/gemini-2.5-flash`, rate limits, buckets
+and parking are tracked per slot, and the spread pool rotates across slots as well as models,
+so a batch run's throughput scales with the number of keys.
+
+**Do not use this to multiply a free tier.** Ten free Google projects created for that purpose
+got eight of them suspended for Terms of Service violations within an hour of use; the pattern
+(identical projects, one key each, rotated against one workload from one server) is what
+providers' abuse systems look for, and their terms forbid circumventing usage limits. The
+feature is for keys that are legitimately separate: different providers, a paid account beside
+a free one, keys owned by different teams. Groq's catalogue had also changed since the code was first
 written (Llama 3.3 70B was gone), which is why the liveness sweep exists: assumptions about
 which models a provider serves today do not survive a night.
 

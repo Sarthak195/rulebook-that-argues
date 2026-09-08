@@ -13,9 +13,9 @@
 First boot: VM created 16:44 UTC, service healthy at 16:51 UTC, six and a half minutes, of which
 five were pip installing torch.
 
-The deployed instance runs with `PROVIDER_ORDER=gemini` in its `.env` (ten AI Studio keys from
-ten projects, plus the original), by choice: the other providers' keys are still in the file
-and one line brings them back into the chain.
+The deployed instance runs with `PROVIDER_ORDER=gemini,openrouter,groq` and a single AI Studio
+key. Ten keys from ten projects were tried for an hour and Google suspended eight of the projects
+for quota circumvention; see `docs/EVALUATION.md`.
 
 Cost: about USD 0.02 per hour for the VM while it runs, plus the static IP. Stop it with
 `gcloud compute instances stop rulebook-vm --zone asia-south1-a` when the round is over.
@@ -71,8 +71,9 @@ gcloud compute ssh rulebook-vm --zone asia-south1-a --command \
 # add a free Groq or Gemini key (picked up by the startup script on the next boot, or add the
 # line to /opt/rulebook/.env over ssh and restart for an immediate effect)
 gcloud compute instances add-metadata rulebook-vm --zone asia-south1-a --metadata "groq-key=gsk_..."
-# several Gemini keys: a comma list must go through a file, gcloud splits commas otherwise
-echo "key1,key2,key3" > keys.txt
+# several keys (only for keys that are legitimately separate; see docs/ARCHITECTURE.md):
+# a comma list must go through a file, gcloud splits commas otherwise
+echo "key1,key2" > keys.txt
 gcloud compute instances add-metadata rulebook-vm --zone asia-south1-a --metadata-from-file gemini-keys=keys.txt
 gcloud compute ssh rulebook-vm --zone asia-south1-a --command \
   "echo 'GROQ_API_KEY=gsk_...' | sudo tee -a /opt/rulebook/.env >/dev/null && sudo systemctl restart rulebook"

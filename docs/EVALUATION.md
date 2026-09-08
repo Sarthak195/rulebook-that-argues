@@ -132,8 +132,17 @@ across them, and the server runs eight questions in flight. New projects cannot 
 | **eleven Gemini slots, 8 workers, Lite models only** (`results/eval_final_vm.json`, the server-side run) | | **47/47** | **18 s** |
 
 Median latency 1.7 s, p90 6.9 s. The confusion matrix is the identity; the borderline
-questions all came back `not_covered`. This is the run the Evaluation tab shows and the video
-records.
+questions all came back `not_covered`.
+
+**Postscript, an hour later.** Google suspended eight of the ten projects for "repeated Terms
+of Service violations". Ten identical projects created within minutes, each with one key, all
+calling the same API in rotation from one server is the signature of quota circumvention, which
+the Gemini API terms and the Cloud Acceptable Use Policy forbid. The advice in this repository
+that several projects were "the intended way" to get several quotas was wrong, and I withdrew
+it. The deployed instance went back to a single project (a further 47/47 run, 134 s, on that
+configuration is the one the Evaluation tab shows). The multi-key code stays, for keys that are
+genuinely separate, such as different providers or paid accounts, and the documentation now says
+what it must not be used for.
 
 ### Free-tier daily caps, and what the Evaluation tab shows when they are gone
 

@@ -8,10 +8,9 @@ Before recording:
 - open the app in one tab, the GitHub repo in a second tab, `results/conflict_audit.md` is not
   needed (the Conflict audit tab shows it)
 - refresh the app once so the header shows `139 sections · bge-small · minimax/minimax-m3:free`
-- **the `Evaluation` tab runs in about 20 seconds now** (ten Gemini keys, eight questions in
-  flight), so you can click `Run all questions` on camera and watch it fill in. The run happens
-  on the server and the finished table stays on the tab, surviving refreshes. Run it once before
-  recording anyway, so you know the keys are healthy.
+- **run the `Evaluation` tab before recording, not during.** On one free Gemini project it takes
+  several minutes at ten requests a minute. The run happens on the server and the finished table
+  stays on the tab, surviving refreshes, so record with the finished result on screen.
 - single questions answer in about 2 seconds; a question that needs the verification pass takes 3 to 4
 
 ---
@@ -24,13 +23,12 @@ Before recording:
 > possible responses: answered with citations, not covered, and conflict. The job is to pick
 > the right one.
 
-**0:10 Start the evaluation** (15 s)
+**0:10 Show the evaluation, briefly** (15 s)
 
-Click `Evaluation`, click `Run all questions`. Rows start filling in within a few seconds.
+Click `Evaluation`. The finished run from before recording is on screen.
 
 > This is the labelled test set, 47 questions, graded on the server: the response type has to
-> be right and the cited sections have to be the expected ones. It takes about twenty seconds;
-> I will come back to it.
+> be right and the cited sections have to be the expected ones. I will come back to the numbers.
 
 Click back to `Ask`.
 
@@ -79,7 +77,7 @@ Click `Evaluation`; the finished run is there.
 
 > Back to the test set. 18 answerable, 4 conflicts, 25 questions the corpus cannot answer,
 > including the adjacent ones. This is the confusion matrix. Everything runs on free tiers,
-> Gemini Flash Lite spread across ten keys with Groq and OpenRouter behind it; embeddings are local.
+> Gemini Flash Lite with OpenRouter and Groq behind it; embeddings are local.
 
 Read the pass count off the screen. Do not quote a number from memory.
 

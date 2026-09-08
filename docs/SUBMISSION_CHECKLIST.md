@@ -17,9 +17,9 @@ to pipeline to evaluation to deployment.
 - Open http://34.93.55.172/ (or the HTTPS tunnel URL in `docs/DEPLOYMENT.md`, or run locally
   with `uvicorn app.main:app`). The header must show a `gemini#…/gemini-3.5-flash-lite` model and
   "models live".
-- Open the `Evaluation` view, click `Run all questions`, and let it finish; about 20 seconds
-  with the ten Gemini keys. The run happens on the server, so you can refresh or leave the page;
-  the finished table stays there.
+- Open the `Evaluation` view; a finished 47/47 run is already there. If you want a fresh one,
+  click `Run all questions` and let it finish (several minutes on one free Gemini project). The
+  run happens on the server, so you can refresh or leave the page; the finished table stays there.
 - Ask one question in the first tab to warm up.
 - Read `docs/VIDEO_SCRIPT.md` once. It is timed at about three minutes.
 - Single answers take about 2 seconds, 3 to 4 with the verification pass. Do not cut waits out
