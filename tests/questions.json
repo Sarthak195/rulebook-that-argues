@@ -30,7 +30,19 @@
     {"id": "A15", "question": "How long can a break of study be?", "expected_sections": ["AR §10.1"], "expected_answer": "one semester or one academic year, medical grounds only, once"},
     {"id": "A16", "question": "What is the maximum time allowed to complete the B.Tech programme?", "expected_sections": ["AR §2.1"], "expected_answer": "seven academic years"},
     {"id": "A17", "question": "Can I get a mess rebate if I go home for two weeks?", "expected_sections": ["HH §4.3"], "expected_answer": "yes, for absences of 7 days or more recorded in advance"},
-    {"id": "A18", "question": "How much medical insurance cover do students have?", "expected_sections": ["LM §5.2"], "expected_answer": "hospitalisation up to Rs. 1,00,000 per year"}
+    {"id": "A18", "question": "How much medical insurance cover do students have?", "expected_sections": ["LM §5.2"], "expected_answer": "hospitalisation up to Rs. 1,00,000 per year"},
+    {"id": "A19", "question": "How many credits do I need to earn to get my B.Tech degree?", "expected_sections": ["AR §2.2"], "expected_answer": "160 credits"},
+    {"id": "A20", "question": "What is the fee for a supplementary examination?", "expected_sections": ["EE §7.1", "FS §1.1"], "expected_answer": "Rs. 800 per course"},
+    {"id": "A21", "question": "Within how many days are end-semester results declared?", "expected_sections": ["EE §6.1"], "expected_answer": "within 30 days of the last examination"},
+    {"id": "A22", "question": "What happens on a third offence of unfair means in an examination?", "expected_sections": ["EE §4.2"], "expected_answer": "expulsion from the Institute"},
+    {"id": "A23", "question": "What CGPA do I need to stand for the Student Council election?", "expected_sections": ["SG §2.2"], "expected_answer": "not less than 6.5, no F or DT grade, not on probation, no disciplinary action"},
+    {"id": "A24", "question": "How much campaign money can a candidate spend in the council election?", "expected_sections": ["SG §2.3"], "expected_answer": "Rs. 2,000"},
+    {"id": "A25", "question": "How many students are needed to register a new club?", "expected_sections": ["SG §3.1"], "expected_answer": "at least fifteen"},
+    {"id": "A26", "question": "How far in advance must a club apply for permission to hold an event?", "expected_sections": ["SG §3.3"], "expected_answer": "at least ten working days"},
+    {"id": "A27", "question": "How long do I get to reply to a show-cause notice from the disciplinary committee?", "expected_sections": ["SG §4.2"], "expected_answer": "not less than five working days"},
+    {"id": "A28", "question": "By when must the grievance cell decide on my complaint?", "expected_sections": ["SG §5.2"], "expected_answer": "acknowledged within 3 working days, decided within 15 working days"},
+    {"id": "A29", "question": "Can I appeal a disciplinary committee decision, and to whom?", "expected_sections": ["SG §4.4"], "expected_answer": "to the Vice-Chancellor within 7 days"},
+    {"id": "A30", "question": "Is there a charge for booking the auditorium for a club event?", "expected_sections": ["SG §6.1"], "expected_answer": "free for Institute events; Rs. 5,000 refundable deposit if external participants"}
   ],
   "conflict": [
     {"id": "C01", "question": "My attendance is 58% because I was hospitalised for three weeks. Can the shortage be condoned?", "expected_sections": ["AR §4.3", "LM §2.2"], "contradiction": "C1", "note": "65% floor vs 55% floor"},

@@ -21,8 +21,8 @@ def chunks():
 
 def test_corpus_parses_every_document(chunks):
     codes = {c.doc_code for c in chunks}
-    assert codes == {"AR", "EE", "HH", "FS", "SF", "LM"}
-    assert len(chunks) > 120
+    assert codes == {"AR", "EE", "HH", "FS", "SF", "LM", "SG"}
+    assert len(chunks) > 150
     assert sum(len(c.text.split()) for c in chunks) >= 6000
 
 

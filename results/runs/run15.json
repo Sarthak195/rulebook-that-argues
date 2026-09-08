@@ -21,11 +21,11 @@
   ],
   "top_similarity": 0.8507,
   "retrieval_recall": true,
-  "answer": "You must have a minimum of 75% attendance in each course, calculated separately for theory and practical components, to be eligible to appear for the end-semester examination. Attendance is calculated from the first day of instruction to the last instructional day, including all lectures, tutorials, and practical sessions.",
+  "answer": "You must have at least 75% attendance in each course (separately for theory and practical components) to be eligible to appear for the end-semester examination. Attendance is calculated from the first day of instruction to the last instructional day, including all lectures, tutorials, and practical sessions.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 3181
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 2820
  },
  {
   "id": "A02",
@@ -50,11 +50,11 @@
   ],
   "top_similarity": 0.8338,
   "retrieval_recall": true,
-  "answer": "For a theory course, your total marks of 100 are split into **40 marks for internal assessment** (mid-terms, assignments, quizzes) and **60 marks for the end-semester exam**. This is explicitly stated in the evaluation scheme for theory courses.",
+  "answer": "In a theory course, your total marks are split as follows: 40 marks for internal assessment (including mid-term tests and assignments) and 60 marks for the end-semester exam. This is explicitly stated in the regulations.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 3702
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 4217
  },
  {
   "id": "A03",
@@ -65,8 +65,7 @@
   "pass": true,
   "why": "cited ['AR §5.4']",
   "citations": [
-   "AR §5.4",
-   "AR §6.1"
+   "AR §5.4"
   ],
   "conflict_sections": [],
   "retrieved": [
@@ -79,11 +78,11 @@
   ],
   "top_similarity": 0.801,
   "retrieval_recall": true,
-  "answer": "You need to score at least 30% in the end-semester examination and a combined total of 40% in both internal assessment and the end-semester examination to pass a course. If you fail either requirement, you will receive a grade of 'F'.",
+  "answer": "To pass a course, you must score at least **30% in the end-semester examination** and **40% of the total marks** (combining internal assessment and end-semester examination). If you fail either requirement, you will receive an 'F' grade.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 3252
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 3729
  },
  {
   "id": "A04",
@@ -107,11 +106,11 @@
   ],
   "top_similarity": 0.6537,
   "retrieval_recall": true,
-  "answer": "For 85 marks, you will receive the letter grade **A+ (Excellent)**. This is because 85 falls within the range of 80 to 89 marks as per the grading table in the Academic Regulations.",
+  "answer": "For 85 marks, you will receive the letter grade **A+ (Excellent)**. This is because 85 falls within the range of 80 to 89 marks as per the grading table in [AR §6.1].",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2966
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 3686
  },
  {
   "id": "A05",
@@ -135,11 +134,11 @@
   ],
   "top_similarity": 0.8375,
   "retrieval_recall": false,
-  "answer": "You have **ten working days** from the declaration of results to apply for re-evaluation of your theory course answer script. This deadline is strict, and no applications will be accepted after this period.",
+  "answer": "You have **ten working days** from the declaration of results to apply for re-evaluation of your theory course answer script. The rule explicitly states, *'within ten working days of the declaration of results,'* and no applications are accepted after this period.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-14b-2512",
-  "latency_ms": 10043
+  "latency_ms": 3241
  },
  {
   "id": "A06",
@@ -163,11 +162,11 @@
   ],
   "top_similarity": 0.7503,
   "retrieval_recall": true,
-  "answer": "If you miss an end-semester exam due to illness, you must submit a medical certificate issued by a registered medical practitioner and countersigned by the Institute Medical Officer to the Controller of Examinations within five working days of the exam. Upon acceptance of the certificate, you will be allowed to take the exam in the next supplementary examination, and this attempt will count as your first attempt without needing to pay the supplementary exam fee.",
+  "answer": "If you miss an end-semester exam due to illness, you must submit a medical certificate issued by a registered medical practitioner and countersigned by the Institute Medical Officer to the Controller of Examinations within five working days of the exam. If accepted, you will be allowed to take the exam in the next supplementary examination, and this attempt will count as your first attempt without needing to pay the supplementary fee.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/open-mistral-nemo",
-  "latency_ms": 3254
+  "latency_ms": 3976
  },
  {
   "id": "A07",
@@ -196,7 +195,7 @@
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-14b-2512",
-  "latency_ms": 2995
+  "latency_ms": 3082
  },
  {
   "id": "A08",
@@ -223,8 +222,8 @@
   "answer": "The hostel gates close at **10:30 p.m. every day**. If you return after this time, you must sign the late-entry register and provide a valid reason.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2311
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 2443
  },
  {
   "id": "A09",
@@ -248,11 +247,11 @@
   ],
   "top_similarity": 0.7719,
   "retrieval_recall": true,
-  "answer": "No, you cannot use an induction cooktop in your hostel room. The Hostel Handbook explicitly prohibits the use of induction cooktops along with other electric appliances rated above 500 watts. Violations will result in confiscation of the appliance and a fine of Rs. 1,000 per occurrence.",
+  "answer": "No, you cannot use an induction cooktop in your hostel room. The Hostel Handbook explicitly prohibits the use of induction cooktops, along with other high-wattage electrical appliances, in hostel rooms. Violations will result in confiscation of the appliance and a fine of Rs. 1,000.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2653
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 3348
  },
  {
   "id": "A10",
@@ -263,8 +262,7 @@
   "pass": true,
   "why": "cited ['FS §3.1']",
   "citations": [
-   "FS §3.1",
-   "FS §2.1"
+   "FS §3.1"
   ],
   "conflict_sections": [],
   "retrieved": [
@@ -277,11 +275,11 @@
   ],
   "top_similarity": 0.8461,
   "retrieval_recall": true,
-  "answer": "If you pay your semester fees after the due date but before the last date, you will be charged a late fee of **Rs. 100 per day**, up to a maximum of **Rs. 1,500** for any single payment. This applies to tuition, examination, development, hostel, and mess fees as per the Fee Schedule.",
+  "answer": "The late fee for paying your semester fees after the due date is **Rs. 100 per day**, capped at a maximum of **Rs. 1,500** for any single payment. This applies until the last date shown in the Fee Schedule (Section 2.1).",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 4108
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 3393
  },
  {
   "id": "A11",
@@ -308,8 +306,8 @@
   "answer": "The last date to pay the odd semester tuition fee is **31 July 2026**. After this date, no payment is accepted without incurring a late fee, and you will be treated as not registered for the semester if payment is not made by then.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2486
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 3204
  },
  {
   "id": "A12",
@@ -333,11 +331,11 @@
   ],
   "top_similarity": 0.7946,
   "retrieval_recall": true,
-  "answer": "You are eligible for the Merit-cum-Means Scholarship if your annual family income from all sources does not exceed Rs. 3,00,000 and you have a CGPA of at least 7.0 (or 80% marks for first-year students in the qualifying exam). You must also submit an income certificate not older than six months issued by a Tehsildar or equivalent officer.",
+  "answer": "You are eligible for the **Merit-cum-Means Scholarship** if your **annual family income from all sources does not exceed Rs. 3,00,000** and you meet the academic requirement: a **CGPA of at least 7.0** (for continuing students) or **80% marks in your qualifying exam** (for first-year students). You must also submit an **income certificate** issued by a Tehsildar or equivalent officer, not older than six months, with your application.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2746
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 4102
  },
  {
   "id": "A13",
@@ -361,11 +359,11 @@
   ],
   "top_similarity": 0.7482,
   "retrieval_recall": true,
-  "answer": "Yes, you are entitled to bereavement leave if there is a death in your immediate family. You may take up to seven days of leave, which will be counted as attendance. You must inform your Head of Department (HoD) by email or through the student portal before or during the leave and submit a written application upon your return.",
+  "answer": "Yes, you are eligible for bereavement leave if there is a death in your immediate family. You will be granted up to seven days of leave, which will be counted as attendance. You must inform your Head of Department (HoD) via email or the student portal before or during the leave and submit a written application upon your return.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2755
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 2894
  },
  {
   "id": "A14",
@@ -390,23 +388,21 @@
   ],
   "top_similarity": 0.7899,
   "retrieval_recall": true,
-  "answer": "No, you will not receive your hall ticket if you have not paid your tuition fees by the last date of payment. The rule explicitly states that a student with outstanding tuition fee dues will not be issued a hall ticket for the end-semester examination. Hall tickets are only issued to students who have cleared all tuition fee dues, as per the regulations.",
+  "answer": "No, you will **not** receive your hall ticket if you have outstanding tuition fees by the last date of payment. The rule explicitly states that students with unpaid tuition dues **‘shall not be issued a hall ticket’** for the end-semester examination. Hall tickets are only released after dues are cleared, provided the exam has not yet started.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-14b-2512",
-  "latency_ms": 2891
+  "latency_ms": 3477
  },
  {
   "id": "A15",
   "category": "answerable",
   "question": "How long can a break of study be?",
   "expected_status": "answered",
-  "status": "answered",
-  "pass": true,
-  "why": "cited ['AR §10.1']",
-  "citations": [
-   "AR §10.1"
-  ],
+  "status": "not_covered",
+  "pass": false,
+  "why": "status not_covered != answered",
+  "citations": [],
   "conflict_sections": [],
   "retrieved": [
    "AR §10.1",
@@ -418,11 +414,13 @@
   ],
   "top_similarity": 0.8228,
   "retrieval_recall": true,
-  "answer": "You may take a break of study for either one semester or one academic year. This applies only on medical grounds, as certified by the Institute Medical Officer and approved by the Dean, and you may not take more than one break during your B.Tech. programme.",
+  "answer": "The rulebook does not address this situation. The closest clause covers a related case: You can take a break of study for **one semester or one academic year** on medical grounds, as certified by the Institute Medical Officer and approved by the Dean. This is the only permitted duration for a break of study under the rules.",
   "mode": "llm",
-  "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2399
+  "notes": [
+   "attribution check: cited passages govern a related situation, not this one (The passage only specifies breaks of one semester or one academic year for medical grounds, not general study breaks.)"
+  ],
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 3537
  },
  {
   "id": "A16",
@@ -434,6 +432,7 @@
   "why": "cited ['AR §2.1']",
   "citations": [
    "AR §2.1",
+   "AR §8.4",
    "AR §10.3"
   ],
   "conflict_sections": [],
@@ -447,11 +446,11 @@
   ],
   "top_similarity": 0.8708,
   "retrieval_recall": true,
-  "answer": "The maximum time allowed to complete the B.Tech programme is **seven academic years** from the date of your first admission. This includes any approved break of study. If you do not complete the programme within this period, your name will be removed from the Institute’s rolls.",
+  "answer": "The maximum time allowed to complete the B.Tech programme is seven academic years from the date of first admission. If you do not complete the programme within this period, your name will be removed from the Institute’s rolls.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 3357
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 2900
  },
  {
   "id": "A17",
@@ -473,13 +472,11 @@
   ],
   "top_similarity": 0.7552,
   "retrieval_recall": true,
-  "answer": "The rulebook does not address this situation. The closest clause covers a related case: No, you are not eligible for a mess rebate if you go home for two weeks. The rule states that a rebate is only admissible for absences of seven days or more, and your absence of two weeks (14 days) does qualify. However, the rebate is only granted if the absence is recorded in advance in the leave register and the rebate form is submitted within seven days of your return.",
+  "answer": "The rulebook does not address whether you can get a mess rebate for a two-week absence. It only specifies that a rebate is available for absences of seven days or more.",
   "mode": "llm",
-  "notes": [
-   "attribution check: cited passages govern a related situation, not this one (The rule specifies a continuous absence of seven days or more, not two weeks.)"
-  ],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2572
+  "notes": [],
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 1732
  },
  {
   "id": "A18",
@@ -506,8 +503,8 @@
   "answer": "Every student at Shivalik Institute of Technology has a medical insurance cover of up to **Rs. 1,00,000 per year** for hospitalisation expenses. The premium for this insurance is already included in your development fee.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 10660
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 3747
  },
  {
   "id": "A19",
@@ -535,7 +532,7 @@
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-14b-2512",
-  "latency_ms": 2950
+  "latency_ms": 2662
  },
  {
   "id": "A20",
@@ -559,11 +556,11 @@
   ],
   "top_similarity": 0.9283,
   "retrieval_recall": false,
-  "answer": "The fee for a supplementary examination is Rs. 800 per course. This must be paid within seven days of the notification of the supplementary examination via the online payment portal.",
+  "answer": "The fee for a supplementary examination is Rs. 800 per course. You must pay this within seven days of the notification of the supplementary examination on the examination portal, using the online payment portal only.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2833
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 2642
  },
  {
   "id": "A21",
@@ -587,11 +584,11 @@
   ],
   "top_similarity": 0.864,
   "retrieval_recall": true,
-  "answer": "The end-semester results are declared within thirty days of the last examination of the semester. This is explicitly stated in the Examination and Evaluation Regulations.",
+  "answer": "Your end-semester results must be declared within **thirty days of the last examination of the semester** on the examination portal.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2133
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 2680
  },
  {
   "id": "A22",
@@ -615,11 +612,11 @@
   ],
   "top_similarity": 0.8023,
   "retrieval_recall": true,
-  "answer": "A third offence of unfair means in an examination will result in your expulsion from the Institute. This is explicitly stated in the Examination and Evaluation Regulations.",
+  "answer": "A third offence of unfair means in an examination will result in your expulsion from the Institute, as explicitly stated in the Examination and Evaluation Regulations.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2473
+  "latency_ms": 2665
  },
  {
   "id": "A23",
@@ -643,11 +640,11 @@
   ],
   "top_similarity": 0.8429,
   "retrieval_recall": true,
-  "answer": "You need a CGPA of **not less than 6.5** to stand for the Student Council election. The rule explicitly states that a CGPA of 6.5 or higher is required, along with no F or DT grades, no academic probation, and no disciplinary actions in the preceding semester.",
+  "answer": "To stand for the Student Council election, you need a CGPA of **not less than 6.5** in the preceding semester, along with no F or DT grades, no academic probation, and no disciplinary actions.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 2820
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 2652
  },
  {
   "id": "A24",
@@ -671,11 +668,11 @@
   ],
   "top_similarity": 0.6534,
   "retrieval_recall": true,
-  "answer": "A candidate in the council election may spend up to Rs. 2,000 on campaigning. The rule explicitly states that a candidate's total campaign expenditure shall not exceed Rs. 2,000 during the permitted campaign period.",
+  "answer": "The maximum campaign expenditure for a candidate in the council election is Rs. 2,000. This limit applies to all campaign-related expenses during the permitted campaign period.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2557
+  "latency_ms": 2556
  },
  {
   "id": "A25",
@@ -699,11 +696,11 @@
   ],
   "top_similarity": 0.8218,
   "retrieval_recall": true,
-  "answer": "You need at least **fifteen students** to register a new club. The rule states that 'a group of at least fifteen students may apply to register a club' by submitting the required documents to the Dean (Student Welfare).",
+  "answer": "You need at least **fifteen students** to register a new club. The rule states: *'A group of at least fifteen students may apply to register a club...'*",
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-14b-2512",
-  "latency_ms": 3593
+  "latency_ms": 2600
  },
  {
   "id": "A26",
@@ -730,8 +727,8 @@
   "answer": "You must apply for permission to hold an event at least ten working days before the event. The application must include the venue, expected attendance, budget, and names of faculty members present.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2308
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 2621
  },
  {
   "id": "A27",
@@ -755,11 +752,11 @@
   ],
   "top_similarity": 0.8335,
   "retrieval_recall": true,
-  "answer": "You have **not less than five working days** to reply in writing to a show-cause notice from the disciplinary committee. This means you must submit your response within five or more working days from the date of receiving the notice.",
+  "answer": "You have **not less than five working days** to reply in writing to a show-cause notice from the disciplinary committee. This means you must respond within five or more working days from receiving the notice.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2313
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 2951
  },
  {
   "id": "A28",
@@ -783,11 +780,11 @@
   ],
   "top_similarity": 0.7951,
   "retrieval_recall": true,
-  "answer": "The Grievance Redressal Cell must communicate its decision on your complaint within **fifteen working days** of receiving it. This is the deadline specified in the policy for standard grievances.",
+  "answer": "The Grievance Redressal Cell must communicate its decision on your complaint within **fifteen working days** of receiving it. This is explicitly stated in the policy, and the timeline starts from the date of receipt.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2275
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 3218
  },
  {
   "id": "A29",
@@ -811,11 +808,11 @@
   ],
   "top_similarity": 0.7524,
   "retrieval_recall": true,
-  "answer": "Yes, you can appeal a disciplinary committee decision. You must submit your appeal in writing to the Vice-Chancellor within seven days of receiving the decision. The Vice-Chancellor will review your appeal and issue a final decision within thirty days.",
+  "answer": "Yes, you can appeal a decision by the Institute Disciplinary Committee. You must submit your appeal in writing to the Vice-Chancellor within seven days of receiving the decision. The Vice-Chancellor’s decision will be final.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 2408
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 2784
  },
  {
   "id": "A30",
@@ -839,11 +836,11 @@
   ],
   "top_similarity": 0.7689,
   "retrieval_recall": true,
-  "answer": "Yes, there is no charge for booking the auditorium for a club event. The rule explicitly states that bookings are free of charge for academic and cultural events of the Institute, provided they are booked at least five working days in advance through the Estate Office.",
+  "answer": "There is no charge for booking the auditorium for a club event, as long as it is an academic or cultural event of the Institute. However, a refundable security deposit of Rs. 5,000 is required if the event involves external participants.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2686
+  "latency_ms": 2915
  },
  {
   "id": "C01",
@@ -871,11 +868,11 @@
   ],
   "top_similarity": 0.7478,
   "retrieval_recall": true,
-  "answer": "The rules conflict on the minimum attendance percentage required for condoning a shortage due to medical grounds. [AR §4.3] requires **at least 65% attendance** for condonation, while [LM §2.2] allows condonation if attendance is **not less than 55%**. Both sections mention medical certification, but the attendance thresholds differ.",
+  "answer": "The rulebook contains conflicting thresholds for condoning attendance shortage on medical grounds. **AR §4.3** states that condonation is only possible if attendance is **not less than 65%**, while **LM §2.2** allows condonation if attendance is **not less than 55%**. Both sections apply to medical leave, but they set different minimum attendance requirements for condonation.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2325
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 3335
  },
  {
   "id": "C02",
@@ -903,11 +900,11 @@
   ],
   "top_similarity": 0.7462,
   "retrieval_recall": true,
-  "answer": "The rulebook contains two conflicting rules for condoning attendance shortfall on medical grounds. [LM §2.2] allows condonation if attendance is **not less than 55%** (i.e., 55% or above), while [AR §4.3] requires attendance to be **not less than 65%** (i.e., 65% or above) and explicitly states that a shortage below 65% shall **not** be condoned.",
+  "answer": "The rulebook gives two different minimum attendance thresholds for condoning attendance shortfalls on medical grounds: **55%** (LM §2.2) and **65%** (AR §4.3). The Dean may condone attendance below 55% under LM §2.2, but AR §4.3 explicitly states that attendance below 65% **shall not** be condoned.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2579
+  "latency_ms": 4850
  },
  {
   "id": "C03",
@@ -935,11 +932,11 @@
   ],
   "top_similarity": 0.886,
   "retrieval_recall": true,
-  "answer": "The rules disagree on the tuition fee refund for withdrawal before classes begin. [SF §6.2] states a **10% processing charge** is deducted from the tuition fee, refunding **90%**. [FS §4.1] states **100% of the tuition fee** is refunded with no deduction. Both sections apply to withdrawals before classes start.",
+  "answer": "The rules disagree on the tuition fee refund if you withdraw before classes begin. **[SF §6.2]** says you get a **100% refund of the tuition fee minus a 10% processing charge**, while **[FS §4.1]** says you get a **100% refund of the tuition fee paid** (no processing charge mentioned). Both sections apply to withdrawal before classes start, but the processing charge is the key difference.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-8b-2512",
-  "latency_ms": 2232
+  "latency_ms": 4100
  },
  {
   "id": "C04",
@@ -967,11 +964,11 @@
   ],
   "top_similarity": 0.8539,
   "retrieval_recall": true,
-  "answer": "The rulebook contains conflicting requirements for maintaining a Merit Scholarship. [AR §11.2] states you must maintain a CGPA of **not less than 7.5** to continue the scholarship, while [SF §3.1] requires a CGPA of **not less than 8.0**. These two sections disagree on the minimum CGPA threshold for continuation.",
+  "answer": "The rulebook contains conflicting requirements for maintaining a Merit Scholarship. [AR §11.2] states you must maintain a CGPA of **not less than 7.5** to keep the scholarship, while [SF §3.1] requires a CGPA of **not less than 8.0**. Both sections explicitly address the continuation of the Merit Scholarship based on CGPA thresholds.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-14b-2512",
-  "latency_ms": 2998
+  "latency_ms": 4238
  },
  {
   "id": "N01",
@@ -993,11 +990,11 @@
   ],
   "top_similarity": 0.6318,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address what happens if you miss an end-semester exam due to a family wedding. The closest passage covers only medical grounds for absence from exams.",
+  "answer": "The rulebook does not address what happens if you miss the end-semester exam due to a family wedding. The closest passage covers only medical grounds for absence from exams.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1350
+  "latency_ms": 2088
  },
  {
   "id": "N02",
@@ -1019,11 +1016,11 @@
   ],
   "top_similarity": 0.8245,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether you can get a re-test for missing a mid-term test due to a job interview. The closest passage covers absences for medical reasons only.",
+  "answer": "The rulebook does not address whether you can get a re-test for missing a mid-term test due to a job interview. The closest rule covers only medical absences for mid-term tests.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/open-mistral-nemo",
-  "latency_ms": 1258
+  "latency_ms": 1285
  },
  {
   "id": "N03",
@@ -1049,7 +1046,7 @@
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-14b-2512",
-  "latency_ms": 12900
+  "latency_ms": 2130
  },
  {
   "id": "N04",
@@ -1071,11 +1068,11 @@
   ],
   "top_similarity": 0.6261,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address a dress code for laboratory sessions. The closest passages cover practical examination records, fee refunds, definitions, relaxation of regulations, supplementary examination grades, and related documents.",
+  "answer": "The rulebook does not address a dress code for laboratory sessions.",
   "mode": "llm",
   "notes": [],
   "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1518
+  "latency_ms": 3279
  },
  {
   "id": "N05",
@@ -1097,11 +1094,11 @@
   ],
   "top_similarity": 0.7196,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether a day scholar can eat in the hostel mess by paying per meal. The closest passage covers the compulsory nature of mess membership for residents and the requirement to pay mess charges in advance for the semester.",
+  "answer": "The rulebook does not address whether day scholars can eat in the hostel mess by paying per meal. The closest passage covers mess membership and payment structure for residents only.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 1527
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 1372
  },
  {
   "id": "N06",
@@ -1123,11 +1120,11 @@
   ],
   "top_similarity": 0.737,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether pets are allowed in the hostel. The closest sections cover visitors, prohibited activities, and overnight guests in rooms.",
+  "answer": "The rulebook does not address whether pets are allowed in the hostel. The closest passage covers restrictions on keeping guests overnight in rooms.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1382
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 1433
  },
  {
   "id": "N07",
@@ -1149,11 +1146,11 @@
   ],
   "top_similarity": 0.626,
   "retrieval_recall": null,
-  "answer": "The rulebook does not specify a fee for a duplicate identity card. The closest passage covers fee components and their revision process.",
+  "answer": "The rulebook does not specify a fee for a duplicate identity card. The closest passage covers late fees and payment deadlines for tuition instalments.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 1202
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 1547
  },
  {
   "id": "N08",
@@ -1175,11 +1172,11 @@
   ],
   "top_similarity": 0.618,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether academic credit can be awarded for a summer internship. The closest passage covers the credit requirements for courses in the B.Tech. programme.",
+  "answer": "The rulebook does not address whether academic credit can be earned for a summer internship. The closest sections cover course registration limits, credit requirements for the B.Tech. degree, and hostel vacating policies.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 1699
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 1809
  },
  {
   "id": "N09",
@@ -1201,11 +1198,11 @@
   ],
   "top_similarity": 0.619,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address scholarships for students from the EWS (Economically Weaker Sections) category.",
+  "answer": "The rulebook does not address scholarships specifically for students from the Economically Weaker Sections (EWS) category.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1353
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 1825
  },
  {
   "id": "N10",
@@ -1227,11 +1224,11 @@
   ],
   "top_similarity": 0.6849,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether grace marks are given if you fail a course by one or two marks. The closest passages cover passing requirements (minimum 30% in the end-semester exam and 40% overall) and grading ranges, but they do not mention grace marks or adjustments for near-fail scenarios.",
+  "answer": "The rulebook does not specify whether grace marks are given if you fail a course by one or two marks. The closest passages cover passing requirements and evaluation procedures, but not the granting of grace marks.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 2722
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 2382
  },
  {
   "id": "N11",
@@ -1253,11 +1250,11 @@
   ],
   "top_similarity": 0.6707,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether you can write your answers in Hindi instead of English in the end-semester exam. The closest passage covers the conduct and schedule of end-semester examinations.",
+  "answer": "The rulebook does not address whether you can write your answers in Hindi instead of English in the end-semester exam. The closest passages cover passing requirements, examination schedules, and hostel vacating procedures.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 1303
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 1473
  },
  {
   "id": "N12",
@@ -1279,11 +1276,11 @@
   ],
   "top_similarity": 0.6175,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address what happens if there is a printing error in the question paper. The closest passage covers clerical errors detected by the Controller of Examinations within sixty days of result declaration, but not errors in the question paper itself.",
+  "answer": "The rulebook does not address what happens if there is a printing error in the question paper. The closest passage covers the correction of clerical errors in results within sixty days of declaration.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1374
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 1569
  },
  {
   "id": "N13",
@@ -1305,11 +1302,11 @@
   ],
   "top_similarity": 0.6297,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address how to obtain a duplicate degree certificate if you lose the original.",
+  "answer": "The rulebook does not address how to obtain a duplicate degree certificate if you lose the original. The closest passage covers the issuance of certificates only after obtaining a no-dues certificate.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 1271
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 1607
  },
  {
   "id": "N14",
@@ -1331,11 +1328,11 @@
   ],
   "top_similarity": 0.5583,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address how many books you can borrow from the library at a time. The closest passage covers the issuance of a no-dues certificate from the Library.",
+  "answer": "The rulebook does not address how many books you can borrow from the library at a time.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 1795
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 1262
  },
  {
   "id": "N15",
@@ -1357,11 +1354,11 @@
   ],
   "top_similarity": 0.6471,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the procedure for transferring to another university mid-course. The closest passages cover withdrawal of admission, refunds, and no-dues certificates, but not inter-institutional transfers.",
+  "answer": "The rulebook does not address the procedure for transferring to another university mid-course. The closest passage covers the withdrawal of admission and refund process.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1710
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 1685
  },
  {
   "id": "N16",
@@ -1383,11 +1380,11 @@
   ],
   "top_similarity": 0.6481,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether you can keep a two-wheeler in the hostel parking. The closest passages cover overnight stays, late entries, ragging, visitors, and prohibited activities or items in hostel rooms.",
+  "answer": "The rulebook does not specify whether keeping a two-wheeler in the hostel parking is allowed. The closest sections address prohibited activities and items in the hostel, but do not mention parking rules for vehicles.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 1997
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 1782
  },
  {
   "id": "N17",
@@ -1409,11 +1406,11 @@
   ],
   "top_similarity": 0.7177,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address fee concessions for students whose siblings study at the Institute. The closest passage covers fee concessions for wards of permanent Institute staff.",
+  "answer": "The rulebook does not address fee concessions for siblings of students at the Institute. The closest passage covers concessions for children of permanent employees of the Institute.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 13781
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 1442
  },
  {
   "id": "N18",
@@ -1435,11 +1432,11 @@
   ],
   "top_similarity": 0.6222,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address how to obtain a bonafide student certificate for a bank loan.",
+  "answer": "The rulebook does not address how to obtain a bonafide student certificate for a bank loan. The closest passage covers the issuance of a no-dues certificate, which is unrelated to bonafide certificates.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1476
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 1878
  },
  {
   "id": "N19",
@@ -1461,11 +1458,11 @@
   ],
   "top_similarity": 0.7788,
   "retrieval_recall": null,
-  "answer": "The rulebook does not specify a minimum CGPA requirement for eligibility for campus placements. The closest passages address CGPA thresholds for scholarship continuation, credit load permissions, and attendance rules.",
+  "answer": "The rulebook does not specify a minimum CGPA requirement for eligibility in campus placements. The closest passages address CGPA thresholds for scholarships, credit load adjustments, and attendance rules.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 1514
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 2622
  },
  {
   "id": "N20",
@@ -1487,11 +1484,11 @@
   ],
   "top_similarity": 0.7088,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether you can re-appear in a course you have already passed to improve your grade. The closest passage covers re-evaluation of marks for theory courses only, which is a different process.",
+  "answer": "The rulebook does not address whether you can re-appear in a course you have already passed to improve your grade. The closest passage covers re-evaluation of marks for theory courses only, not re-appearing in a passed course.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 2350
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 1845
  },
  {
   "id": "N21",
@@ -1513,11 +1510,11 @@
   ],
   "top_similarity": 0.716,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address what happens if you fall ill during an exam. The closest passage covers missed mid-term tests on medical grounds and allows a re-test under specific conditions.",
+  "answer": "The rulebook does not address what happens if you fall ill during an exam. The closest passage covers submitting a medical certificate for missed mid-term tests.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1334
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 1518
  },
  {
   "id": "N22",
@@ -1539,11 +1536,11 @@
   ],
   "top_similarity": 0.6527,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address how to correct a name on the grade card. The closest sections discuss the issuance of grade cards and their contents, but do not specify a procedure for name corrections.",
+  "answer": "The rulebook does not address how to correct a name on the grade card. The closest passage covers the issuance of grade cards and their contents, but not name corrections.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 1409
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 1533
  },
  {
   "id": "N23",
@@ -1565,11 +1562,11 @@
   ],
   "top_similarity": 0.6843,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether you can audit a course without earning credits. The closest passage covers the minimum and maximum credit load requirements for registered courses.",
+  "answer": "The rulebook does not address whether you can audit a course without earning credits. The closest sections cover registration for credit-bearing courses and attendance/examination requirements, but not non-credit auditing.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-14b-2512",
-  "latency_ms": 2579
+  "model": "mistral/open-mistral-nemo",
+  "latency_ms": 1738
  },
  {
   "id": "N24",
@@ -1591,11 +1588,11 @@
   ],
   "top_similarity": 0.7236,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address whether there is a discount for paying the entire year’s tuition fee in advance. The closest passages cover fee disbursement forms, withdrawal refunds, instalment deadlines, and general fee payment rules.",
+  "answer": "The rulebook does not address whether a discount is offered for paying the entire year's tuition fee in advance.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/ministral-8b-2512",
-  "latency_ms": 1488
+  "model": "mistral/ministral-14b-2512",
+  "latency_ms": 1393
  },
  {
   "id": "N25",
@@ -1617,10 +1614,10 @@
   ],
   "top_similarity": 0.7281,
   "retrieval_recall": null,
-  "answer": "The rulebook does not address the punishment for plagiarism in a project report. It does, however, outline penalties for unfair means in examinations under the Examination and Evaluation Regulations.",
+  "answer": "The rulebook does not specify a punishment for plagiarism in a project report. The closest passage covers penalties for unfair means in examinations, not project work.",
   "mode": "llm",
   "notes": [],
-  "model": "mistral/open-mistral-nemo",
-  "latency_ms": 1685
+  "model": "mistral/ministral-8b-2512",
+  "latency_ms": 1465
  }
 ]

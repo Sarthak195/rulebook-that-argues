@@ -13,7 +13,7 @@ local embedding model.
 | **Live** | http://34.93.55.172/ (GCE, Mumbai) · https://guy-easily-veterans-victorian.trycloudflare.com (HTTPS tunnel) · http://34.93.55.172.nip.io/ |
 | **Demo video** | _link goes here_ |
 | **Try a link** | [answered](http://34.93.55.172/?q=What%20is%20the%20minimum%20attendance%20required%20to%20appear%20for%20the%20end-semester%20examination%3F) · [not covered](http://34.93.55.172/?q=What%20happens%20if%20I%20miss%20the%20end-semester%20exam%20because%20of%20a%20family%20wedding%3F) · [conflict](http://34.93.55.172/?q=My%20attendance%20is%2058%25%20because%20I%20was%20hospitalised%20for%20three%20weeks.%20Can%20the%20shortage%20be%20condoned%3F) · [audit](http://34.93.55.172/?tab=audit) · [evaluation](http://34.93.55.172/?tab=eval) |
-| **Result** | 45/47 on the labelled test set in 35 s on the deployed Mistral free plan (the two misses are over-cautious "not covered" answers); 47/47 on Gemini Flash Lite in four runs; audit finds 3/3 planted contradictions plus one I had not planted |
+| **Result** | 58/59 on the labelled test set (30 answerable, 4 conflict, 25 not covered) in about 40 s on the deployed Mistral free plan; the one miss is an over-cautious "not covered"; audit finds 3/3 planted contradictions plus one I had not planted |
 
 ![conflict](docs/img/conflict.png)
 
@@ -55,15 +55,16 @@ their per-minute buckets; embeddings `BAAI/bge-small-en-v1.5`. Details in
 
 | Category | Passed | Total |
 |---|---|---|
-| answerable (status right **and** expected section cited) | 16 | 18 |
+| answerable (status right **and** expected section cited) | 29 | 30 |
 | conflict (status right **and** both sections named) | 4 | 4 |
 | not covered | 25 | 25 |
 | audit: planted contradictions found | 3 | 3 |
 | audit: false positives among 50 pairs | 2 | |
 
-The two misses are the safe kind: the Mistral models say "not covered" for a two-week absence
-when the rule says "seven days or more", and for "how long can a break of study be" when the
-rule says "one semester or one academic year". Nothing is invented, and no conflict is missed.
+The one miss is the safe kind: a Mistral model says "not covered" for a two-week absence when
+the rule says "seven days or more". Nothing is invented, and no conflict is missed. The prompt
+now spells out that applying a stated threshold or range to the case asked is answering, not
+extrapolating, which fixed the sibling miss ("how long can a break of study be").
 Gemini 3.5 Flash Lite on one free project scores 47/47 in four runs today but takes two to four
 minutes per full run against Mistral's 35 s; either is one line in `.env`.
 
@@ -117,12 +118,12 @@ Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 ## Corpus and test set
 
 - [`corpus/`](corpus/): a rulebook for a fictional college, Shivalik Institute of Technology,
-  Indore. Six documents, 139 sections, 7,200 words: four markdown pages, a fee schedule made of
-  tables, one PDF generated from markdown so the ingester really parses a PDF.
+  Indore. Seven documents, 157 sections, about 8,100 words: five markdown pages, a fee schedule
+  made of tables, one PDF generated from markdown so the ingester really parses a PDF.
 - [`corpus/CONTRADICTIONS.md`](corpus/CONTRADICTIONS.md): the three planted contradictions,
   across formats, and the distractors that must not be flagged. The system never reads it.
-- [`tests/questions.json`](tests/questions.json): 18 answerable, 4 conflict, 25 not-covered,
-  3 borderline.
+- [`tests/questions.json`](tests/questions.json): 30 answerable, 4 conflict, 25 not-covered,
+  3 borderline, plus 4 multi-part questions for the agent.
 
 ## Run it
 

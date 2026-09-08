@@ -13,6 +13,7 @@ reproduced, so the contradictions could be placed exactly where we wanted them.
 | `04_fee_schedule.md` | FS | markdown **tables** | fee components, payment deadlines, late fee, refund on withdrawal, payment mode |
 | `05_scholarship_policy.pdf` | SF | **PDF** (built from `src/05_scholarship_policy.md` by `scripts/build_pdf.py`) | scholarship categories, continuation conditions, application, disbursement, concessions and refunds, grievances |
 | `06_leave_and_medical_policy.md` | LM | markdown | medical certificates, condonation, hospitalisation, deputation, bereavement, placement leave, health services |
+| `07_student_activities_and_grievance_policy.md` | SG | markdown | student council and elections, clubs and funding, event permissions, disciplinary procedure and appeals, grievance redressal, use of facilities |
 
 Section ids used in citations are `<code> §<section>`, for example `AR §4.3`.
 

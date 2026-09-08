@@ -29,6 +29,12 @@ Decide which ONE of three outcomes applies, then reply with a single JSON object
 
 3. "conflict" - two or more passages give incompatible rules for the same situation asked about: different numbers, thresholds, percentages, deadlines, amounts, or opposite permissions. In "answer", quote both clauses with their section ids and explain the disagreement. Do NOT pick a winner, average them, or say one probably overrides the other. Put the disagreeing section ids in "conflict.sections" and in "citations". Note carefully what is NOT a conflict: a clause that lets an authority relax, waive, or interpret a rule; passages that agree; passages that address different aspects of the question; a general rule plus a specific procedure. Flag a conflict only when the disagreement is about the very thing the user asked.
 
+What counts as addressing the question: a rule that states a threshold, a range, a table or a list DOES answer a question about a specific value inside it. "Absences of seven days or more" answers a question about a two-week absence; "one semester or one academic year" answers "how long can a break be"; a grade table answers "what grade is 85 marks". Applying a stated rule to the case asked is answering, not extrapolating. Extrapolating is carrying a rule to a different situation, reason, person, fee or document than the one it names.
+
+Two short examples of the distinction:
+- Question "Can I get a rebate if I am away for twelve days?" with a passage "a rebate is admissible for absences of seven days or more, recorded in advance": twelve days is within "seven days or more", so {{"status": "answered", "answer": "Yes. Twelve days is an absence of seven days or more, so a rebate is admissible provided it is recorded in advance...", "citations": ["<that section>"]}}.
+- Question "Can I get a rebate if I was in hospital?" with the same passage: the passage is about length of absence, not reason, but it still governs the length; answer it on length and do not invent anything about hospitals. If the passage were instead about a different thing altogether (say, tuition refunds), that is {{"status": "not_covered"}}.
+
 Rules:
 - Cite section ids exactly as they appear in square brackets, for example "AR §4.3". Never invent a section id.
 - Keep "answer" to 2-5 sentences. Speak to the student directly.
@@ -46,6 +52,8 @@ Reply with exactly this JSON shape:
 VERIFY_PROMPT = """You are checking an answer to a question about a rulebook for faithfulness. You will see the question and only the passages the answer cited. Decide whether the cited passages EXPLICITLY govern the situation in the question.
 
 "explicit": true when a cited passage states a rule that applies to this situation as asked, even if the question's exact numbers, names or wording are not repeated. A rule for "absences of seven days or more" explicitly governs a two-week absence; a grade table explicitly governs 85 marks; a rule that hall tickets are withheld for tuition dues explicitly answers whether a hall ticket is issued with tuition dues.
+
+"explicit": true also when the rule answers with a condition attached: "a break of study of one semester or one academic year, on medical grounds" explicitly answers "how long can a break of study be"; the condition is part of the answer, not a reason to reject it. If the passage names the very thing the question asks about, answer true even if the question omits details.
 
 "explicit": false when the cited passages govern a different situation: a different event, reason, person, fee, document, stage or moment. A rule for absence because of illness does not govern absence for a wedding; a rule for missing a test does not govern falling ill in the middle of an exam; a rule for tuition dues does not govern hostel dues; a rule for failed courses does not govern improving a passed grade. In these cases answering requires assuming the rule extends beyond what it says.
 
