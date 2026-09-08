@@ -21,7 +21,8 @@ from .audit import load_audit  # noqa: E402
 from .llm import LLMError  # noqa: E402
 from .pipeline import ask  # noqa: E402
 from .retriever import Retriever, load_index  # noqa: E402
-from .schemas import AskRequest, AskResponse  # noqa: E402
+from .agent import run_agent  # noqa: E402
+from .schemas import AgentRequest, AgentResponse, AskRequest, AskResponse  # noqa: E402
 
 STATIC = ROOT / "static"
 TESTS = ROOT / "tests" / "questions.json"
@@ -78,6 +79,19 @@ async def ask_endpoint(req: AskRequest):
     except LLMError as e:
         # 503, not 502: Cloudflare (the tunnel) replaces an origin 502 with its own HTML error
         # page, which hides the reason. A 503 with a JSON body passes through untouched.
+        raise HTTPException(503, f"LLM error: {e}") from e
+
+
+@app.post("/agent", response_model=AgentResponse)
+async def agent_endpoint(req: AgentRequest):
+    """Multi-step answering: the model searches, opens sections and checks known conflicts
+    before finishing; every step is returned. Same validators as /ask on the final answer."""
+    r = state.get("retriever")
+    if r is None:
+        raise HTTPException(503, "index not loaded yet")
+    try:
+        return await run_in_threadpool(run_agent, req.question, r)
+    except LLMError as e:
         raise HTTPException(503, f"LLM error: {e}") from e
 
 

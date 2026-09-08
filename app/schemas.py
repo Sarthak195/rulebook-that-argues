@@ -42,6 +42,33 @@ class Authority(BaseModel):
     text: str
 
 
+class AgentStep(BaseModel):
+    n: int
+    thought: str
+    action: str             # search | open | conflicts | finish | error
+    input: dict
+    observation: str        # short summary of what the tool returned
+
+
+class AgentRequest(BaseModel):
+    question: str = Field(..., min_length=3, max_length=1000)
+
+
+class AgentResponse(BaseModel):
+    question: str
+    status: Status
+    answer: str
+    citations: list[str]
+    passages: list[Passage]          # every section the agent looked at; cited ones flagged
+    conflict: ConflictInfo | None = None
+    resolution_authority: Authority | None = None
+    steps: list[AgentStep]
+    model: str | None
+    latency_ms: int
+    validation_notes: list[str] = []
+    fell_back: bool = False          # true when the one-shot pipeline had to answer
+
+
 class AskResponse(BaseModel):
     question: str
     status: Status

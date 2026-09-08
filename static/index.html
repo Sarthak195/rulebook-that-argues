@@ -81,6 +81,13 @@
   .matrix td.diag { background: var(--green-bg); font-weight: 700; }
   .matrix td.off { background: var(--red-bg); }
   .scroll { overflow-x: auto; }
+  /* agent view */
+  .steps { margin: 0; padding-left: 20px; }
+  .steps li { margin-bottom: 10px; font-size: 13.5px; }
+  .steps .act { font-family: var(--mono); font-size: 12px; background: #eef2fb; color: var(--accent); border-radius: 6px; padding: 1px 7px; margin-right: 6px; }
+  .steps .act.finish { background: var(--green-bg); color: var(--green); }
+  .steps .act.error { background: var(--red-bg); color: var(--red); }
+  .steps .obs { color: var(--muted); font-size: 12.5px; font-family: var(--mono); }
   /* audit view */
   .pair { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
   .pair h3 { margin: 0 0 4px; font-size: 15px; }
@@ -106,6 +113,7 @@
   <button data-view="ask" class="active">Ask</button>
   <button data-view="eval">Evaluation</button>
   <button data-view="audit">Conflict audit</button>
+  <button data-view="agent">Agent</button>
 </nav>
 <main>
   <section id="view-ask" class="view active">
@@ -150,6 +158,40 @@
       <div class="stats" id="stats"></div>
       <div class="scroll" id="matrix"></div>
       <div class="scroll"><table class="eval" id="eval-table"><thead><tr><th>id</th><th>question</th><th>expected</th><th>got</th><th>cited / named</th><th>detail</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="view-agent" class="view">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>Multi-step agent</h2>
+          <p class="hint" style="margin:0 0 8px">For questions with several parts. The model plans: it searches the rulebook with its own queries, opens sections, checks the known contradictions, then finishes. Every step is shown, and the final answer passes the same validators as a plain question.</p>
+          <textarea id="agent-q" placeholder="e.g. My attendance is 58% because I was in hospital, and I also missed a mid-term. What are my options?"></textarea>
+          <div class="row"><button class="primary" id="agent-ask">Ask the agent</button><span class="hint" id="agent-status"></span></div>
+          <div class="chips" id="agent-examples"></div>
+        </div>
+        <div class="card" id="agent-answer" hidden>
+          <div class="row" style="margin-top:0"><span class="badge" id="agent-badge"></span><span class="hint" id="agent-hint"></span></div>
+          <div id="agent-text" style="font-size:16px;margin:10px 0;white-space:pre-wrap"></div>
+          <div class="cites" id="agent-cites"></div>
+          <div id="agent-conflict" hidden class="conflict-box"></div>
+          <div id="agent-authority" hidden class="authority"></div>
+          <div class="notes" id="agent-notes"></div>
+          <div class="meta" id="agent-meta"></div>
+        </div>
+        <div id="agent-error" class="error" hidden></div>
+      </div>
+      <div>
+        <div class="card">
+          <h2>Steps</h2>
+          <ol id="agent-steps" class="steps"><li class="empty">The plan appears here as the agent works.</li></ol>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <h2>Sections the agent looked at</h2>
+          <div id="agent-passages"><p class="empty">Cited ones are green.</p></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -343,6 +385,52 @@ async function loadAudit() {
   } catch (e) { list.innerHTML = `<p class="error">${esc(e.message)}</p>`; }
 }
 document.querySelector('nav button[data-view="audit"]').addEventListener('click', loadAudit);
+
+// ---------- agent ----------
+function renderAgent(r) {
+  $('#agent-answer').hidden = false;
+  const b = $('#agent-badge'); b.className = 'badge ' + r.status; b.textContent = r.status.replace('_', ' ');
+  $('#agent-hint').textContent = (STATUS_LABEL[r.status] || '') + (r.fell_back ? ' · answered by the one-shot pipeline' : '');
+  $('#agent-text').textContent = r.answer;
+  $('#agent-cites').innerHTML = r.citations.map(c => `<span class="cite">${esc(c)}</span>`).join('');
+  const cb = $('#agent-conflict');
+  if (r.conflict) { cb.hidden = false; cb.innerHTML = `<b>Disagreeing sections:</b> ${r.conflict.sections.map(esc).join(' vs ')}<br>${esc(r.conflict.explanation)}`; } else cb.hidden = true;
+  const ab = $('#agent-authority');
+  if (r.resolution_authority) { ab.hidden = false; ab.innerHTML = `<b>${esc(r.resolution_authority.id)}</b> · Who can settle this: <i>${esc(r.resolution_authority.title)}</i><br>${esc(r.resolution_authority.text)}`; } else ab.hidden = true;
+  $('#agent-notes').textContent = r.validation_notes.length ? 'validator: ' + r.validation_notes.join('; ') : '';
+  $('#agent-meta').textContent = `${r.steps.length} steps · ${r.model || ''} · ${r.latency_ms} ms`;
+  const ol = $('#agent-steps'); ol.innerHTML = '';
+  for (const s of r.steps) {
+    const li = document.createElement('li');
+    const inp = s.action === 'search' ? esc(s.input.query || '') : s.action === 'open' ? esc(s.input.id || '') : s.action === 'finish' ? esc(s.input.status || '') : '';
+    li.innerHTML = `${esc(s.thought)}<br><span class="act ${esc(s.action)}">${esc(s.action)}</span>${inp ? '<span class="obs">' + inp + '</span>' : ''}<br><span class="obs">→ ${esc(s.observation)}</span>`;
+    ol.appendChild(li);
+  }
+  const box = $('#agent-passages'); box.innerHTML = '';
+  if (!r.passages.length) box.innerHTML = '<p class="empty">The agent did not open any section.</p>';
+  for (const p of r.passages) {
+    const el = document.createElement('div'); el.className = 'passage ' + (p.cited ? 'cited' : '');
+    el.innerHTML = `<div class="head"><div><span class="id">${esc(p.id)}</span> <span class="path">${esc(p.doc_title)} › ${esc(p.parent_title)} › ${esc(p.title)}</span><span class="tag">${esc(p.format)}</span></div><div class="score">${p.score ? 'cos ' + p.score.toFixed(3) : 'opened'}${p.cited ? '<span class="role cited">cited</span>' : ''}</div></div><div class="text">${renderTable(p.text)}</div>`;
+    box.appendChild(el);
+  }
+}
+async function askAgent() {
+  const q = $('#agent-q').value.trim(); if (q.length < 3) return;
+  const btn = $('#agent-ask'); btn.disabled = true; $('#agent-status').textContent = 'planning…'; $('#agent-error').hidden = true;
+  try {
+    const res = await fetch('/agent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q }) });
+    const text = await res.text(); let data = null; try { data = JSON.parse(text); } catch (_) {}
+    if (!res.ok || !data) throw new Error((data && data.detail) || `HTTP ${res.status}: ${text.slice(0, 200)}`);
+    renderAgent(data);
+  } catch (e) { $('#agent-error').hidden = false; $('#agent-error').textContent = e.message; }
+  finally { btn.disabled = false; $('#agent-status').textContent = ''; }
+}
+$('#agent-ask').onclick = askAgent;
+$('#agent-q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askAgent(); } });
+fetch('/questions').then(r => r.json()).then(t => {
+  const box = $('#agent-examples');
+  for (const it of (t.agent_examples || [])) { const c = document.createElement('span'); c.className = 'chip'; c.textContent = it.question; c.onclick = () => { $('#agent-q').value = it.question; askAgent(); }; box.appendChild(c); }
+});
 $('#only-fails').onchange = applyFailFilter;
 
 // Shareable links: /?q=... asks on load; /?tab=eval or /?tab=audit opens that tab.

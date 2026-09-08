@@ -1,6 +1,12 @@
 {
   "_about": "Labelled test set. Section ids refer to corpus documents (AR, EE, HH, FS, SF, LM). See corpus/CONTRADICTIONS.md for the planted conflicts.",
   "_changelog": "Three of the original 25 not_covered questions (N11 calculator, N18 hostel-fee dues, N24 exam-fee refund) turned out to be answerable on a strict reading: in each case the rulebook has a positive list or a general sentence that covers the item by omission or by generality. The models answered them from the right clause; the labels were the weak side of the argument. They were moved to the ungraded 'borderline' list below with the reasoning, and replaced with questions the corpus is genuinely silent on. Nothing else in this file changed after the first evaluation run.",
+  "agent_examples": [
+    {"id": "G01", "question": "My attendance is 58% because I was in hospital for three weeks, and I also missed the second mid-term test. What are my options for the end-semester exam?", "touches": ["AR §4.3", "LM §2.2", "EE §3.3"]},
+    {"id": "G02", "question": "If I register a week late and then pay my fees ten days after the due date, what will it cost me in total on top of the fees?", "touches": ["AR §3.2", "FS §3.1"]},
+    {"id": "G03", "question": "My CGPA dropped to 7.8 this semester and I got a warning for late entries at the hostel. Do I keep my merit scholarship?", "touches": ["AR §11.2", "SF §3.1", "SF §3.2", "HH §2.2"]},
+    {"id": "G04", "question": "I want to withdraw before classes start and I live in the hostel: what money do I get back, and by when?", "touches": ["FS §4.1", "SF §6.2", "FS §4.2", "FS §4.3", "HH §7.2"]}
+  ],
   "borderline": [
     {"id": "B01", "question": "Can I use a scientific calculator in the examination hall?", "either": "EE §2.1 permits listed items 'and any other item expressly permitted on the question paper'; 'only if the paper permits it' is a fair answer, 'not mentioned' is also fair"},
     {"id": "B02", "question": "Will I get my hall ticket if my hostel fee is unpaid but my tuition fee is paid?", "either": "EE §1.2 lists the three conditions for a hall ticket positively; hostel dues are not one of them, so 'yes' is a strict reading, 'the rule speaks only of tuition dues' is a cautious one"},
