@@ -9,9 +9,9 @@ next one starts, which also means the video can open the tab and find the result
 from __future__ import annotations
 
 import json
+import queue
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 from . import config
 from .grading import EXPECTED, grade, jobs, summarise
@@ -99,8 +99,28 @@ def _run(retriever, todo: list[tuple[str, dict]], workers: int, spread: bool) ->
             _state["summary"] = summarise(_state["rows"])
             _save_locked()
 
-    with ThreadPoolExecutor(max_workers=workers) as ex:
-        list(ex.map(one, enumerate(todo)))
+    # Daemon threads pulling from a queue, not a ThreadPoolExecutor: the executor's workers are
+    # joined at interpreter exit, which made a service restart hang until systemd sent SIGKILL.
+    q: queue.Queue = queue.Queue()
+    for indexed in enumerate(todo):
+        q.put(indexed)
+
+    def worker() -> None:
+        while True:
+            try:
+                item = q.get_nowait()
+            except queue.Empty:
+                return
+            try:
+                one(item)
+            finally:
+                q.task_done()
+
+    threads = [threading.Thread(target=worker, name=f"eval-worker-{i}", daemon=True) for i in range(max(1, workers))]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
     with _lock:
         _state["status"] = "cancelled" if _cancel.is_set() else "done"
         _state["finished_at"] = time.time()

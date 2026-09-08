@@ -65,9 +65,12 @@ LIMITED_TTL = 20.0   # 429 after retries: per-minute limits clear quickly, try a
 
 # Free tiers limit requests per minute per provider. A burst of parallel questions (the
 # evaluation tab, a batch script) must queue here rather than turn into 429s, retries and
-# parked models. Two in flight per provider is enough to keep a demo snappy.
-MAX_IN_FLIGHT = int(config.__dict__.get("MAX_IN_FLIGHT", 2))
+# parked models. Three in flight per provider, of which batch work (spread=True) may hold at
+# most two, so a live question asked while the evaluation runs always has a slot of its own.
+MAX_IN_FLIGHT = 3
+MAX_BATCH_IN_FLIGHT = 2
 _gates: dict[str, threading.Semaphore] = {}
+_batch_gate = threading.Semaphore(MAX_BATCH_IN_FLIGHT)
 _gates_lock = threading.Lock()
 
 
@@ -76,6 +79,29 @@ def _gate(provider: str) -> threading.Semaphore:
         if provider not in _gates:
             _gates[provider] = threading.Semaphore(MAX_IN_FLIGHT)
         return _gates[provider]
+
+
+class _Gates:
+    """Acquire several semaphores in order, release in reverse. Held only around one HTTP
+    request, never around a backoff sleep: a sleeping thread must not block the others."""
+
+    def __init__(self, *sems: threading.Semaphore):
+        self.sems = sems
+
+    def __enter__(self):
+        for s in self.sems:
+            s.acquire()
+        return self
+
+    def __exit__(self, *a):
+        for s in reversed(self.sems):
+            s.release()
+        return False
+
+
+MAX_RETRY_WAIT = 15.0      # per 429 backoff; longer than this, park the model and try the next one
+RATE_LIMIT_ATTEMPTS = 3    # requests per model per call before giving up on it for LIMITED_TTL
+SPREAD_MAX_WAIT = 120.0    # batch calls wait this long for their own pool before touching fallbacks
 
 
 def full_chain(primary: str | None = None) -> list[Entry]:
@@ -142,28 +168,62 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
     if not available():
         raise LLMError("no LLM provider key is set (CODECRAFT_API_KEY, OPENROUTER_API_KEY, GROQ_API_KEY or GEMINI_API_KEY)")
     errors: list[str] = []
-    for entry in (spread_chain(model) if spread else model_chain(model)):
+    kw = dict(temperature=temperature, max_tokens=max_tokens, json_mode=json_mode, timeout=timeout)
+
+    if spread:
+        # Batch work stays inside its own pool: rotate over the live pool models; if every one
+        # is parked, wait for the earliest to unpark (they unpark within seconds) instead of
+        # spilling onto the fallback providers and their small daily quotas.
+        deadline = time.time() + SPREAD_MAX_WAIT
+        while True:
+            now = time.time()
+            all_pool = [e for e in full_chain(model) if e.provider in config.SPREAD_PROVIDERS]
+            if not all_pool:
+                break
+            live = [e for e in all_pool if _dead.get(e.id, 0.0) <= now]
+            if live:
+                k = next(_rr) % len(live)
+                for entry in live[k:] + live[:k]:
+                    try:
+                        return _try(messages, entry, spread=True, **kw)
+                    except LLMError as e:
+                        errors.append(f"{entry.id}: {e}")
+            if time.time() >= deadline:
+                break
+            wake = min(_dead.get(e.id, 0.0) for e in all_pool)
+            time.sleep(max(0.5, min(5.0, wake - time.time())))
+
+    for entry in model_chain(model):
+        if spread and entry.provider in config.SPREAD_PROVIDERS:
+            continue  # tried above
         try:
-            with _gate(entry.provider):
-                return _chat_once(messages, entry, temperature=temperature, max_tokens=max_tokens,
-                                  json_mode=json_mode, timeout=timeout)
-        except ModelUnavailable as e:
-            _dead[entry.id] = time.time() + DEAD_TTL
-            errors.append(f"{entry.id}: {e}")
+            return _try(messages, entry, spread=spread, **kw)
         except LLMError as e:
-            msg = str(e)
-            if "429" in msg:
-                _dead[entry.id] = time.time() + LIMITED_TTL
-            elif msg.startswith("HTTP 5") or "network error" in msg:
-                # A 5xx or a dead socket is the gateway, not the model: park every model of
-                # this provider so the next call does not pay the same price three times.
-                for other in full_chain():
-                    if other.provider == entry.provider:
-                        _dead[other.id] = time.time() + SICK_TTL
-            else:
-                _dead[entry.id] = time.time() + SICK_TTL
-            errors.append(f"{entry.id}: {msg}")
+            errors.append(f"{entry.id}: {e}")
     raise LLMError("every model in the chain failed -> " + " | ".join(errors)[:700])
+
+
+def _try(messages: list[dict], entry: Entry, *, spread: bool, **kw) -> tuple[str, dict]:
+    """One model: call it, and on failure park it (or its whole provider) before re-raising."""
+    gate = _Gates(_batch_gate, _gate(entry.provider)) if spread else _Gates(_gate(entry.provider))
+    try:
+        return _chat_once(messages, entry, gate=gate, **kw)
+    except ModelUnavailable:
+        _dead[entry.id] = time.time() + DEAD_TTL
+        raise
+    except LLMError as e:
+        msg = str(e)
+        if "429" in msg:
+            _dead[entry.id] = time.time() + LIMITED_TTL
+        elif msg.startswith("HTTP 5") or "network error" in msg:
+            # A 5xx or a dead socket is the gateway, not the model: park every model of this
+            # provider so the next call does not pay the same price three times.
+            for other in full_chain():
+                if other.provider == entry.provider:
+                    _dead[other.id] = time.time() + SICK_TTL
+        else:
+            _dead[entry.id] = time.time() + SICK_TTL
+        raise
 
 
 UNAVAILABLE_HINTS = ("unavailable", "not found", "no endpoints", "not a valid model", "does not exist",
@@ -173,7 +233,8 @@ RETRY_STATUSES = {408, 409, 425, 429, 500, 502, 503, 504}
 
 
 def _chat_once(messages: list[dict], entry: Entry, *, temperature: float, max_tokens: int,
-               json_mode: bool, timeout: float) -> tuple[str, dict]:
+               json_mode: bool, timeout: float, gate=None) -> tuple[str, dict]:
+    gate = gate if gate is not None else _Gates()
     payload: dict = {"model": entry.model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
     if entry.seed:
         payload["seed"] = 7  # honoured by some providers; harmless elsewhere
@@ -187,12 +248,12 @@ def _chat_once(messages: list[dict], entry: Entry, *, temperature: float, max_to
     }
     last_err = "no attempts made"
     for attempt in range(3):
-        resp = _post_with_retries(entry, payload, headers, timeout)
+        resp = _post_with_retries(entry, payload, headers, timeout, gate)
         if resp.status_code != 200 and json_mode and resp.status_code in (400, 422):
             # Some models reject response_format; retry without it and rely on the prompt.
             payload.pop("response_format", None)
             json_mode = False
-            resp = _post_with_retries(entry, payload, headers, timeout)
+            resp = _post_with_retries(entry, payload, headers, timeout, gate)
         if resp.status_code != 200:
             body = resp.text[:300]
             if resp.status_code in (401, 402, 403, 404) or any(h in body.lower() for h in UNAVAILABLE_HINTS):
@@ -227,16 +288,20 @@ def _remember_quota(entry: Entry, resp: httpx.Response) -> None:
         _quota[entry.provider] = rl
 
 
-def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: float, attempts: int = 5) -> httpx.Response:
-    """Free tiers rate-limit aggressively; back off instead of failing the question. Two things
-    are not worth waiting for: a daily quota (OpenRouter's free-models-per-day) and a gateway
-    that is down (5xx): those get one quick retry at most, and the caller parks the provider."""
+def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: float, gate,
+                       attempts: int = RATE_LIMIT_ATTEMPTS) -> httpx.Response:
+    """Free tiers rate-limit aggressively; back off a little instead of failing the question,
+    but only a little: a 429 gets at most `attempts` requests with waits capped at
+    MAX_RETRY_WAIT, after which the caller parks this model and moves to the next. A daily
+    quota (OpenRouter's free-models-per-day) and a gateway that is down (5xx) are not worth
+    waiting for at all. The gate is held only while a request is in flight."""
     delay = 2.0
     last: httpx.Response | None = None
     server_errors = 0
     for attempt in range(attempts):
         try:
-            resp = httpx.post(entry.url, json=payload, headers=headers, timeout=timeout)
+            with gate:
+                resp = httpx.post(entry.url, json=payload, headers=headers, timeout=timeout)
         except httpx.HTTPError as e:
             if attempt >= 1:
                 raise LLMError(f"network error talking to {entry.provider}: {e}") from e
@@ -256,8 +321,8 @@ def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: floa
         last = resp
         retry_after = resp.headers.get("Retry-After")
         wait = float(retry_after) if retry_after and retry_after.replace(".", "", 1).isdigit() else delay
-        time.sleep(min(wait, 30))
-        delay = min(delay * 2, 20)
+        time.sleep(min(wait, MAX_RETRY_WAIT))
+        delay = min(delay * 2, MAX_RETRY_WAIT)
     assert last is not None
     return last
 

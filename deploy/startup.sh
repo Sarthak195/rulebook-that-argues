@@ -69,6 +69,7 @@ WorkingDirectory=$APP
 ExecStart=$APP/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 80 --workers 1
 Restart=always
 RestartSec=5
+TimeoutStopSec=10
 Environment=PYTHONUNBUFFERED=1
 
 [Install]
