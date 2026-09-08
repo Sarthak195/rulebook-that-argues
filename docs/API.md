@@ -69,8 +69,10 @@ curl -s -X POST http://127.0.0.1:8000/ask -H "Content-Type: application/json" \
 }
 ```
 
-Errors: `422` on a malformed body, `502` with the OpenRouter message when the LLM call fails
-after retries, `503` while the index is still loading.
+Errors: `422` on a malformed body; `503` with the provider's message when every model in the
+chain fails (quota exhausted, models withdrawn or rate-limited) or while the index is still
+loading. Always a JSON body `{"detail": "..."}`. 503 rather than 502 because the Cloudflare
+tunnel replaces an origin 502 with its own HTML page.
 
 ## `GET /health`
 

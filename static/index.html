@@ -246,7 +246,9 @@ async function askApi(question) {
   let data = null;
   try { data = JSON.parse(text); } catch (_) { /* proxies (Cloudflare) replace 5xx bodies with HTML */ }
   if (!res.ok) {
-    const detail = data && data.detail ? data.detail : `HTTP ${res.status} ${res.statusText}: ${text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200)}`;
+    let detail = data && data.detail ? data.detail : `HTTP ${res.status} ${res.statusText}: ${text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200)}`;
+    if (/free-models-per-day/.test(detail)) detail = 'The OpenRouter free-tier quota for today is used up (50 free-model requests per UTC day; resets at 00:00 UTC). Add a free Groq or Gemini key, or credits on OpenRouter, then restart. Raw error: ' + detail.slice(0, 300);
+    else if (/every model in the chain failed/.test(detail)) detail = 'No model in the chain could answer right now (free models are rate-limited or withdrawn). Raw error: ' + detail.slice(0, 400);
     throw new Error(detail);
   }
   if (!data) throw new Error(`Server returned something that is not JSON: ${text.slice(0, 200)}`);

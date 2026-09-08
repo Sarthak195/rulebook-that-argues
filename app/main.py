@@ -74,7 +74,9 @@ async def ask_endpoint(req: AskRequest):
     try:
         return await run_in_threadpool(ask, req.question, r, req.top_k)
     except LLMError as e:
-        raise HTTPException(502, f"LLM error: {e}") from e
+        # 503, not 502: Cloudflare (the tunnel) replaces an origin 502 with its own HTML error
+        # page, which hides the reason. A 503 with a JSON body passes through untouched.
+        raise HTTPException(503, f"LLM error: {e}") from e
 
 
 @app.get("/sections")
