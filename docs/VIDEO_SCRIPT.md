@@ -8,11 +8,13 @@ Before recording:
 - open the app in one tab, the GitHub repo in a second tab, `results/conflict_audit.md` is not
   needed (the Conflict audit tab shows it)
 - refresh the app once so the header shows `139 sections · bge-small · minimax/minimax-m3:free`
-- **run the `Evaluation` tab once before recording.** The run happens on the server and the
-  finished table stays on the tab (it survives refreshes and reopening the page), so no second
-  tab is needed. It takes about 3 to 6 minutes on Groq's free tier. On camera, click
-  `Run all questions` to show it grading live for a few rows if you like; the finished numbers
-  are one click away either way.
+- **check the `Evaluation` tab before recording.** The run happens on the server and the
+  finished table stays on the tab (it survives refreshes and reopening the page). If the tab
+  says "imported from results/runs/…", that is a completed batch run of the same 47 questions
+  through the same pipeline, loaded because the free tiers' daily quotas were spent; say so on
+  camera in one sentence. If a provider with quota is available (a fresh Gemini key, or Groq
+  after its daily reset), click `Run all questions` before recording and let it finish, 3 to 6
+  minutes; do not click it during recording unless you have quota to spare.
 - single questions answer in about 2 seconds; a question that needs the verification pass takes 3 to 4
 
 ---

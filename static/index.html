@@ -282,7 +282,7 @@ function renderEval(s) {
   const rows = s.rows || [];
   const sum = s.summary || { passed: 0, graded: 0, per_category: {}, matrix: null };
   const when = s.status === 'idle' ? 'not run yet' : running ? `started ${fmtTime(s.started_at)}` : `${s.status} ${fmtTime(s.finished_at)}${s.started_at && s.finished_at ? ` in ${Math.round(s.finished_at - s.started_at)} s` : ''}`;
-  $('#eval-when').textContent = rows.length ? `${when} · ${s.spread ? 'spread across models' : 'preferred model'} · ${s.workers} in flight` : '';
+  $('#eval-when').textContent = !rows.length ? '' : s.status === 'imported' ? `imported from ${s.source || 'a batch run'}; press Run all questions for a live run` : `${when} · ${s.spread ? 'spread across models' : 'preferred model'} · ${s.workers} in flight`;
   $('#stats').innerHTML = rows.length ? `<div class="stat"><b>${sum.passed}/${sum.graded}</b><span>passed (${rows.length} total)</span></div>` +
     Object.entries(sum.per_category || {}).map(([c, v]) => `<div class="stat"><b>${v.passed}/${v.total}</b><span>${c}</span></div>`).join('') : '';
   const m = sum.matrix;

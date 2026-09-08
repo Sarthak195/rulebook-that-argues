@@ -115,6 +115,22 @@ model, and both runs shared the key with live use of the deployed site, so their
 the full set takes 5 to 10 minutes on the free tier when nothing else is using the key, and
 the run is a server-side job, so it can be started and left alone.
 
+### Free-tier daily caps, and what the Evaluation tab shows when they are gone
+
+By early afternoon on 8 September the repeated runs above had used Groq's free allowance of
+**200,000 tokens per day per model** on all three chain models (the 429 says so: "on tokens
+per day (TPD): Limit 200000, Used 199868 … try again in 9m43s", the allowance trickling back
+at about 140 tokens a minute). Two consequences, both now handled:
+
+- The client honours the provider's stated wait: a 429 naming a daily cap, or a wait longer
+  than 15 s, parks that model for that long (capped at 15 min) and marks its bucket empty, so
+  a live question fails over to the next provider in milliseconds instead of re-firing every
+  15 s, which is what the request log (`GET /llmlog`) had shown.
+- A 65-call run cannot be afforded on demand once the day's quota is gone, so
+  `scripts/eval_import.py` can load a finished batch run into the Evaluation tab, labelled
+  "imported" with its source file and time. It went through the same pipeline; it is the same
+  47 questions graded by the same rules. Starting a live run replaces it.
+
 ### 8 September: the free model disappeared, then the daily quota did
 
 The morning after those runs OpenRouter withdrew `minimax/minimax-m3:free`. A probe of the
