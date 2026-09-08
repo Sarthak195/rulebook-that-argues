@@ -13,6 +13,10 @@
 First boot: VM created 16:44 UTC, service healthy at 16:51 UTC, six and a half minutes, of which
 five were pip installing torch.
 
+The deployed instance runs with `PROVIDER_ORDER=gemini` in its `.env` (ten AI Studio keys from
+ten projects, plus the original), by choice: the other providers' keys are still in the file
+and one line brings them back into the chain.
+
 Cost: about USD 0.02 per hour for the VM while it runs, plus the static IP. Stop it with
 `gcloud compute instances stop rulebook-vm --zone asia-south1-a` when the round is over.
 
