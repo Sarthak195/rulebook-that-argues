@@ -301,6 +301,30 @@ def test_extra_openai_compatible_provider_joins_the_chain(monkeypatch):
     assert llm.provider_timeout("cerebras") == 45.0 and llm.provider_timeout("gemini") == 60.0
 
 
+def test_mistral_style_headers_feed_the_bucket(monkeypatch):
+    from app import config, llm
+
+    monkeypatch.setattr(config, "PROVIDER_ORDER", ["mistral"])
+    monkeypatch.setattr(config, "EXTRA_PROVIDERS", {"mistral": {"url": "https://api.mistral.ai/v1/chat/completions",
+                                                                 "keys": ["m"], "models": ["ministral-8b-2512", "ministral-14b-2512"], "seed": False, "timeout": 60}})
+    monkeypatch.setattr(llm, "_bucket", {})
+    small, big = llm.full_chain()
+
+    class Resp:
+        headers = {"x-ratelimit-limit-req-minute": "30", "x-ratelimit-remaining-req-minute": "0",
+                   "x-ratelimit-limit-tokens-minute": "937500", "x-ratelimit-remaining-tokens-minute": "900000"}
+
+    llm._remember_quota(big, Resp())
+    assert not llm.has_headroom(big)      # no requests left this minute, whatever the tokens say
+    assert llm.has_headroom(small)        # unknown means yes
+
+    class Resp2:
+        headers = {"x-ratelimit-remaining-req-minute": "150", "x-ratelimit-remaining-tokens-minute": "600000"}
+
+    llm._remember_quota(small, Resp2())
+    assert llm.has_headroom(small)
+
+
 def test_chain_spans_providers_in_order_and_skips_missing_keys(monkeypatch):
     from app import config, llm
 

@@ -117,7 +117,7 @@ LIMITED_TTL = 20.0   # 429 after retries: per-minute limits clear quickly, try a
 # evaluation tab, a batch script) must queue here rather than turn into 429s, retries and
 # parked models. Three in flight per provider, of which batch work (spread=True) may hold at
 # most two, so a live question asked while the evaluation runs always has a slot of its own.
-MAX_IN_FLIGHT = 4
+MAX_IN_FLIGHT = 3          # per (account, model): providers limit each model separately
 MAX_BATCH_IN_FLIGHT = 2
 _gates: dict[str, threading.Semaphore] = {}
 _gates_lock = threading.Lock()
@@ -145,9 +145,9 @@ def spread_buckets() -> int:
 
 
 def batch_concurrency() -> int:
-    """How many batch calls may be in flight at once: one per bucket, at least two, at most
-    eight. The per-account gate (MAX_IN_FLIGHT) keeps one slot free for live questions."""
-    return max(MAX_BATCH_IN_FLIGHT, min(8, spread_buckets()))
+    """How many batch calls may be in flight at once: two per bucket, at least two, at most
+    eight. The per-model gate (MAX_IN_FLIGHT) keeps one slot free for live questions."""
+    return max(MAX_BATCH_IN_FLIGHT, min(8, 2 * spread_buckets()))
 
 
 _batch_gate = threading.Semaphore(batch_concurrency())
@@ -323,7 +323,7 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
 
 def _try(messages: list[dict], entry: Entry, *, spread: bool, **kw) -> tuple[str, dict]:
     """One model: call it, and on failure park it (or its whole provider) before re-raising."""
-    gate = _Gates(_batch_gate, _gate(entry.account)) if spread else _Gates(_gate(entry.account))
+    gate = _Gates(_batch_gate, _gate(entry.id)) if spread else _Gates(_gate(entry.id))
     kw = dict(kw, timeout=max(kw.get("timeout", 60.0), provider_timeout(entry.provider)))
     try:
         return _chat_once(messages, entry, gate=gate, spread=spread, **kw)
@@ -453,13 +453,24 @@ def _remember_quota(entry: Entry, resp: httpx.Response) -> None:
     rl["seen_at"] = int(time.time())
     rl["model"] = entry.id
     _quota[entry.account] = rl
-    rem = rl.get("x-ratelimit-remaining-tokens")
-    reset = parse_duration(rl.get("x-ratelimit-reset-tokens"))
-    if rem is not None and reset is not None:
-        try:
+    try:
+        # Groq: remaining tokens plus an explicit refill time.
+        rem = rl.get("x-ratelimit-remaining-tokens")
+        reset = parse_duration(rl.get("x-ratelimit-reset-tokens"))
+        if rem is not None and reset is not None:
             _bucket[entry.id] = {"remaining": int(float(rem)), "reset_at": time.time() + reset}
-        except ValueError:
-            pass
+            return
+        # Mistral: per-minute windows, no reset header; assume the window refills within 60 s.
+        # Requests count as tokens-worth of headroom: no requests left means no headroom.
+        rem_tok = rl.get("x-ratelimit-remaining-tokens-minute")
+        rem_req = rl.get("x-ratelimit-remaining-req-minute")
+        if rem_tok is not None or rem_req is not None:
+            tokens = int(float(rem_tok)) if rem_tok is not None else TOKENS_PER_CALL * 10
+            if rem_req is not None and int(float(rem_req)) < 1:
+                tokens = 0
+            _bucket[entry.id] = {"remaining": tokens, "reset_at": time.time() + 60.0}
+    except ValueError:
+        pass
 
 
 def has_headroom(entry: Entry, need: int = TOKENS_PER_CALL) -> bool:
