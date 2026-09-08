@@ -29,6 +29,29 @@ class ModelUnavailable(LLMError):
     """The model is gone, not free any more, or refuses this key: no point retrying it soon."""
 
 
+class RateLimited(LLMError):
+    """A 429 whose wait is not worth sitting through (a daily cap, or a long refill). Carries the
+    provider's stated wait so the caller can park the model for exactly that long."""
+
+    def __init__(self, message: str, wait: float):
+        super().__init__(message)
+        self.wait = wait
+
+
+_TRY_AGAIN_RE = re.compile(r"try again in ([0-9hms.]+)", re.IGNORECASE)
+DAILY_HINTS = ("per day", "per-day", "tpd", "rpd", "daily")
+MAX_PARK = 900.0  # never park longer than fifteen minutes on a single message
+
+
+def stated_wait(resp) -> float | None:
+    """Seconds the provider asks us to wait, from Retry-After or a 'try again in 9m43.6s' body."""
+    ra = resp.headers.get("retry-after")
+    if ra and ra.replace(".", "", 1).isdigit():
+        return float(ra)
+    m = _TRY_AGAIN_RE.search(resp.text or "")
+    return parse_duration(m.group(1)) if m else None
+
+
 @dataclass(frozen=True)
 class Entry:
     provider: str
@@ -228,6 +251,13 @@ def _try(messages: list[dict], entry: Entry, *, spread: bool, **kw) -> tuple[str
     except ModelUnavailable:
         _dead[entry.id] = time.time() + DEAD_TTL
         raise
+    except RateLimited as e:
+        # Park for exactly what the provider asked (capped), and mark the bucket empty until then
+        # so routing skips this model without another request.
+        until = time.time() + max(LIMITED_TTL, min(e.wait, MAX_PARK))
+        _dead[entry.id] = until
+        _bucket[entry.id] = {"remaining": 0, "reset_at": until}
+        raise
     except LLMError as e:
         msg = str(e)
         if "429" in msg:
@@ -328,7 +358,7 @@ _events_lock = threading.Lock()
 def _log_event(entry: Entry, *, status, ms: int, note: str = "", spread: bool = False) -> None:
     with _events_lock:
         _events.append({"t": round(time.time(), 1), "model": entry.id, "status": status, "ms": ms,
-                        "spread": spread, "note": note[:160]})
+                        "spread": spread, "note": note[:400]})
         del _events[:-300]
 
 
@@ -400,10 +430,15 @@ def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: floa
             continue
         _log_event(entry, status=resp.status_code, ms=int((time.time() - t0) * 1000), spread=spread,
                    note=(f"waited {waited} ms for a slot; " if waited > 200 else "") +
-                        (resp.text[:120] if resp.status_code != 200 else ""))
+                        (f"retry-after={resp.headers.get('retry-after')}; " if resp.status_code == 429 else "") +
+                        (resp.text[:300] if resp.status_code != 200 else ""))
         _remember_quota(entry, resp)
-        if resp.status_code == 429 and "per-day" in resp.text:
-            return resp
+        if resp.status_code == 429:
+            wait = stated_wait(resp)
+            body = (resp.text or "").lower()
+            if any(h in body for h in DAILY_HINTS) or (wait is not None and wait > MAX_RETRY_WAIT):
+                # A daily cap, or a refill minutes away: do not sit here and do not re-fire.
+                raise RateLimited(f"HTTP 429: {resp.text[:300]}", wait if wait is not None else LIMITED_TTL)
         if resp.status_code >= 500:
             server_errors += 1
             if server_errors >= 2:
@@ -413,20 +448,21 @@ def _post_with_retries(entry: Entry, payload: dict, headers: dict, timeout: floa
         if resp.status_code not in RETRY_STATUSES or attempt == attempts - 1:
             return resp
         last = resp
-        retry_after = resp.headers.get("Retry-After")
-        wait = float(retry_after) if retry_after and retry_after.replace(".", "", 1).isdigit() else delay
-        time.sleep(min(wait, MAX_RETRY_WAIT))
+        wait = stated_wait(resp) if resp.status_code == 429 else None
+        time.sleep(min(wait if wait is not None else delay, MAX_RETRY_WAIT))
         delay = min(delay * 2, MAX_RETRY_WAIT)
     assert last is not None
     return last
 
 
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
+_THINK = re.compile(r"<think>.*?</think>\s*", re.DOTALL | re.IGNORECASE)
 
 
 def extract_json(text: str) -> dict:
-    """Parse a JSON object out of a model reply, tolerating code fences and leading prose."""
-    cleaned = _FENCE.sub("", text.strip())
+    """Parse a JSON object out of a model reply, tolerating code fences, a leading <think>
+    block (Qwen 3.6 puts its reasoning in the content) and leading prose."""
+    cleaned = _FENCE.sub("", _THINK.sub("", text.strip()).strip())
     try:
         return json.loads(cleaned)
     except json.JSONDecodeError:

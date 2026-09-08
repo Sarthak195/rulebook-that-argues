@@ -223,6 +223,50 @@ def test_bucket_headers_route_around_a_drained_model(monkeypatch):
     assert calls == ["b"]
 
 
+def test_daily_cap_parks_the_model_for_the_stated_wait(monkeypatch):
+    import time
+
+    from app import config, llm
+
+    class Resp:
+        status_code = 429
+        headers = {"retry-after": "584", "x-ratelimit-remaining-tokens": "8000", "x-ratelimit-reset-tokens": "1ms"}
+        text = ('{"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` ... on tokens per day (TPD): '
+                'Limit 200000, Used 199868, Requested 1483. Please try again in 9m43.632s."}}')
+
+    assert llm.stated_wait(Resp()) == 584.0
+    monkeypatch.setattr(config, "PROVIDER_ORDER", ["groq"])
+    monkeypatch.setattr(config, "GROQ_API_KEY", "g")
+    monkeypatch.setattr(config, "GROQ_MODELS", ["a", "b"])
+    monkeypatch.setattr(llm, "_dead", {})
+    monkeypatch.setattr(llm, "_bucket", {})
+    a, b = llm.full_chain()
+    posted: list[str] = []
+
+    def fake_post(url, json=None, headers=None, timeout=None):
+        posted.append(json["model"])
+        if json["model"] == "a":
+            return Resp()
+        class Ok:
+            status_code = 200
+            headers = {}
+            text = '{"choices":[{"message":{"content":"{\\"ok\\":true}"}}],"model":"b"}'
+            def json(self):
+                import json as _j
+                return _j.loads(self.text)
+        return Ok()
+
+    monkeypatch.setattr(llm.httpx, "post", fake_post)
+    content, usage = llm.chat([{"role": "user", "content": "hi"}])
+    assert usage["model"] == "groq/b" and posted == ["a", "b"]     # exactly one request at the capped model
+    assert llm._dead["groq/a"] > time.time() + 500                 # parked for the stated wait, not 20 s
+    assert not llm.has_headroom(a)
+    llm.chat([{"role": "user", "content": "again"}])
+    assert posted == ["a", "b", "b"]                               # parked model not touched again
+
+    assert llm.extract_json("<think>\nreasoning {with braces}\n</think>\n{\"status\": \"answered\"}") == {"status": "answered"}
+
+
 def test_chain_spans_providers_in_order_and_skips_missing_keys(monkeypatch):
     from app import config, llm
 

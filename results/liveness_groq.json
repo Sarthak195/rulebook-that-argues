@@ -2,95 +2,36 @@
  {
   "model": "allam-2-7b",
   "ok": true,
-  "ms": 401,
+  "ms": 469,
   "served": "allam-2-7b",
   "note": ""
  },
  {
   "model": "groq/compound-mini",
   "ok": true,
-  "ms": 976,
+  "ms": 1306,
   "served": "groq/compound-mini",
   "note": ""
  },
  {
   "model": "groq/compound",
   "ok": true,
-  "ms": 1661,
+  "ms": 5317,
   "served": "groq/compound",
   "note": ""
  },
  {
-  "model": "qwen/qwen3.8-27b",
+  "model": "openai/gpt-oss-safeguard-20b",
   "ok": true,
-  "ms": 638,
-  "served": "qwen/qwen3.8-27b",
+  "ms": 380,
+  "served": "openai/gpt-oss-safeguard-20b",
   "note": ""
  },
  {
-  "model": "whisper-large-v3-turbo",
-  "ok": false,
-  "ms": 288,
-  "note": "HTTP 400: {\"error\":{\"message\":\"The model `whisper-large-v3-turbo` does not support chat completions\",\"type\":\"i"
- },
- {
-  "model": "whisper-large-v3",
-  "ok": false,
-  "ms": 462,
-  "note": "HTTP 400: {\"error\":{\"message\":\"The model `whisper-large-v3` does not support chat completions\",\"type\":\"invalid"
- },
- {
-  "model": "meta-llama/llama-prompt-guard-2-22m",
-  "ok": false,
-  "ms": 444,
-  "served": "meta-llama/llama-prompt-guard-2-22m",
-  "note": "reply: '0.0028626283165067434'"
- },
- {
-  "model": "meta-llama/llama-prompt-guard-2-86m",
-  "ok": false,
-  "ms": 449,
-  "served": "meta-llama/llama-prompt-guard-2-86m",
-  "note": "reply: '0.0009579340112395585'"
- },
- {
-  "model": "openai/gpt-oss-safeguard-20b",
-  "ok": false,
-  "ms": 447,
-  "served": "openai/gpt-oss-safeguard-20b",
-  "note": "reply: ''"
- },
- {
-  "model": "openai/gpt-oss-20b",
-  "ok": false,
-  "ms": 950,
-  "served": "openai/gpt-oss-20b",
-  "note": "reply: ''"
- },
- {
-  "model": "openai/gpt-oss-120b",
-  "ok": false,
-  "ms": 724,
-  "served": "openai/gpt-oss-120b",
-  "note": "reply: ''"
- },
- {
   "model": "qwen/qwen3.6-27b",
-  "ok": false,
-  "ms": 346,
+  "ok": true,
+  "ms": 535,
   "served": "qwen/qwen3.6-27b",
-  "note": "reply: '<think>\\nThinking Process:\\n1.  **Analyze User Input**: The us'"
- },
- {
-  "model": "canopylabs/orpheus-v1-english",
-  "ok": false,
-  "ms": 449,
-  "note": "HTTP 400: {\"error\":{\"message\":\"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please hav"
- },
- {
-  "model": "canopylabs/orpheus-arabic-saudi",
-  "ok": false,
-  "ms": 368,
-  "note": "HTTP 400: {\"error\":{\"message\":\"The model `canopylabs/orpheus-arabic-saudi` requires terms acceptance. Please h"
+  "note": ""
  }
 ]
