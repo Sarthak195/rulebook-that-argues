@@ -47,7 +47,9 @@ OPENROUTER_FALLBACKS = _list(
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODELS = _list("GROQ_MODELS", "llama-3.3-70b-versatile,llama-3.1-8b-instant")
+# Probed 8 Sep 2026 on the free tier: all three 4/4 on the response-type probe;
+# gpt-oss-120b answers in 1.4-2.0 s, gpt-oss-20b in 1-2 s, qwen3.8-27b in 1-7 s.
+GROQ_MODELS = _list("GROQ_MODELS", "openai/gpt-oss-120b,openai/gpt-oss-20b,qwen/qwen3.8-27b")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
