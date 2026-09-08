@@ -13,7 +13,7 @@ local embedding model.
 | **Live** | http://34.93.55.172/ (GCE, Mumbai) · https://guy-easily-veterans-victorian.trycloudflare.com (HTTPS tunnel) · http://34.93.55.172.nip.io/ |
 | **Demo video** | _link goes here_ |
 | **Try a link** | [answered](http://34.93.55.172/?q=What%20is%20the%20minimum%20attendance%20required%20to%20appear%20for%20the%20end-semester%20examination%3F) · [not covered](http://34.93.55.172/?q=What%20happens%20if%20I%20miss%20the%20end-semester%20exam%20because%20of%20a%20family%20wedding%3F) · [conflict](http://34.93.55.172/?q=My%20attendance%20is%2058%25%20because%20I%20was%20hospitalised%20for%20three%20weeks.%20Can%20the%20shortage%20be%20condoned%3F) · [audit](http://34.93.55.172/?tab=audit) · [evaluation](http://34.93.55.172/?tab=eval) |
-| **Result** | 47/47 on the labelled test set with a free model; audit finds 3/3 planted contradictions plus one I had not planted |
+| **Result** | 46/47 on the labelled test set with the submitted free model (Groq `gpt-oss-120b`), 47/47 on the free model used during development before OpenRouter withdrew it; audit finds 3/3 planted contradictions plus one I had not planted |
 
 ![conflict](docs/img/conflict.png)
 
@@ -41,20 +41,24 @@ Two things the brief did not ask for:
 
 ## Results
 
-Free model `minimax/minimax-m3:free`, embeddings `BAAI/bge-small-en-v1.5`, details in
-[`docs/EVALUATION.md`](docs/EVALUATION.md) and [`results/`](results/).
+Submitted configuration: Groq free tier, `openai/gpt-oss-120b`, embeddings
+`BAAI/bge-small-en-v1.5`. Details in [`docs/EVALUATION.md`](docs/EVALUATION.md) and
+[`results/`](results/).
 
 | Category | Passed | Total |
 |---|---|---|
 | answerable (status right **and** expected section cited) | 18 | 18 |
 | conflict (status right **and** both sections named) | 4 | 4 |
-| not covered | 25 | 25 |
+| not covered | 24 | 25 |
 | audit: planted contradictions found | 3 | 3 |
 | audit: false positives among 50 pairs | 2 | |
 
-Two consecutive full runs at 47/47. Earlier runs, before the attribution check, scored 44 to 47
-because a free model sometimes answers an adjacent question from a neighbouring rule; the
-run-by-run table and what fixed it are in [`docs/EVALUATION.md`](docs/EVALUATION.md).
+The miss is a name-correction question answered from the clause on correcting clerical errors in
+results, a stretch that is recorded rather than tuned away. During development the free
+OpenRouter model scored 47/47 on two consecutive runs; OpenRouter withdrew that model the next
+morning and the key's 50-a-day quota followed, which is why the client now fails over across
+providers. The run-by-run table, the variance, and what fixed it are in
+[`docs/EVALUATION.md`](docs/EVALUATION.md).
 
 Three of my original not-covered questions turned out answerable on a strict reading (the
 rulebook has a positive list, and "not on the list" is an answer). They were moved to an
@@ -131,8 +135,9 @@ API reference in [`docs/API.md`](docs/API.md); the deployed VM and how it was bu
 
 ## What is mocked, and other honest notes
 
-- **Nothing in the answer path is mocked.** Embeddings run locally; the LLM is a real call to
-  OpenRouter. The default model is free (`minimax/minimax-m3:free`).
+- **Nothing in the answer path is mocked.** Embeddings run locally; the LLM is a real call to a
+  provider. The submitted configuration uses Groq's free tier (`openai/gpt-oss-120b`), with
+  OpenRouter free models as fallback; any OpenAI-compatible endpoint can be added to the chain.
 - **Without a key** the API runs in an `offline-fallback` mode that returns the closest passage,
   labelled as such, so the UI stays usable. Every response carries a `mode` field.
 - **The corpus is fictional.** Using a real university's text would have meant planting

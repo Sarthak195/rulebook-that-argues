@@ -33,9 +33,9 @@ reasoning. No other label was changed after the first run, and the prompt was no
 
 ## Results
 
-### Free model, the default: `minimax/minimax-m3:free`
+### Free model used for the development runs: `minimax/minimax-m3:free`
 
-From `results/eval_report.md`:
+From `results/runs/run5.md` (this was `eval_report.md` until the model was withdrawn; see below):
 
 | Category | Passed | Total | Accuracy |
 |---|---|---|---|
@@ -83,6 +83,25 @@ and on nothing else. The A12 miss in run 5 was my own escalation firing because 
 section holds two rules; it now requires the answer to use a disputed value.
 
 Runs 6 and 7 are the committed `results/eval_report.md` (run 7).
+
+### Final run on the submitted configuration: Groq, `openai/gpt-oss-120b`
+
+`results/runs/run7`, the committed `results/eval_report.md`:
+
+| Category | Passed | Total | Accuracy |
+|---|---|---|---|
+| answerable | 18 | 18 | 100% |
+| conflict | 4 | 4 | 100% |
+| not_covered | 24 | 25 | 96% |
+| **all** | **46** | **47** | **98%** |
+
+The one miss is N22, "How do I get my name corrected on the grade card?", answered from
+`EE §6.2` (results are provisional and clerical errors may be corrected by the Controller within
+sixty days). Reading a wrong name as a clerical error in the results is a stretch the attribution
+check accepted; the cautious answer is that the rulebook has no name-correction procedure. It is
+left as a miss. Borderline questions all came back `not_covered` on this model. The batch ran
+with two concurrent workers and hit Groq's per-minute limits, so the recorded median latency
+(5.4 s) is inflated by backoff; a single question answers in 1.5 to 2 s.
 
 ### 8 September: the free model disappeared, then the daily quota did
 

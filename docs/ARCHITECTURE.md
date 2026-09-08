@@ -172,6 +172,18 @@ an HTML page, which surfaced in the browser as a JSON parse error. Three changes
 - **The probe script disables the chain** while measuring, so a dead model is reported as dead
   rather than silently answered by its fallback.
 
+Later the same morning the OpenRouter key hit its free-tier quota of 50 requests per day, so the
+client became provider-agnostic: any OpenAI-compatible endpoint can sit in the chain. The order
+is `PROVIDER_ORDER`, default `codecraft,groq,gemini,openrouter`, and a provider without a key is
+skipped. `scripts/liveness.py` pings every model a provider lists (one tiny call each, in
+parallel) and `scripts/probe_models.py provider:model` runs the four-question quality probe.
+
+Final choice for the submission: **Groq, `openai/gpt-oss-120b`** on the free tier, 4/4 on the
+probe at 1.4 to 2.0 s per answer, with `openai/gpt-oss-20b` and `qwen/qwen3.8-27b` behind it,
+then the OpenRouter free models. Groq's catalogue had also changed since the code was first
+written (Llama 3.3 70B was gone), which is why the liveness sweep exists: assumptions about
+which models a provider serves today do not survive a night.
+
 ## 8. What the system cannot do
 
 - It cannot tell that a *positive list* answers a question by omission unless the model reads
