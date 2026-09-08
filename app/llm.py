@@ -38,7 +38,7 @@ class RateLimited(LLMError):
         self.wait = wait
 
 
-_TRY_AGAIN_RE = re.compile(r"try again in ([0-9hms.]+)", re.IGNORECASE)
+_TRY_AGAIN_RE = re.compile(r"(?:try again|retry) in ([0-9hms.]+)", re.IGNORECASE)  # Groq and Gemini wordings
 DAILY_HINTS = ("per day", "per-day", "tpd", "rpd", "daily")
 MAX_PARK = 900.0  # never park longer than fifteen minutes on a single message
 
@@ -222,6 +222,10 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
                         errors.append(f"{entry.id}: {e}")
             if time.time() >= deadline:
                 break
+            # If every pool model is parked until well past the deadline (a daily cap), waiting
+            # is pointless: fall through to the failover chain now.
+            if not live and min(_dead.get(e.id, 0.0) for e in all_pool) > deadline:
+                break
             _wait_for_headroom(live or all_pool, deadline)
 
     with _pending_lock:
@@ -240,6 +244,9 @@ def chat(messages: list[dict], *, model: str | None = None, temperature: float =
     finally:
         with _pending_lock:
             _interactive_pending -= 0 if spread else 1
+    if not errors:
+        raise LLMError("no model to call: check PROVIDER_ORDER and the provider keys "
+                       f"(configured: {[e.id for e in full_chain(model)] or 'nothing'})")
     raise LLMError("every model in the chain failed -> " + " | ".join(errors)[:700])
 
 

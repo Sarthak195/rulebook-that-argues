@@ -25,7 +25,7 @@ PROVIDER_ORDER = _list("PROVIDER_ORDER", "codecraft,groq,gemini,openrouter")
 # Spread mode (batch jobs, the evaluation tab): rotate across the live models of these providers
 # instead of always taking the first, because every model has its own per-minute token bucket.
 # Add openrouter here to use its models as well; on a free-tier key that is 50 requests a day.
-SPREAD_PROVIDERS = _list("SPREAD_PROVIDERS", "groq")
+SPREAD_PROVIDERS = _list("SPREAD_PROVIDERS", "groq,gemini")
 
 # CodeCraft API (https://codecraftapi.com): a paid, OpenAI-compatible gateway to many models.
 # Keys look like cc_ followed by 48 characters.
@@ -57,7 +57,9 @@ GROQ_MODELS = _list("GROQ_MODELS", "openai/gpt-oss-120b,openai/gpt-oss-20b,qwen/
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-2.5-flash,gemini-2.0-flash")
+# Probed 8 Sep 2026 on a free AI Studio key: gemini-2.5-flash 4/4 at 3.6-5.6 s; gemini-3.8-flash
+# hit demand and quota errors after two answers; gemini-2.5-flash-lite is not enabled for the key.
+GEMINI_MODELS = _list("GEMINI_MODELS", "gemini-2.5-flash,gemini-3.5-flash,gemini-flash-latest")
 
 # The audit judges ~50-200 clause pairs in one batch; it may pin a different OpenRouter model
 # than the one that answers live questions. Empty means "same chain as everything else".

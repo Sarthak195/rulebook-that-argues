@@ -1,0 +1,16 @@
+[
+ {
+  "model": "gemini-flash-latest",
+  "ok": true,
+  "ms": 2007,
+  "served": "gemini-flash-latest",
+  "note": ""
+ },
+ {
+  "model": "gemini-3.5-flash",
+  "ok": false,
+  "ms": 2010,
+  "served": "gemini-3.5-flash",
+  "note": "reply: '\" or raw text is safer for'"
+ }
+]
