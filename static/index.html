@@ -311,7 +311,7 @@ async function refreshEval() {
 }
 $('#run-eval').onclick = async () => {
   $('#run-eval').disabled = true;
-  try { await fetch('/eval/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ workers: 3, spread: true }) }); }
+  try { await fetch('/eval/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ spread: true }) }); }
   catch (e) { $('#eval-when').textContent = e.message; }
   refreshEval();
 };

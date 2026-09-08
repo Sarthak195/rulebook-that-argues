@@ -98,7 +98,7 @@ async def questions():
 
 
 class EvalRunRequest(BaseModel):
-    workers: int = Field(3, ge=1, le=6)
+    workers: int | None = Field(None, ge=1, le=8)  # None: the server picks from the number of quota slots
     spread: bool = True
 
 
@@ -114,7 +114,8 @@ async def eval_run(req: EvalRunRequest | None = None):
     if r is None:
         raise HTTPException(503, "index not loaded yet")
     req = req or EvalRunRequest()
-    return evaljob.start(r, workers=req.workers, spread=req.spread)
+    workers = req.workers or (min(8, max(3, llm.spread_slots() * 2)) if req.spread else 2)
+    return evaljob.start(r, workers=workers, spread=req.spread)
 
 
 @app.post("/eval/cancel")

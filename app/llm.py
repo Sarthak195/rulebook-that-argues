@@ -110,8 +110,26 @@ LIMITED_TTL = 20.0   # 429 after retries: per-minute limits clear quickly, try a
 MAX_IN_FLIGHT = 3
 MAX_BATCH_IN_FLIGHT = 2
 _gates: dict[str, threading.Semaphore] = {}
-_batch_gate = threading.Semaphore(MAX_BATCH_IN_FLIGHT)
 _gates_lock = threading.Lock()
+
+
+def spread_slots() -> int:
+    """Distinct quota slots (provider#key) among the spread providers."""
+    seen = set()
+    for name in config.PROVIDER_ORDER:
+        if name in config.SPREAD_PROVIDERS:
+            for i, _ in enumerate(providers().get(name, {}).get("keys", [])):
+                seen.add((name, i))
+    return len(seen)
+
+
+def batch_concurrency() -> int:
+    """How many batch calls may be in flight at once: two per quota slot, capped at eight, and
+    never more than leaves a slot free for live questions on a single-key setup."""
+    return max(MAX_BATCH_IN_FLIGHT, min(8, 2 * spread_slots()))
+
+
+_batch_gate = threading.Semaphore(batch_concurrency())
 
 
 def _gate(provider: str) -> threading.Semaphore:
